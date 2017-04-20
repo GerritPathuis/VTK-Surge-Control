@@ -1,0 +1,11 @@
+C:\VTK-Surge-Control\Surge-Control\Surge-Control\bin\Debug\Surge-Control.exe.config
+C:\VTK-Surge-Control\Surge-Control\Surge-Control\bin\Debug\Surge-Control.exe
+C:\VTK-Surge-Control\Surge-Control\Surge-Control\bin\Debug\Surge-Control.pdb
+C:\VTK-Surge-Control\Surge-Control\Surge-Control\bin\Debug\Surge-Control.xml
+C:\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.vbprojResolveAssemblyReference.cache
+C:\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge_Control.Form1.resources
+C:\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge_Control.Resources.resources
+C:\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.vbproj.GenerateResource.Cache
+C:\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.exe
+C:\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.xml
+C:\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.pdb
