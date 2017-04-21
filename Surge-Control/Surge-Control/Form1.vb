@@ -1,15 +1,24 @@
-﻿Public Class Form1
+﻿Imports System.IO
+Imports System.IO.Ports
+Imports System.Math
+
+Public Class Form1
     Dim time As Double
     Dim new_valve_pos, old_valve_pos As Double
     Dim quotient As Double
     Dim Actual_fan_flow As Double
+    Dim Cout(3) As Double      'Current Output
+
+    Dim myPort As Array  'COM Ports detected on the system will be stored here
+    Dim comOpen As Boolean
+    Private Property ConnectionOK As Boolean
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Reset()
     End Sub
 
     Private Sub Reset()
-        init_Chart1()
+        Init_Chart1()
         Timer1.Interval = 1000   'Berekeningsinterval 1 sec
         time = 0
         new_valve_pos = 20      'bypass % open
@@ -22,7 +31,7 @@
         Timer1.Enabled = True
     End Sub
 
-    Private Sub init_Chart1()
+    Private Sub Init_Chart1()
         Try
             Chart1.Series.Clear()
             Chart1.ChartAreas.Clear()
@@ -54,7 +63,7 @@
             MessageBox.Show("Init Chart1 failed")
         End Try
     End Sub
-    Private Sub draw_Chart1()
+    Private Sub Draw_Chart1()
         Try
             Chart1.Series(0).Points.AddXY(time, new_valve_pos)
         Catch ex As Exception
@@ -62,7 +71,7 @@
         End Try
     End Sub
 
-    Private Sub calc_new_valve_position()
+    Private Sub Calc_new_valve_position()
         Dim setpoint As Double
         Dim increment_open As Double
         Dim increment_closed As Double
@@ -145,6 +154,17 @@
         Reset() 'Reset button
     End Sub
 
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Dim setup_string As String
+        Cout(0) = NumericUpDown5.Value
+        Cout(1) = NumericUpDown10.Value
+        Cout(2) = NumericUpDown14.Value
+        Cout(3) = NumericUpDown15.Value
+
+        setup_string = "LucidIoCtrl –d[COMx] –c[Channels] –tV –w[Voltages]"
+        Send_data(setup_string)
+    End Sub
+
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         draw_Chart1()
         time += Timer1.Interval / 1000                  '[sec]
@@ -153,4 +173,129 @@
         calc_new_valve_position()
         calc_flow()
     End Sub
+
+
+    Private Sub Serial_setup() 'Serial port setup
+        If (Me.SerialPort1.IsOpen = True) Then ' Preventing exceptions
+            Me.SerialPort1.DiscardInBuffer()
+            Me.SerialPort1.Close()
+        End If
+
+        Try
+            Me.myPort = SerialPort.GetPortNames() 'Get all com ports available
+            For Each port In myPort
+                Me.cmbPort.Items.Add(port)
+            Next port
+            Me.cmbPort.Text = cmbPort.Items.Item(0)    'Set cmbPort text to the first COM port detected
+        Catch ex As Exception
+            MsgBox("No com ports detected")
+        End Try
+
+        Me.cmbBaud.Items.Add(9600)     'Populate the cmbBaud Combo box to common baud rates used
+        Me.cmbBaud.Items.Add(19200)
+        Me.cmbBaud.Items.Add(38400)
+        Me.cmbBaud.Items.Add(57600)
+        Me.cmbBaud.Items.Add(115200)
+        Me.cmbBaud.Items.Add(230400)
+        Me.cmbBaud.SelectedIndex = 5    'Set cmbBaud text to 230400 Baud 
+
+        Me.SerialPort1.ReceivedBytesThreshold = 24    'wait EOF char or until there are x bytes in the buffer, include \n and \r !!!!
+        Me.SerialPort1.ReadBufferSize = 4096
+        Me.SerialPort1.DiscardNull = True              'important otherwise it will not work
+        Me.SerialPort1.Parity = Parity.None
+        Me.SerialPort1.StopBits = StopBits.One
+        Me.SerialPort1.Handshake = Handshake.None
+        Me.SerialPort1.ParityReplace = True
+        btnDisconnect.Enabled = False                  'Initially Disconnect Button is Disabled
+    End Sub
+
+    Private Sub CmbPort_Click(sender As Object, e As EventArgs) Handles cmbPort.Click
+        cmbPort.SelectedIndex = -1
+        cmbPort.Items.Clear()
+        Serial_setup()
+    End Sub
+
+    Private Sub BtnConnect_Click(sender As System.Object, e As System.EventArgs) Handles btnConnect.Click
+        Me.SerialPort1.Close()                     'Close existing 
+        If cmbPort.Text.Length = 0 Then
+            MsgBox("Sorry, did not find any connected USB Balancers")
+        Else
+            Me.SerialPort1.PortName = cmbPort.Text         'Set SerialPort1 to the selected COM port at startup
+            Me.SerialPort1.BaudRate = cmbBaud.Text         'Set Baud rate to the selected value on
+
+            'Other Serial Port Property
+            Me.SerialPort1.Parity = IO.Ports.Parity.None
+            Me.SerialPort1.StopBits = IO.Ports.StopBits.One
+            Me.SerialPort1.DataBits = 8                  'Open our serial port
+
+            Try
+                Me.SerialPort1.Open()
+                btnConnect.Enabled = False              'Disable Connect button
+                btnConnect.BackColor = Color.Yellow
+                cmbPort.BackColor = Color.Yellow
+                btnConnect.Text = "OK connected"
+                btnDisconnect.Enabled = True            'and Enable Disconnect button
+            Catch ex As Exception
+                MsgBox("Error 654 Open: " & ex.Message)
+            End Try
+
+            Try
+                Me.SerialPort1.DiscardInBuffer()        'empty inbuffer
+                Me.SerialPort1.DiscardOutBuffer()       'empty outbuffer
+
+                Me.SerialPort1.WriteLine("s")           'Real time samples to PC
+            Catch ex As Exception
+                MsgBox("Error 786 Open: " & ex.Message)
+            End Try
+        End If
+    End Sub
+
+    Private Sub BtnDisconnect_Click(sender As System.Object, e As System.EventArgs) Handles btnDisconnect.Click
+        Try
+            Me.SerialPort1.DiscardInBuffer()
+            Me.SerialPort1.Close()             'Close our Serial Port
+            Me.SerialPort1.Dispose()
+            btnConnect.Enabled = True
+            btnConnect.BackColor = Color.Red
+            btnConnect.Text = "Connect"
+            btnDisconnect.Enabled = False
+        Catch ex As Exception
+            MsgBox("Error 104 Open: " & ex.Message)
+        End Try
+
+    End Sub
+
+    Private Sub Send_data(rtbtransmit As String)
+        Try
+            If Me.SerialPort1.IsOpen = False Then
+                Me.SerialPort1.WriteLine(rtbtransmit) 'The text contained in the txtText will be sent to the serial port as ascii
+            End If
+        Catch exc As IOException
+            Console.WriteLine("Error nr 887 IO exception" & exc.Message)
+        End Try
+    End Sub
+
+    Private Sub SerialPort1_DataReceived(sender As System.Object, e As System.IO.Ports.SerialDataReceivedEventArgs) Handles SerialPort1.DataReceived
+        'Try
+        '    ReceivedText(SerialPort1.ReadLine())    'Automatically called every time a data is received at the serialPortb
+        'Catch exc As IOException
+        '    Console.WriteLine("Error 453 IO exception" & exc.Message)
+        'End Try
+    End Sub
+
+
+    Private Sub ReceivedText(ByVal intext As String)
+        'Try
+        '    If Me.TxtMbedMessage.InvokeRequired Then
+        '        Dim x As New SetTextCallback(AddressOf ReceivedText)
+        '        Me.Invoke(x, New Object() {(intext)})
+        '    Else
+        '        Me.TxtMbedMessage.AppendText(intext)
+        '    End If
+        'Catch ex As Exception
+        '    MsgBox("Error 771 received text exception received" & ex.Message)
+        'End Try
+    End Sub
+
+
 End Class
