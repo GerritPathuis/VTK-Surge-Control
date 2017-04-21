@@ -9,9 +9,14 @@ Public Class Form1
     Dim Actual_fan_flow As Double
     Dim Cout(3) As Double      'Current Output
 
+
     Dim myPort As Array  'COM Ports detected on the system will be stored here
     Dim comOpen As Boolean
     Private Property ConnectionOK As Boolean
+
+    Dim Flow_in, Flow_out As Double     '[m3/hr]
+    Dim Temp_in, Temp_out As Double     '[Celsius]
+    Dim Press_in, Press_out As Double   '[Pa]
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Reset()
@@ -156,6 +161,8 @@ Public Class Form1
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         Dim setup_string As String
+
+
         Cout(0) = NumericUpDown5.Value
         Cout(1) = NumericUpDown10.Value
         Cout(2) = NumericUpDown14.Value
@@ -280,22 +287,40 @@ Public Class Form1
         End Try
     End Sub
 
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click, NumericUpDown32.ValueChanged, NumericUpDown31.ValueChanged, NumericUpDown30.ValueChanged, NumericUpDown29.ValueChanged, NumericUpDown28.ValueChanged, NumericUpDown27.ValueChanged, NumericUpDown25.ValueChanged
+        Dim Range(2) As String
+        Dim K_sys, K_bypass, k_sum, K100, valve_open, dp, ro As Double
+        Dim A, B, C, Qv_in As Double
 
+        Range(0) = NumericUpDown28.Value - NumericUpDown27.Value    'Flow
+        Range(1) = NumericUpDown29.Value - NumericUpDown30.Value    'Temp
+        Range(2) = NumericUpDown31.Value - NumericUpDown32.Value    'Pressure
+
+        ro = NumericUpDown19.Value
+        A = NumericUpDown17.Value
+        B = NumericUpDown16.Value
+        C = NumericUpDown20.Value
+        Qv_in = NumericUpDown34.Value
+        K100 = NumericUpDown21.Value
+        valve_open = NumericUpDown33.Value
+
+        K_bypass = K100 * valve_open
+        dp = ro * (A * Qv_in ^ 2 + B * Qv_in + C)   'Fan curve
+        k_sum = Qv_in * Sqrt(ro / dp)
+        K_sys = k_sum - K_bypass
+
+
+        NumericUpDown26.Value = K_bypass    'Resistance Bypass valve 
+        ' NumericUpDown35.Value = K_sys       'Resistance Total system
+        TextBox9.Text = dp
+        TextBox11.Text = Range(0).ToString
+        TextBox12.Text = Range(1).ToString
+        TextBox13.Text = Range(2).ToString
     End Sub
 
     Private Sub ReceivedText(ByVal intext As String)
         MessageBox.Show(intext)
-        'Try
-        '    If Me.TxtMbedMessage.InvokeRequired Then
-        '        Dim x As New SetTextCallback(AddressOf ReceivedText)
-        '        Me.Invoke(x, New Object() {(intext)})
-        '    Else
-        '        Me.TxtMbedMessage.AppendText(intext)
-        '    End If
-        'Catch ex As Exception
-        '    MsgBox("Error 771 received text exception received" & ex.Message)
-        'End Try
+
     End Sub
 
 
