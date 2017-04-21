@@ -276,15 +276,16 @@ Public Class Form1
     End Sub
 
     Private Sub SerialPort1_DataReceived(sender As System.Object, e As System.IO.Ports.SerialDataReceivedEventArgs) Handles SerialPort1.DataReceived
-        'Try
-        '    ReceivedText(SerialPort1.ReadLine())    'Automatically called every time a data is received at the serialPortb
-        'Catch exc As IOException
-        '    Console.WriteLine("Error 453 IO exception" & exc.Message)
-        'End Try
+        Try
+            ReceivedText(SerialPort1.ReadLine())    'Automatically called every time a data is received at the serialPortb
+        Catch exc As IOException
+            Console.WriteLine("Error 453 IO exception" & exc.Message)
+        End Try
     End Sub
 
 
     Private Sub ReceivedText(ByVal intext As String)
+        MessageBox.Show(intext)
         'Try
         '    If Me.TxtMbedMessage.InvokeRequired Then
         '        Dim x As New SetTextCallback(AddressOf ReceivedText)
