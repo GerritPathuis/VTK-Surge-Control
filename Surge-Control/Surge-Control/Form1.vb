@@ -269,6 +269,10 @@ Public Class Form1
 
     End Sub
 
+    Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
+        TextBox9.Text = NumericUpDown26.Value.ToString 'dp fan
+    End Sub
+
     Private Sub Send_data(rtbtransmit As String)
         Try
             If Me.SerialPort1.IsOpen = False Then
@@ -287,10 +291,13 @@ Public Class Form1
         End Try
     End Sub
 
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click, NumericUpDown32.ValueChanged, NumericUpDown31.ValueChanged, NumericUpDown30.ValueChanged, NumericUpDown29.ValueChanged, NumericUpDown28.ValueChanged, NumericUpDown27.ValueChanged, NumericUpDown25.ValueChanged
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click, NumericUpDown32.ValueChanged, NumericUpDown31.ValueChanged, NumericUpDown30.ValueChanged, NumericUpDown29.ValueChanged, NumericUpDown28.ValueChanged, NumericUpDown27.ValueChanged, NumericUpDown25.ValueChanged, NumericUpDown33.ValueChanged, NumericUpDown24.ValueChanged, NumericUpDown23.ValueChanged, NumericUpDown22.ValueChanged, NumericUpDown21.ValueChanged, NumericUpDown20.ValueChanged, NumericUpDown19.ValueChanged, NumericUpDown18.ValueChanged, NumericUpDown17.ValueChanged, NumericUpDown16.ValueChanged
         Dim Range(2) As String
         Dim K_sys, K_bypass, k_sum, K100, valve_open, dp, ro As Double
-        Dim A, B, C, Qv_in As Double
+        Dim A, B, C, Qv_in, Qv_out As Double
+        Dim Pin, Pout As Double
+        Dim Tin, Tout As Double
+        Dim upsilon As Double
 
         Range(0) = NumericUpDown28.Value - NumericUpDown27.Value    'Flow
         Range(1) = NumericUpDown29.Value - NumericUpDown30.Value    'Temp
@@ -300,22 +307,42 @@ Public Class Form1
         A = NumericUpDown17.Value
         B = NumericUpDown16.Value
         C = NumericUpDown20.Value
-        Qv_in = NumericUpDown34.Value
         K100 = NumericUpDown21.Value
         valve_open = NumericUpDown33.Value
+        pin = NumericUpDown18.Value
+        Tin = NumericUpDown23.Value
+        upsilon = NumericUpDown22.Value
 
-        K_bypass = K100 * valve_open
-        dp = ro * (A * Qv_in ^ 2 + B * Qv_in + C)   'Fan curve
-        k_sum = Qv_in * Sqrt(ro / dp)
-        K_sys = k_sum - K_bypass
+        If ro > 0 Then
+            '----- step 1 determin the K values----
+            K_bypass = K100 * valve_open
+            K_sys = NumericUpDown25.Value
+            k_sum = K_sys + K_bypass
+
+            '----- step 2 determine qv---
+            Double.TryParse(TextBox9.Text, dp)
+            Qv_in = Sqrt(dp / ro * k_sum ^ 2)
+            '----- step 3 determine new dp---
+            dp = ro * (A * Qv_in ^ 2 + B * Qv_in + C)   'Fan curve
+
+            '----- step 4 determine Tout ---
+            Tout = Tin * (1 + dp / pin) ^ ((upsilon - 1) / upsilon)
+
+            '----- step 5 determine Tout ---
+            Pout = Pin + dp
+
+            '----- step 6 determine Discharhe flow ---
+            Qv_out = Qv_in * (Pin / Pout) ^ upsilon
 
 
-        NumericUpDown26.Value = K_bypass    'Resistance Bypass valve 
-        ' NumericUpDown35.Value = K_sys       'Resistance Total system
-        TextBox9.Text = dp
-        TextBox11.Text = Range(0).ToString
-        TextBox12.Text = Range(1).ToString
-        TextBox13.Text = Range(2).ToString
+            TextBox9.Text = Round(dp, 0)
+            TextBox11.Text = Range(0).ToString
+            TextBox12.Text = Range(1).ToString
+            TextBox13.Text = Range(2).ToString
+            TextBox7.Text = Round(K_bypass, 2).ToString   'Resistance Bypass valve 
+            TextBox14.Text = Round(K_sys, 2).ToString     'Resistance Total system
+            TextBox15.Text = Round(Qv_in, 0).ToString
+        End If
     End Sub
 
     Private Sub ReceivedText(ByVal intext As String)
