@@ -161,7 +161,7 @@ Public Class Form1
         Cout(2) = NumericUpDown14.Value
         Cout(3) = NumericUpDown15.Value
 
-        setup_string = "LucidIoCtrl –d[COMx] –c[Channels] –tV –w[Voltages]"
+        setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" & vbCrLf
         Send_data(setup_string)
     End Sub
 
@@ -194,10 +194,7 @@ Public Class Form1
         Me.cmbBaud.Items.Add(9600)     'Populate the cmbBaud Combo box to common baud rates used
         Me.cmbBaud.Items.Add(19200)
         Me.cmbBaud.Items.Add(38400)
-        Me.cmbBaud.Items.Add(57600)
-        Me.cmbBaud.Items.Add(115200)
-        Me.cmbBaud.Items.Add(230400)
-        Me.cmbBaud.SelectedIndex = 5    'Set cmbBaud text to 230400 Baud 
+        Me.cmbBaud.SelectedIndex = 0    'Set cmbBaud text to 9600 Baud 
 
         Me.SerialPort1.ReceivedBytesThreshold = 24    'wait EOF char or until there are x bytes in the buffer, include \n and \r !!!!
         Me.SerialPort1.ReadBufferSize = 4096
@@ -283,6 +280,9 @@ Public Class Form1
         End Try
     End Sub
 
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+
+    End Sub
 
     Private Sub ReceivedText(ByVal intext As String)
         MessageBox.Show(intext)
