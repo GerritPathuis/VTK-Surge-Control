@@ -1,6 +1,8 @@
-﻿Imports System.IO
+﻿Imports System.Globalization
+Imports System.IO
 Imports System.IO.Ports
 Imports System.Math
+Imports System.Threading
 
 Public Class Form1
     Dim time As Double
@@ -16,6 +18,10 @@ Public Class Form1
     Dim Press_in, Press_out As Double   '[Pa]
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+        Thread.CurrentThread.CurrentCulture = New CultureInfo("en-US")
+        Thread.CurrentThread.CurrentUICulture = New CultureInfo("en-US")
+
         TextBox16.Text =
         "Based on " & vbCrLf &
         "Anti Surge Control Test Procedure, Guus van Gemert 2017" & vbCrLf &
@@ -53,12 +59,15 @@ Public Class Form1
         "When we near the Surge-area the connected ASC must react by" & vbCrLf &
         "opening the bybass valve and returning to a save spot on the" & vbCrLf &
         "fan-Curve."
+
+        TextBox24.Text = "6.8" 'Test value [c]
+
         Reset()
     End Sub
 
     Private Sub Reset()
         Init_Chart1()
-        Timer1.Interval = 1000   'Berekeningsinterval 1 sec
+        Timer1.Interval = 500   'Berekeningsinterval 500 msec
         time = 0
 
         Timer1.Enabled = True
@@ -70,25 +79,33 @@ Public Class Form1
             Chart1.ChartAreas.Clear()
             Chart1.Titles.Clear()
 
-            Chart1.Series.Add("Valve stem")
-            'Chart1.Series.Add("Valve stem")
+            Chart1.Series.Add("Flow")
+            Chart1.Series.Add("Pressure")
+            Chart1.Series.Add("Delta P")
+            Chart1.Series.Add("Temp in")
 
             Chart1.ChartAreas.Add("ChartArea0")
             Chart1.Series(0).ChartArea = "ChartArea0"
 
             Chart1.Series(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            Chart1.Series(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            Chart1.Series(2).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            Chart1.Series(3).ChartType = DataVisualization.Charting.SeriesChartType.Line
 
-            Chart1.Titles.Add("Surge Control Simulation")
-            Chart1.Titles(0).Font = New Font("Arial", 16, System.Drawing.FontStyle.Bold)
+            Chart1.Titles.Add("ASC testing")
+            Chart1.Titles(0).Font = New Font("Arial", 12, System.Drawing.FontStyle.Bold)
 
-            Chart1.Series(0).Name = ""  'Valve stem position"
+            Chart1.Series(0).Name = "Flow"
+            Chart1.Series(1).Name = "Pressure"
+            Chart1.Series(2).Name = "delta P"
+            Chart1.Series(3).Name = "Temp in"
             Chart1.Series(0).Color = Color.Black
-            Chart1.Series(0).BorderWidth = 3
+            'Chart1.Series(0).BorderWidth = 3
 
             Chart1.ChartAreas("ChartArea0").AxisX.Title = "[sec]"
             Chart1.ChartAreas("ChartArea0").AxisY.Title = "Valve opening"
             Chart1.ChartAreas("ChartArea0").AxisX.Minimum = 0
-            Chart1.ChartAreas("ChartArea0").AxisY.Maximum = 100
+            Chart1.ChartAreas("ChartArea0").AxisY.Maximum = 20
             Chart1.ChartAreas("ChartArea0").AlignmentOrientation = DataVisualization.Charting.AreaAlignmentOrientations.Vertical
             'Chart1.Series(0).YAxisType = AxisType.Primary
 
@@ -98,63 +115,74 @@ Public Class Form1
     End Sub
     Private Sub Draw_Chart1()
         Try
-            'Chart1.Series(0).Points.AddXY(time, new_valve_pos)
+            Chart1.Series(0).Points.AddXY(time, Cout(1))    'Flow in
+            Chart1.Series(1).Points.AddXY(time, Cout(2))    'Pressure in
+            Chart1.Series(2).Points.AddXY(time, Cout(3))    'dP
+            Chart1.Series(3).Points.AddXY(time, Cout(4))    'Temp in
         Catch ex As Exception
             MessageBox.Show("Draw chart1 failed")
         End Try
     End Sub
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        Reset() 'Reset button
-    End Sub
-
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         Dim setup_string As String
 
+        '---- This is in the test Tab-------------
+        setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w"
+        setup_string &= NumericUpDown5.Value.ToString("0.000") & ","
+        setup_string &= NumericUpDown10.Value.ToString("0.000") & ","
+        setup_string &= NumericUpDown14.Value.ToString("0.000") & ","
+        setup_string &= NumericUpDown15.Value.ToString("0.000") & vbCrLf
+
+        'setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" 'example
+        Send_data(setup_string)
+    End Sub
+
+    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+        Dim setup_string As String
+
+        time += Timer1.Interval / 1000                  '[sec]
+        Label1.Text = time.ToString("000.0")
+
+        'Send new setting to the  current output
         setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w"
         setup_string &= Cout(1).ToString("0.000") & ","
         setup_string &= Cout(2).ToString("0.000") & ","
         setup_string &= Cout(3).ToString("0.000") & ","
         setup_string &= Cout(4).ToString("0.000") & vbCrLf
-
-        'setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" & vbCrLf
+        'setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" 'Example
         Send_data(setup_string)
-    End Sub
 
-    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        draw_Chart1()
-        time += Timer1.Interval / 1000                  '[sec]
-
-        ' calc_flow()
+        Draw_Chart1()
     End Sub
 
     Private Sub Serial_setup() 'Serial port setup
-        If (Me.SerialPort1.IsOpen = True) Then ' Preventing exceptions
-            Me.SerialPort1.DiscardInBuffer()
-            Me.SerialPort1.Close()
+        If (SerialPort1.IsOpen = True) Then ' Preventing exceptions
+            SerialPort1.DiscardInBuffer()
+            SerialPort1.Close()
         End If
 
         Try
-            Me.myPort = SerialPort.GetPortNames() 'Get all com ports available
+            myPort = SerialPort.GetPortNames() 'Get all com ports available
             For Each port In myPort
-                Me.cmbPort.Items.Add(port)
+                cmbPort.Items.Add(port)
             Next port
-            Me.cmbPort.Text = cmbPort.Items.Item(0)    'Set cmbPort text to the first COM port detected
+            cmbPort.Text = CType(cmbPort.Items.Item(0), String)    'Set cmbPort text to the first COM port detected
         Catch ex As Exception
-            MsgBox("No com ports detected")
+            MsgBox("No COM ports detected")
         End Try
 
-        Me.cmbBaud.Items.Add(9600)     'Populate the cmbBaud Combo box to common baud rates used
-        Me.cmbBaud.Items.Add(19200)
-        Me.cmbBaud.Items.Add(38400)
-        Me.cmbBaud.SelectedIndex = 0    'Set cmbBaud text to 9600 Baud 
+        cmbBaud.Items.Add(9600)     'Populate the cmbBaud Combo box to common baud rates used
+        cmbBaud.Items.Add(19200)
+        cmbBaud.Items.Add(38400)
+        cmbBaud.SelectedIndex = 0    'Set cmbBaud text to 9600 Baud 
 
-        Me.SerialPort1.ReceivedBytesThreshold = 24    'wait EOF char or until there are x bytes in the buffer, include \n and \r !!!!
-        Me.SerialPort1.ReadBufferSize = 4096
-        Me.SerialPort1.DiscardNull = True              'important otherwise it will not work
-        Me.SerialPort1.Parity = Parity.None
-        Me.SerialPort1.StopBits = StopBits.One
-        Me.SerialPort1.Handshake = Handshake.None
-        Me.SerialPort1.ParityReplace = True
+        SerialPort1.ReceivedBytesThreshold = 24    'wait EOF char or until there are x bytes in the buffer, include \n and \r !!!!
+        SerialPort1.ReadBufferSize = 4096
+        SerialPort1.DiscardNull = True              'important otherwise it will not work
+        SerialPort1.Parity = Parity.None
+        SerialPort1.StopBits = StopBits.One
+        SerialPort1.Handshake = Handshake.None
+        SerialPort1.ParityReplace = CByte(True)
         btnDisconnect.Enabled = False                  'Initially Disconnect Button is Disabled
     End Sub
 
@@ -165,20 +193,20 @@ Public Class Form1
     End Sub
 
     Private Sub BtnConnect_Click(sender As System.Object, e As System.EventArgs) Handles btnConnect.Click
-        Me.SerialPort1.Close()                     'Close existing 
+        SerialPort1.Close()                     'Close existing 
         If cmbPort.Text.Length = 0 Then
-            MsgBox("Sorry, did not find any connected USB Balancers")
+            MsgBox("Sorry, did not find any connected Lucid Controllers")
         Else
-            Me.SerialPort1.PortName = cmbPort.Text         'Set SerialPort1 to the selected COM port at startup
-            Me.SerialPort1.BaudRate = cmbBaud.Text         'Set Baud rate to the selected value on
+            SerialPort1.PortName = cmbPort.Text         'Set SerialPort1 to the selected COM port at startup
+            SerialPort1.BaudRate = CInt(cmbBaud.Text)         'Set Baud rate to the selected value on
 
             'Other Serial Port Property
-            Me.SerialPort1.Parity = IO.Ports.Parity.None
-            Me.SerialPort1.StopBits = IO.Ports.StopBits.One
-            Me.SerialPort1.DataBits = 8                  'Open our serial port
+            SerialPort1.Parity = IO.Ports.Parity.None
+            SerialPort1.StopBits = IO.Ports.StopBits.One
+            SerialPort1.DataBits = 8                  'Open our serial port
 
             Try
-                Me.SerialPort1.Open()
+                SerialPort1.Open()
                 btnConnect.Enabled = False              'Disable Connect button
                 btnConnect.BackColor = Color.Yellow
                 cmbPort.BackColor = Color.Yellow
@@ -189,10 +217,8 @@ Public Class Form1
             End Try
 
             Try
-                Me.SerialPort1.DiscardInBuffer()        'empty inbuffer
-                Me.SerialPort1.DiscardOutBuffer()       'empty outbuffer
-
-                Me.SerialPort1.WriteLine("s")           'Real time samples to PC
+                SerialPort1.DiscardInBuffer()        'empty inbuffer
+                SerialPort1.DiscardOutBuffer()       'empty outbuffer
             Catch ex As Exception
                 MsgBox("Error 786 Open: " & ex.Message)
             End Try
@@ -201,9 +227,9 @@ Public Class Form1
 
     Private Sub BtnDisconnect_Click(sender As System.Object, e As System.EventArgs) Handles btnDisconnect.Click
         Try
-            Me.SerialPort1.DiscardInBuffer()
-            Me.SerialPort1.Close()             'Close our Serial Port
-            Me.SerialPort1.Dispose()
+            SerialPort1.DiscardInBuffer()
+            SerialPort1.Close()             'Close our Serial Port
+            SerialPort1.Dispose()
             btnConnect.Enabled = True
             btnConnect.BackColor = Color.Red
             btnConnect.Text = "Connect"
@@ -211,34 +237,31 @@ Public Class Form1
         Catch ex As Exception
             MsgBox("Error 104 Open: " & ex.Message)
         End Try
-
     End Sub
-
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
         TextBox9.Text = NumericUpDown26.Value.ToString 'dp fan
     End Sub
-
     Private Sub Send_data(rtbtransmit As String)
         Try
-            If Me.SerialPort1.IsOpen = False Then
-                Me.SerialPort1.WriteLine(rtbtransmit) 'The text contained in the txtText will be sent to the serial port as ascii
+            If SerialPort1.IsOpen Then
+                SerialPort1.WriteLine(rtbtransmit) 'The text contained in the txtText will be sent to the serial port as ascii
             End If
         Catch exc As IOException
-            Console.WriteLine("Error nr 887 IO exception" & exc.Message)
+            MsgBox("Error nr 887 IO exception" & exc.Message)
         End Try
     End Sub
-
     Private Sub SerialPort1_DataReceived(sender As System.Object, e As System.IO.Ports.SerialDataReceivedEventArgs) Handles SerialPort1.DataReceived
         Try
             ReceivedText(SerialPort1.ReadLine())    'Automatically called every time a data is received at the serialPortb
         Catch exc As IOException
-            Console.WriteLine("Error 453 IO exception" & exc.Message)
+            MsgBox("Error 453 IO exception" & exc.Message)
         End Try
     End Sub
 
-
-
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click, NumericUpDown32.ValueChanged, NumericUpDown31.ValueChanged, NumericUpDown30.ValueChanged, NumericUpDown29.ValueChanged, NumericUpDown28.ValueChanged, NumericUpDown27.ValueChanged, NumericUpDown25.ValueChanged, NumericUpDown33.ValueChanged, NumericUpDown24.ValueChanged, NumericUpDown23.ValueChanged, NumericUpDown22.ValueChanged, NumericUpDown21.ValueChanged, NumericUpDown20.ValueChanged, NumericUpDown19.ValueChanged, NumericUpDown18.ValueChanged, NumericUpDown17.ValueChanged, NumericUpDown16.ValueChanged
+        Update_calc_screen()
+    End Sub
+    Private Sub Update_calc_screen()
         Dim Range(2) As String
         Dim K_sys, K_bypass, k_sum, K100, valve_open, dp, ro As Double
         Dim A, B, C, Qv_in, Qv_out As Double
@@ -246,19 +269,19 @@ Public Class Form1
         Dim Tin, Tout As Double
         Dim γ As Double
 
-        Range(0) = NumericUpDown28.Value - NumericUpDown27.Value    'Flow
-        Range(1) = NumericUpDown29.Value - NumericUpDown30.Value    'Temp
-        Range(2) = NumericUpDown31.Value - NumericUpDown32.Value    'Pressure
+        Range(0) = CType(NumericUpDown28.Value - NumericUpDown27.Value, String)    'Flow
+        Range(1) = CType(NumericUpDown29.Value - NumericUpDown30.Value, String)    'Temp
+        Range(2) = CType(NumericUpDown31.Value - NumericUpDown32.Value, String)    'Pressure
 
-        ro = NumericUpDown19.Value          'Density [kg/Am3]
-        A = NumericUpDown17.Value           'Fan Curve [-]
-        B = NumericUpDown16.Value           'Fan Curve [-]
-        C = NumericUpDown20.Value           'Fan Curve [-]
-        K100 = NumericUpDown21.Value        'K-value at 100% open [-]
-        valve_open = NumericUpDown33.Value  'Position bypass valve [%]
-        Pin = NumericUpDown18.Value         'Pressure inlet fan [Pa]
-        Tin = NumericUpDown23.Value         'Temp inlet fan [c]
-        γ = NumericUpDown22.Value     'Poly tropic exponent γ
+        ro = NumericUpDown19.Value                  'Density [kg/Am3]
+        A = NumericUpDown17.Value                   'Fan Curve [-]
+        B = NumericUpDown16.Value                   'Fan Curve [-]
+        C = NumericUpDown20.Value                   'Fan Curve [-]
+        K100 = NumericUpDown21.Value                'K-value at 100% open [-]
+        valve_open = NumericUpDown33.Value / 100    'Position bypass valve [%]
+        Pin = NumericUpDown18.Value                 'Pressure inlet fan [Pa]
+        Tin = NumericUpDown23.Value                 'Temp inlet fan [c]
+        γ = NumericUpDown22.Value                   'Poly tropic exponent γ
 
         If ro > 0 Then 'to prevent exceptions
             '----- step 1 determin the K values----
@@ -281,10 +304,10 @@ Public Class Form1
             '----- step 6 determine Discharge flow fan ---
             Qv_out = Qv_in * (Pin / Pout) ^ γ
 
-
+            '----- present the data ----
             TextBox7.Text = Round(K_bypass, 2).ToString   'Resistance Bypass valve 
             TextBox8.Text = Round(Qv_out, 0).ToString
-            TextBox9.Text = Round(dp, 0)
+            TextBox9.Text = Round(dp, 0).ToString
             TextBox10.Text = Round(Tin, 1).ToString
             TextBox11.Text = Range(0).ToString
             TextBox12.Text = Range(1).ToString
@@ -306,6 +329,7 @@ Public Class Form1
         TextBox2.Text = Round(Cout(2), 1).ToString  'Pressure in [Pa]
         TextBox3.Text = Round(Cout(3), 1).ToString  'Delta P [Pa]
         TextBox23.Text = Round(Cout(4), 1).ToString 'Temp fan in [c]
+
     End Sub
     Private Function Calc_output(outType As String, value As Double) As Double
         Dim results, range, value_4ma As Double
@@ -331,5 +355,14 @@ Public Class Form1
     Private Sub ReceivedText(ByVal intext As String)
         MessageBox.Show(intext)
     End Sub
+    Private Sub TextBox24_TextChanged(sender As Object, e As EventArgs) Handles TextBox24.TextChanged
+        Calc_bypass_valve_position()
+    End Sub
 
+    Private Sub Calc_bypass_valve_position()
+        Dim bypass_valve_position, tmp As Double
+        Double.TryParse(TextBox24.Text, tmp)
+        bypass_valve_position = (tmp - 4) / 16 * 100    '[%]
+        TextBox22.Text = Round(bypass_valve_position, 0).ToString
+    End Sub
 End Class
