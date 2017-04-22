@@ -4,11 +4,8 @@ Imports System.Math
 
 Public Class Form1
     Dim time As Double
-    Dim new_valve_pos, old_valve_pos As Double
-    Dim quotient As Double
-    Dim Actual_fan_flow As Double
-    Dim Cout(3) As Double      'Current Output
 
+    Dim Cout(4) As Double      'Current Outputs
 
     Dim myPort As Array  'COM Ports detected on the system will be stored here
     Dim comOpen As Boolean
@@ -19,6 +16,43 @@ Public Class Form1
     Dim Press_in, Press_out As Double   '[Pa]
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        TextBox16.Text =
+        "Based on " & vbCrLf &
+        "Anti Surge Control Test Procedure, Guus van Gemert 2017" & vbCrLf &
+        "KIMA, Ammonia & Urea Fertilizer Project, " & vbCrLf &
+        "Start-up blower HD2 407/1235/T16B, 3000 rpm, 700 kW" & vbCrLf &
+        "VTK project P16.0078" & vbCrLf &
+        "Bypass valve size is 6 inch, valve speed Is 3 seconds"
+
+        TextBox17.Text =
+        "Hardware " & vbCrLf &
+        "4 channel Analog Input (4-20mAmp) USB Module, LucidControl AI4" & vbCrLf &
+        "4 channel Analog Output (4-20mAmp) USB Module, LucidControl AO4" & vbCrLf &
+        "Install a Windows drive, see Lucid-Control.com For download"
+
+        TextBox18.Text =
+        "Bypass valve sizing" & vbCrLf &
+        "Size To handle 50% Or more Of the maximum flow" & vbCrLf &
+        "Valve speed 3-5 seconds" & vbCrLf &
+        " "
+
+        TextBox19.Text =
+        "Test set-up" & vbCrLf &
+        "The Laptop is connect to a AO4 and AAI4 LucidControl unit." & vbCrLf &
+        "The Laptop program generates 4 signals and receives 1 each are 4-20mAmp" & vbCrLf &
+        "The send signals represent Flow inlet/outlet [Am3/hr], Temp fan inlet [c], " & vbCrLf &
+        "Pressure [Pa] fan inlet and delta pressure over the fan [Pa]" & vbCrLf &
+        "The receives signals represent the position of the bypass valve" & vbCrLf &
+        " "
+
+        TextBox20.Text =
+        "Test procedure" & vbCrLf &
+        "Start situation is stable, sitting on Fan Curve" & vbCrLf &
+        "The system flow Coefficient Ksys is changed resulting  " & vbCrLf &
+        "in moving to another spot on the fan Curve." & vbCrLf &
+        "When we near the Surge-area the connected ASC must react by" & vbCrLf &
+        "opening the bybass valve and returning to a save spot on the" & vbCrLf &
+        "fan-Curve."
         Reset()
     End Sub
 
@@ -26,13 +60,7 @@ Public Class Form1
         Init_Chart1()
         Timer1.Interval = 1000   'Berekeningsinterval 1 sec
         time = 0
-        new_valve_pos = 20      'bypass % open
-        old_valve_pos = 20      'bypass % open
-        Actual_fan_flow = 0.1   '[m3/s]
 
-        Calc_quotient()
-        calc_new_valve_position()
-        calc_flow()
         Timer1.Enabled = True
     End Sub
 
@@ -70,91 +98,11 @@ Public Class Form1
     End Sub
     Private Sub Draw_Chart1()
         Try
-            Chart1.Series(0).Points.AddXY(time, new_valve_pos)
+            'Chart1.Series(0).Points.AddXY(time, new_valve_pos)
         Catch ex As Exception
             MessageBox.Show("Draw chart1 failed")
         End Try
     End Sub
-
-    Private Sub Calc_new_valve_position()
-        Dim setpoint As Double
-        Dim increment_open As Double
-        Dim increment_closed As Double
-
-        increment_open = NumericUpDown8.Value
-        increment_closed = NumericUpDown9.Value
-
-        NumericUpDown6.Value = NumericUpDown11.Value / NumericUpDown12.Value ^ 2
-        setpoint = NumericUpDown6.Value
-
-        'Opening or Closing the valve 
-        If CheckBox1.Checked Then
-            If quotient < setpoint Then new_valve_pos = old_valve_pos + increment_open
-            If quotient > setpoint Then new_valve_pos = old_valve_pos - increment_closed
-        Else
-            If quotient < setpoint Then new_valve_pos = old_valve_pos - increment_closed
-            If quotient > setpoint Then new_valve_pos = old_valve_pos + increment_open
-        End If
-
-        'Valve position between 0 and 100 %
-        If new_valve_pos > 100 Then new_valve_pos = 100     'Valve completely open
-        If new_valve_pos < 0 Then new_valve_pos = 0         'Valve closed completely
-
-        old_valve_pos = new_valve_pos
-        TextBox1.Text = Math.Round(new_valve_pos, 1).ToString
-    End Sub
-
-    Private Sub calc_flow()
-        Dim max_flow As Double
-        Dim bypass_valve_pos, bypass_flow As Double
-        Dim process_valve_open, Actual_process_flow As Double
-
-        max_flow = NumericUpDown7.Value
-
-        'Valves positions
-        process_valve_open = NumericUpDown13.Value / 100    'Process valve position
-        Double.TryParse(TextBox1.Text, bypass_valve_pos)    'Bypass valve
-
-        Actual_process_flow = max_flow * process_valve_open
-        Actual_fan_flow = max_flow * process_valve_open
-
-        If RadioButton1.Checked Then bypass_flow = Actual_fan_flow * bypass_valve_pos / 100   'Lineair
-        If RadioButton2.Checked Then bypass_flow = Actual_fan_flow * bypass_valve_pos / 100   'Quick opening
-        If RadioButton3.Checked Then bypass_flow = Actual_fan_flow * bypass_valve_pos / 100   'Equal perceentage
-
-        'Total flow is process + bypass flow
-        Actual_fan_flow = Actual_process_flow + bypass_flow
-
-        TextBox4.Text = Math.Round(Actual_process_flow, 2).ToString 'Process flow
-        TextBox5.Text = Math.Round(bypass_flow, 2).ToString         'Bypass flow
-        TextBox6.Text = Math.Round(Actual_fan_flow, 2).ToString     'Total fan flow
-    End Sub
-    Private Sub Calc_quotient()
-        Dim dp, setpoint1, setpoint2 As Double
-
-        dp = NumericUpDown2.Value           'mBar
-        quotient = dp / Actual_fan_flow ^ 2
-        TextBox2.Text = Math.Round(quotient, 0).ToString
-
-
-        setpoint1 = NumericUpDown6.Value
-        setpoint2 = setpoint1 * (1 + NumericUpDown4.Value / 100)
-
-        'Warnings
-
-        Select Case quotient
-            Case quotient > setpoint1
-                Label13.Text = "SURGING"
-                Label13.BackColor = Color.Red
-            Case quotient > setpoint1 And quotient < setpoint2
-                Label13.Text = "NEAR SURGING"
-                Label13.BackColor = Color.Red
-            Case quotient > setpoint2
-                Label13.Text = "ALL OK"
-                Label13.BackColor = Color.LightGreen
-        End Select
-    End Sub
-
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Reset() 'Reset button
     End Sub
@@ -162,25 +110,22 @@ Public Class Form1
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         Dim setup_string As String
 
+        setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w"
+        setup_string &= Cout(1).ToString("0.000") & ","
+        setup_string &= Cout(2).ToString("0.000") & ","
+        setup_string &= Cout(3).ToString("0.000") & ","
+        setup_string &= Cout(4).ToString("0.000") & vbCrLf
 
-        Cout(0) = NumericUpDown5.Value
-        Cout(1) = NumericUpDown10.Value
-        Cout(2) = NumericUpDown14.Value
-        Cout(3) = NumericUpDown15.Value
-
-        setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" & vbCrLf
+        'setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" & vbCrLf
         Send_data(setup_string)
     End Sub
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         draw_Chart1()
         time += Timer1.Interval / 1000                  '[sec]
-        TextBox3.Text = Math.Round(time, 1).ToString
-        Calc_quotient()
-        calc_new_valve_position()
-        calc_flow()
-    End Sub
 
+        ' calc_flow()
+    End Sub
 
     Private Sub Serial_setup() 'Serial port setup
         If (Me.SerialPort1.IsOpen = True) Then ' Preventing exceptions
@@ -291,29 +236,31 @@ Public Class Form1
         End Try
     End Sub
 
+
+
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click, NumericUpDown32.ValueChanged, NumericUpDown31.ValueChanged, NumericUpDown30.ValueChanged, NumericUpDown29.ValueChanged, NumericUpDown28.ValueChanged, NumericUpDown27.ValueChanged, NumericUpDown25.ValueChanged, NumericUpDown33.ValueChanged, NumericUpDown24.ValueChanged, NumericUpDown23.ValueChanged, NumericUpDown22.ValueChanged, NumericUpDown21.ValueChanged, NumericUpDown20.ValueChanged, NumericUpDown19.ValueChanged, NumericUpDown18.ValueChanged, NumericUpDown17.ValueChanged, NumericUpDown16.ValueChanged
         Dim Range(2) As String
         Dim K_sys, K_bypass, k_sum, K100, valve_open, dp, ro As Double
         Dim A, B, C, Qv_in, Qv_out As Double
         Dim Pin, Pout As Double
         Dim Tin, Tout As Double
-        Dim upsilon As Double
+        Dim γ As Double
 
         Range(0) = NumericUpDown28.Value - NumericUpDown27.Value    'Flow
         Range(1) = NumericUpDown29.Value - NumericUpDown30.Value    'Temp
         Range(2) = NumericUpDown31.Value - NumericUpDown32.Value    'Pressure
 
-        ro = NumericUpDown19.Value
-        A = NumericUpDown17.Value
-        B = NumericUpDown16.Value
-        C = NumericUpDown20.Value
-        K100 = NumericUpDown21.Value
-        valve_open = NumericUpDown33.Value
-        pin = NumericUpDown18.Value
-        Tin = NumericUpDown23.Value
-        upsilon = NumericUpDown22.Value
+        ro = NumericUpDown19.Value          'Density [kg/Am3]
+        A = NumericUpDown17.Value           'Fan Curve [-]
+        B = NumericUpDown16.Value           'Fan Curve [-]
+        C = NumericUpDown20.Value           'Fan Curve [-]
+        K100 = NumericUpDown21.Value        'K-value at 100% open [-]
+        valve_open = NumericUpDown33.Value  'Position bypass valve [%]
+        Pin = NumericUpDown18.Value         'Pressure inlet fan [Pa]
+        Tin = NumericUpDown23.Value         'Temp inlet fan [c]
+        γ = NumericUpDown22.Value     'Poly tropic exponent γ
 
-        If ro > 0 Then
+        If ro > 0 Then 'to prevent exceptions
             '----- step 1 determin the K values----
             K_bypass = K100 * valve_open
             K_sys = NumericUpDown25.Value
@@ -325,30 +272,64 @@ Public Class Form1
             '----- step 3 determine new dp---
             dp = ro * (A * Qv_in ^ 2 + B * Qv_in + C)   'Fan curve
 
-            '----- step 4 determine Tout ---
-            Tout = Tin * (1 + dp / pin) ^ ((upsilon - 1) / upsilon)
+            '----- step 4 determine Temp outlet fan ---
+            Tout = Tin * (1 + dp / Pin) ^ ((γ - 1) / γ)
 
-            '----- step 5 determine Tout ---
+            '----- step 5 determine Pressure outlet fan ---
             Pout = Pin + dp
 
-            '----- step 6 determine Discharhe flow ---
-            Qv_out = Qv_in * (Pin / Pout) ^ upsilon
+            '----- step 6 determine Discharge flow fan ---
+            Qv_out = Qv_in * (Pin / Pout) ^ γ
 
 
+            TextBox7.Text = Round(K_bypass, 2).ToString   'Resistance Bypass valve 
+            TextBox8.Text = Round(Qv_out, 0).ToString
             TextBox9.Text = Round(dp, 0)
+            TextBox10.Text = Round(Tin, 1).ToString
             TextBox11.Text = Range(0).ToString
             TextBox12.Text = Range(1).ToString
             TextBox13.Text = Range(2).ToString
-            TextBox7.Text = Round(K_bypass, 2).ToString   'Resistance Bypass valve 
-            TextBox14.Text = Round(K_sys, 2).ToString     'Resistance Total system
+            TextBox14.Text = Round(K_sys, 2).ToString   'Resistance Total system
             TextBox15.Text = Round(Qv_in, 0).ToString
+            TextBox21.Text = Round(Pin, 0).ToString     'Pressure inlet
+            'TextBox21.Text = Round(valve_open, 0).ToString  'Bypass valve
+            TextBox25.Text = Round(Tout, 1).ToString
         End If
+
+        '---------- calc output currents
+        Cout(1) = Calc_output("Flow", Qv_in)
+        Cout(2) = Calc_output("Pressure", Pin)
+        Cout(3) = Calc_output("Pressure", dp)
+        Cout(4) = Calc_output("Temperature", Tin)
+
+        TextBox1.Text = Round(Cout(1), 1).ToString  'Flow inlet/out Actual [Am3/hr]
+        TextBox2.Text = Round(Cout(2), 1).ToString  'Pressure in [Pa]
+        TextBox3.Text = Round(Cout(3), 1).ToString  'Delta P [Pa]
+        TextBox23.Text = Round(Cout(4), 1).ToString 'Temp fan in [c]
     End Sub
+    Private Function Calc_output(outType As String, value As Double) As Double
+        Dim results, range, value_4ma As Double
+        Select Case outType
+            Case "Flow"
+                value_4ma = NumericUpDown27.Value
+                Double.TryParse(TextBox11.Text, range)
+                results = (value - value_4ma) / range * 16.0 + 4.0
+            Case "Temperature"
+                value_4ma = NumericUpDown30.Value
+                Double.TryParse(TextBox12.Text, range)
+                results = (value - value_4ma) / range * 16.0 + 4.0
+            Case "Pressure"
+                value_4ma = NumericUpDown32.Value
+                Double.TryParse(TextBox13.Text, range)
+                results = (value - value_4ma) / range * 16.0 + 4.0
+            Case Else
+                MessageBox.Show("Oops error in Calc_output function")
+        End Select
+        Return (results)
+    End Function
 
     Private Sub ReceivedText(ByVal intext As String)
         MessageBox.Show(intext)
-
     End Sub
-
 
 End Class
