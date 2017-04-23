@@ -91,8 +91,8 @@ Public Class Form1
             Chart1.Titles.Add("ASC testing")
             Chart1.Titles(0).Font = New Font("Arial", 12, System.Drawing.FontStyle.Bold)
 
-            Chart1.Series(0).Name = "Flow"
-            Chart1.Series(1).Name = "Pressure"
+            Chart1.Series(0).Name = "Flow in"
+            Chart1.Series(1).Name = "Pressure in"
             Chart1.Series(2).Name = "delta P"
             Chart1.Series(3).Name = "Temp in"
             Chart1.Series(0).Color = Color.Black
@@ -129,8 +129,8 @@ Public Class Form1
             Chart2.Titles.Add("ASC testing")
             Chart2.Titles(0).Font = New Font("Arial", 12, System.Drawing.FontStyle.Bold)
 
-            Chart2.Series(0).Name = "Flow"
-            Chart2.Series(1).Name = "Pressure"
+            Chart2.Series(0).Name = "Flow in"
+            Chart2.Series(1).Name = "Pressure in"
             Chart2.Series(2).Name = "delta P"
             Chart2.Series(3).Name = "Temp in"
             Chart2.Series(0).Color = Color.Black
@@ -314,7 +314,7 @@ Public Class Form1
         Dim Pin, Pout As Double
         Dim Tin, Tout As Double
         Dim γ As Double
-
+        Dim p_time, period As Double
         Range(0) = CType(NumericUpDown28.Value - NumericUpDown27.Value, String)    'Flow
         Range(1) = CType(NumericUpDown29.Value - NumericUpDown30.Value, String)    'Temp
         Range(2) = CType(NumericUpDown31.Value - NumericUpDown32.Value, String)    'Pressure
@@ -332,20 +332,21 @@ Public Class Form1
         If ro > 0 Then 'to prevent exceptions
             '----- step 1 determin the K values----
             K_bypass = K100 * valve_open
-
+            period = NumericUpDown7.Value
+            p_time = time Mod period
             Select Case True
                 Case RadioButton1.Checked           'Do nothing
                     K_sys = NumericUpDown25.Value
                 Case RadioButton2.Checked           'Square wave
-                    If ((time Mod NumericUpDown7.Value) > (NumericUpDown7.Value / 2)) Then
+                    If (p_time > (period / 2)) Then
                         K_sys = NumericUpDown25.Value + NumericUpDown2.Value
                     Else
                         K_sys = NumericUpDown25.Value - NumericUpDown2.Value
                     End If
                 Case RadioButton3.Checked           'Sine
-
+                    K_sys = NumericUpDown25.Value + NumericUpDown2.Value * Sin(p_time / period * 2 * PI)
             End Select
-            TextBox5.Text = K_sys.ToString
+            TextBox5.Text = Round(K_sys, 1).ToString
             k_sum = K_sys + K_bypass
 
             '----- step 2 determine qv---
