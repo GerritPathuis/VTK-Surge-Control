@@ -427,6 +427,15 @@ Public Class Form1
         TextBox4.Text = Round(Ks, 1).ToString
     End Sub
 
+    Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
+        Dim file_name As String
+        Dim dirpath_Home As String = "C:\Temp\"
+
+        file_name = dirpath_Home & "ASC-Chart_" & DateTime.Now.ToString("yyyy-MM-dd_HH_mm_ss") & ".jpeg"
+        MessageBox.Show(file_name)
+        Chart1.SaveImage(file_name, Imaging.ImageFormat.Jpeg)
+    End Sub
+
     Private Sub ReceivedText(ByVal intext As String)
         MessageBox.Show(intext)
     End Sub
