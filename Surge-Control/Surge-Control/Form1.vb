@@ -68,7 +68,7 @@ Public Class Form1
     Private Sub Reset()
         Init_Chart1()
         Init_Chart2()
-        Timer1.Interval = 500   'Berekeningsinterval 500 msec
+        Timer1.Interval = 100   'Berekeningsinterval 500 msec
         time = 0
 
         Timer1.Enabled = True
@@ -197,6 +197,7 @@ Public Class Form1
         '----------LucidControl Input module -------------
         setup_string_input = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –r" & vbCr
         Send_data(setup_string_input)
+        Update_calc_screen()
         Draw_Chart1()
     End Sub
 
@@ -303,7 +304,7 @@ Public Class Form1
         End Try
     End Sub
 
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click, NumericUpDown25.ValueChanged, NumericUpDown33.ValueChanged, NumericUpDown24.ValueChanged, NumericUpDown23.ValueChanged, NumericUpDown22.ValueChanged, NumericUpDown21.ValueChanged, NumericUpDown20.ValueChanged, NumericUpDown19.ValueChanged, NumericUpDown18.ValueChanged, NumericUpDown17.ValueChanged, NumericUpDown16.ValueChanged
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click, NumericUpDown25.ValueChanged, NumericUpDown33.ValueChanged, NumericUpDown24.ValueChanged, NumericUpDown23.ValueChanged, NumericUpDown22.ValueChanged, NumericUpDown21.ValueChanged, NumericUpDown20.ValueChanged, NumericUpDown19.ValueChanged, NumericUpDown18.ValueChanged, NumericUpDown17.ValueChanged, NumericUpDown16.ValueChanged, RadioButton3.CheckedChanged, RadioButton2.CheckedChanged, RadioButton1.CheckedChanged, NumericUpDown7.ValueChanged, NumericUpDown2.ValueChanged
         Update_calc_screen()
     End Sub
     Private Sub Update_calc_screen()
@@ -331,7 +332,20 @@ Public Class Form1
         If ro > 0 Then 'to prevent exceptions
             '----- step 1 determin the K values----
             K_bypass = K100 * valve_open
-            K_sys = NumericUpDown25.Value
+
+            Select Case True
+                Case RadioButton1.Checked           'Do nothing
+                    K_sys = NumericUpDown25.Value
+                Case RadioButton2.Checked           'Square wave
+                    If ((time Mod NumericUpDown7.Value) > (NumericUpDown7.Value / 2)) Then
+                        K_sys = NumericUpDown25.Value + NumericUpDown2.Value
+                    Else
+                        K_sys = NumericUpDown25.Value - NumericUpDown2.Value
+                    End If
+                Case RadioButton3.Checked           'Sine
+
+            End Select
+            TextBox5.Text = K_sys.ToString
             k_sum = K_sys + K_bypass
 
             '----- step 2 determine qv---
