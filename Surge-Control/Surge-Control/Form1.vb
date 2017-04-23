@@ -81,7 +81,7 @@ Public Class Form1
             Chart1.Titles.Clear()
             Chart1.ChartAreas.Add("ChartArea0")
 
-            For i = 0 To 3
+            For i = 0 To 4
                 Chart1.Series.Add(i.ToString)
                 Chart1.Series(i.ToString).ChartArea = "ChartArea0"
                 Chart1.Series(i.ToString).ChartType = DataVisualization.Charting.SeriesChartType.Line
@@ -91,10 +91,11 @@ Public Class Form1
             Chart1.Titles.Add("ASC testing")
             Chart1.Titles(0).Font = New Font("Arial", 12, System.Drawing.FontStyle.Bold)
 
-            Chart1.Series(0).Name = "Flow in"
+            Chart1.Series(0).Name = "Flow inlet"
             Chart1.Series(1).Name = "Pressure in"
             Chart1.Series(2).Name = "delta P"
             Chart1.Series(3).Name = "Temp in"
+            Chart1.Series(4).Name = "Bypass valve"
             Chart1.Series(0).Color = Color.Black
             Chart1.Series(0).BorderWidth = 2
             Chart1.Series(2).BorderWidth = 2
@@ -119,7 +120,7 @@ Public Class Form1
             Chart2.Titles.Clear()
             Chart2.ChartAreas.Add("ChartArea1")
 
-            For i = 0 To 3
+            For i = 0 To 4
                 Chart2.Series.Add(i.ToString)
                 Chart2.Series(i.ToString).ChartArea = "ChartArea1"
                 Chart2.Series(i.ToString).ChartType = DataVisualization.Charting.SeriesChartType.Line
@@ -129,10 +130,11 @@ Public Class Form1
             Chart2.Titles.Add("ASC testing")
             Chart2.Titles(0).Font = New Font("Arial", 12, System.Drawing.FontStyle.Bold)
 
-            Chart2.Series(0).Name = "Flow in"
+            Chart2.Series(0).Name = "Flow inlet"
             Chart2.Series(1).Name = "Pressure in"
             Chart2.Series(2).Name = "delta P"
             Chart2.Series(3).Name = "Temp in"
+            Chart2.Series(4).Name = "Bypass valve"
             Chart2.Series(0).Color = Color.Black
             Chart2.Series(0).BorderWidth = 2
             Chart2.Series(2).BorderWidth = 2
@@ -285,7 +287,7 @@ Public Class Form1
         End Try
     End Sub
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
-        TextBox9.Text = NumericUpDown26.Value.ToString 'dp fan
+        Reset()
     End Sub
     Private Sub Send_data(rtbtransmit As String)
         Try
@@ -304,9 +306,6 @@ Public Class Form1
         End Try
     End Sub
 
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click, NumericUpDown25.ValueChanged, NumericUpDown33.ValueChanged, NumericUpDown24.ValueChanged, NumericUpDown23.ValueChanged, NumericUpDown22.ValueChanged, NumericUpDown21.ValueChanged, NumericUpDown20.ValueChanged, NumericUpDown19.ValueChanged, NumericUpDown18.ValueChanged, NumericUpDown17.ValueChanged, NumericUpDown16.ValueChanged, RadioButton3.CheckedChanged, RadioButton2.CheckedChanged, RadioButton1.CheckedChanged, NumericUpDown7.ValueChanged, NumericUpDown2.ValueChanged
-        Update_calc_screen()
-    End Sub
     Private Sub Update_calc_screen()
         Dim Range(2) As String
         Dim K_sys, K_bypass, k_sum, K100, valve_open, dp, ro As Double
@@ -314,7 +313,7 @@ Public Class Form1
         Dim Pin, Pout As Double
         Dim Tin, Tout As Double
         Dim γ As Double
-        Dim p_time, period As Double
+        Dim p_time, period, amplitude As Double
         Range(0) = CType(NumericUpDown28.Value - NumericUpDown27.Value, String)    'Flow
         Range(1) = CType(NumericUpDown29.Value - NumericUpDown30.Value, String)    'Temp
         Range(2) = CType(NumericUpDown31.Value - NumericUpDown32.Value, String)    'Pressure
@@ -333,20 +332,25 @@ Public Class Form1
             '----- step 1 determin the K values----
             K_bypass = K100 * valve_open
             period = NumericUpDown7.Value
+            amplitude = NumericUpDown2.Value
             p_time = time Mod period
             Select Case True
-                Case RadioButton1.Checked           'Do nothing
+                Case RadioButton1.Checked           'Flat line
                     K_sys = NumericUpDown25.Value
                 Case RadioButton2.Checked           'Square wave
                     If (p_time > (period / 2)) Then
-                        K_sys = NumericUpDown25.Value + NumericUpDown2.Value
+                        K_sys = NumericUpDown25.Value + amplitude / 2
                     Else
-                        K_sys = NumericUpDown25.Value - NumericUpDown2.Value
+                        K_sys = NumericUpDown25.Value - amplitude / 2
                     End If
                 Case RadioButton3.Checked           'Sine
-                    K_sys = NumericUpDown25.Value + NumericUpDown2.Value * Sin(p_time / period * 2 * PI)
+                    K_sys = NumericUpDown25.Value + (amplitude / 2) * Sin(p_time / period * 2 * PI)
+                Case RadioButton4.Checked           'Saw tooth
+                    K_sys = NumericUpDown25.Value - (amplitude / 2) + amplitude * p_time / period
             End Select
             TextBox5.Text = Round(K_sys, 1).ToString
+            TextBox6.Text = Round(K_bypass, 1).ToString
+
             k_sum = K_sys + K_bypass
 
             '----- step 2 determine qv---
@@ -432,8 +436,16 @@ Public Class Form1
         Dim dirpath_Home As String = "C:\Temp\"
 
         file_name = dirpath_Home & "ASC-Chart_" & DateTime.Now.ToString("yyyy-MM-dd_HH_mm_ss") & ".jpeg"
-        MessageBox.Show(file_name)
-        Chart1.SaveImage(file_name, Imaging.ImageFormat.Jpeg)
+
+        If Directory.Exists(dirpath_Home) Then
+            Chart1.SaveImage(file_name, Imaging.ImageFormat.Jpeg)
+        Else
+            MessageBox.Show("File is NOT saved" & vbCrLf & "Directory doen not exist" & vbCrLf & "Please create " & dirpath_Home)
+        End If
+    End Sub
+
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+        Reset()
     End Sub
 
     Private Sub ReceivedText(ByVal intext As String)
