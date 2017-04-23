@@ -16,7 +16,6 @@ Public Class Form1
     Dim Flow_in, Flow_out As Double     '[m3/hr]
     Dim Temp_in, Temp_out As Double     '[Celsius]
     Dim Press_in, Press_out As Double   '[Pa]
-
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         Thread.CurrentThread.CurrentCulture = New CultureInfo("en-US")
@@ -63,34 +62,31 @@ Public Class Form1
         TextBox24.Text = "6.8" 'Test value [c]
 
         Reset()
+        Update_calc_screen()
     End Sub
 
     Private Sub Reset()
         Init_Chart1()
+        Init_Chart2()
         Timer1.Interval = 500   'Berekeningsinterval 500 msec
         time = 0
 
         Timer1.Enabled = True
     End Sub
-
     Private Sub Init_Chart1()
+        Dim i As Integer
         Try
             Chart1.Series.Clear()
             Chart1.ChartAreas.Clear()
             Chart1.Titles.Clear()
-
-            Chart1.Series.Add("Flow")
-            Chart1.Series.Add("Pressure")
-            Chart1.Series.Add("Delta P")
-            Chart1.Series.Add("Temp in")
-
             Chart1.ChartAreas.Add("ChartArea0")
-            Chart1.Series(0).ChartArea = "ChartArea0"
 
-            Chart1.Series(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
-            Chart1.Series(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
-            Chart1.Series(2).ChartType = DataVisualization.Charting.SeriesChartType.Line
-            Chart1.Series(3).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            For i = 0 To 3
+                Chart1.Series.Add(i.ToString)
+                Chart1.Series(i.ToString).ChartArea = "ChartArea0"
+                Chart1.Series(i.ToString).ChartType = DataVisualization.Charting.SeriesChartType.Line
+                Chart1.Series(i.ToString).BorderWidth = 1
+            Next
 
             Chart1.Titles.Add("ASC testing")
             Chart1.Titles(0).Font = New Font("Arial", 12, System.Drawing.FontStyle.Bold)
@@ -100,27 +96,72 @@ Public Class Form1
             Chart1.Series(2).Name = "delta P"
             Chart1.Series(3).Name = "Temp in"
             Chart1.Series(0).Color = Color.Black
-            'Chart1.Series(0).BorderWidth = 3
+            Chart1.Series(0).BorderWidth = 2
+            Chart1.Series(2).BorderWidth = 2
 
             Chart1.ChartAreas("ChartArea0").AxisX.Title = "[sec]"
-            Chart1.ChartAreas("ChartArea0").AxisY.Title = "Valve opening"
-            Chart1.ChartAreas("ChartArea0").AxisX.Minimum = 0
+            Chart1.ChartAreas("ChartArea0").AxisY.Title = "mAmp"
+            Chart1.ChartAreas("ChartArea0").AxisY.Minimum = 4
             Chart1.ChartAreas("ChartArea0").AxisY.Maximum = 20
+            Chart1.ChartAreas("ChartArea0").AxisX.MajorTickMark.Size = 2
             Chart1.ChartAreas("ChartArea0").AlignmentOrientation = DataVisualization.Charting.AreaAlignmentOrientations.Vertical
-            'Chart1.Series(0).YAxisType = AxisType.Primary
 
         Catch ex As Exception
             MessageBox.Show("Init Chart1 failed")
         End Try
     End Sub
+    Private Sub Init_Chart2()
+        Dim i As Integer
+
+        Try
+            Chart2.Series.Clear()
+            Chart2.ChartAreas.Clear()
+            Chart2.Titles.Clear()
+            Chart2.ChartAreas.Add("ChartArea1")
+
+            For i = 0 To 3
+                Chart2.Series.Add(i.ToString)
+                Chart2.Series(i.ToString).ChartArea = "ChartArea1"
+                Chart2.Series(i.ToString).ChartType = DataVisualization.Charting.SeriesChartType.Line
+                Chart2.Series(i.ToString).BorderWidth = 1
+            Next
+
+            Chart2.Titles.Add("ASC testing")
+            Chart2.Titles(0).Font = New Font("Arial", 12, System.Drawing.FontStyle.Bold)
+
+            Chart2.Series(0).Name = "Flow"
+            Chart2.Series(1).Name = "Pressure"
+            Chart2.Series(2).Name = "delta P"
+            Chart2.Series(3).Name = "Temp in"
+            Chart2.Series(0).Color = Color.Black
+            Chart2.Series(0).BorderWidth = 2
+            Chart2.Series(2).BorderWidth = 2
+
+            Chart2.ChartAreas("ChartArea1").AxisX.Title = "[sec]"
+            Chart2.ChartAreas("ChartArea1").AxisY.Title = "mAmp"
+            Chart2.ChartAreas("ChartArea1").AxisY.Minimum = 4
+            Chart2.ChartAreas("ChartArea1").AxisY.Maximum = 20
+            Chart2.ChartAreas("ChartArea1").AxisX.MajorTickMark.Size = 2
+            Chart2.ChartAreas("ChartArea1").AlignmentOrientation = DataVisualization.Charting.AreaAlignmentOrientations.Vertical
+
+        Catch ex As Exception
+            MessageBox.Show("Init Chart2 failed")
+        End Try
+    End Sub
+
     Private Sub Draw_Chart1()
         Try
             Chart1.Series(0).Points.AddXY(time, Cout(1))    'Flow in
             Chart1.Series(1).Points.AddXY(time, Cout(2))    'Pressure in
             Chart1.Series(2).Points.AddXY(time, Cout(3))    'dP
             Chart1.Series(3).Points.AddXY(time, Cout(4))    'Temp in
+
+            Chart2.Series(0).Points.AddXY(time, Cout(1))    'Flow in
+            Chart2.Series(1).Points.AddXY(time, Cout(2))    'Pressure in
+            Chart2.Series(2).Points.AddXY(time, Cout(3))    'dP
+            Chart2.Series(3).Points.AddXY(time, Cout(4))    'Temp in
         Catch ex As Exception
-            MessageBox.Show("Draw chart1 failed")
+            MessageBox.Show("AddXY failed")
         End Try
     End Sub
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
@@ -138,20 +179,24 @@ Public Class Form1
     End Sub
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        Dim setup_string As String
+        Dim setup_string_output, setup_string_input As String
 
         time += Timer1.Interval / 1000                  '[sec]
         Label1.Text = time.ToString("000.0")
 
+        '----------LucidControl Output module -------------
         'Send new setting to the  current output
-        setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w"
-        setup_string &= Cout(1).ToString("0.000") & ","
-        setup_string &= Cout(2).ToString("0.000") & ","
-        setup_string &= Cout(3).ToString("0.000") & ","
-        setup_string &= Cout(4).ToString("0.000") & vbCrLf
-        'setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" 'Example
-        Send_data(setup_string)
+        setup_string_output = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w"
+        setup_string_output &= Cout(1).ToString("0.000") & ","
+        setup_string_output &= Cout(2).ToString("0.000") & ","
+        setup_string_output &= Cout(3).ToString("0.000") & ","
+        setup_string_output &= Cout(4).ToString("0.000") & vbCr
+        'setup_string_output = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" 'Example
+        Send_data(setup_string_output)
 
+        '----------LucidControl Input module -------------
+        setup_string_input = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –r" & vbCr
+        Send_data(setup_string_input)
         Draw_Chart1()
     End Sub
 
@@ -258,7 +303,7 @@ Public Class Form1
         End Try
     End Sub
 
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click, NumericUpDown32.ValueChanged, NumericUpDown31.ValueChanged, NumericUpDown30.ValueChanged, NumericUpDown29.ValueChanged, NumericUpDown28.ValueChanged, NumericUpDown27.ValueChanged, NumericUpDown25.ValueChanged, NumericUpDown33.ValueChanged, NumericUpDown24.ValueChanged, NumericUpDown23.ValueChanged, NumericUpDown22.ValueChanged, NumericUpDown21.ValueChanged, NumericUpDown20.ValueChanged, NumericUpDown19.ValueChanged, NumericUpDown18.ValueChanged, NumericUpDown17.ValueChanged, NumericUpDown16.ValueChanged
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click, NumericUpDown25.ValueChanged, NumericUpDown33.ValueChanged, NumericUpDown24.ValueChanged, NumericUpDown23.ValueChanged, NumericUpDown22.ValueChanged, NumericUpDown21.ValueChanged, NumericUpDown20.ValueChanged, NumericUpDown19.ValueChanged, NumericUpDown18.ValueChanged, NumericUpDown17.ValueChanged, NumericUpDown16.ValueChanged
         Update_calc_screen()
     End Sub
     Private Sub Update_calc_screen()
@@ -319,6 +364,9 @@ Public Class Form1
             TextBox25.Text = Round(Tout, 1).ToString
         End If
 
+        '-------- Surge Alarm-----------
+        TextBox15.BackColor = CType(IIf(NumericUpDown1.Value < Qv_in, Color.White, Color.Red), Color)
+
         '---------- calc output currents
         Cout(1) = Calc_output("Flow", Qv_in)
         Cout(2) = Calc_output("Pressure", Pin)
@@ -351,6 +399,18 @@ Public Class Form1
         End Select
         Return (results)
     End Function
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click, NumericUpDown6.ValueChanged, NumericUpDown4.ValueChanged, NumericUpDown3.ValueChanged
+        Dim ro, dp, flow, Ks As Double
+
+        'Calculate Ksys @ work point
+        flow = NumericUpDown6.Value
+        dp = NumericUpDown3.Value
+        ro = NumericUpDown4.Value
+
+        Ks = flow * Sqrt(ro / dp)
+        TextBox4.Text = Round(Ks, 1).ToString
+    End Sub
 
     Private Sub ReceivedText(ByVal intext As String)
         MessageBox.Show(intext)
