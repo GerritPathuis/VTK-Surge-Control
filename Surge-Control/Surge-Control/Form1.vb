@@ -309,11 +309,12 @@ Public Class Form1
     Private Sub Update_calc_screen()
         Dim Range(2) As String
         Dim K_sys, K_bypass, k_sum, K100, valve_open, dp, ro As Double
-        Dim A, B, C, Qv_in, Qv_out As Double
+        Dim A, B, C, Qv_in, Qv_out, A1 As Double
         Dim Pin, Pout As Double
         Dim Tin, Tout As Double
         Dim γ As Double
         Dim p_time, period, amplitude As Double
+        Dim Qv_a, Qv_b As Double
         Range(0) = CType(NumericUpDown28.Value - NumericUpDown27.Value, String)    'Flow
         Range(1) = CType(NumericUpDown29.Value - NumericUpDown30.Value, String)    'Temp
         Range(2) = CType(NumericUpDown31.Value - NumericUpDown32.Value, String)    'Pressure
@@ -351,11 +352,14 @@ Public Class Form1
             TextBox5.Text = Round(K_sys, 1).ToString
             TextBox6.Text = Round(K_bypass, 1).ToString
 
-            k_sum = K_sys + K_bypass
-
             '----- step 2 determine qv---
-            Double.TryParse(TextBox9.Text, dp)
-            Qv_in = Sqrt(dp / ro * k_sum ^ 2)
+            '------ ABC formula ----------
+            k_sum = K_sys + K_bypass
+            A1 = A - 1 / k_sum ^ 2
+            Qv_a = (-B + (Sqrt(B ^ 2 - 4 * A1 * C))) / (2 * A1)
+            Qv_b = (-B - (Sqrt(B ^ 2 - 4 * A1 * C))) / (2 * A1)
+            Qv_in = CDbl(IIf(Qv_a > 0, Qv_a, Qv_b))
+
             '----- step 3 determine new dp---
             dp = ro * (A * Qv_in ^ 2 + B * Qv_in + C)   'Fan curve
 

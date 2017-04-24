@@ -23,14 +23,16 @@ Partial Class Form1
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea13 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend13 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series13 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
-        Dim ChartArea14 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend14 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series14 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea8 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend8 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series8 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea7 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend7 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series7 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage2 = New System.Windows.Forms.TabPage()
+        Me.GroupBox4 = New System.Windows.Forms.GroupBox()
+        Me.Label19 = New System.Windows.Forms.Label()
         Me.GroupBox8 = New System.Windows.Forms.GroupBox()
         Me.Label65 = New System.Windows.Forms.Label()
         Me.TextBox13 = New System.Windows.Forms.TextBox()
@@ -58,12 +60,12 @@ Partial Class Form1
         Me.Label25 = New System.Windows.Forms.Label()
         Me.cmbPort = New System.Windows.Forms.ComboBox()
         Me.Label23 = New System.Windows.Forms.Label()
-        Me.Button2 = New System.Windows.Forms.Button()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
         Me.Label22 = New System.Windows.Forms.Label()
         Me.NumericUpDown15 = New System.Windows.Forms.NumericUpDown()
         Me.Label21 = New System.Windows.Forms.Label()
         Me.NumericUpDown14 = New System.Windows.Forms.NumericUpDown()
+        Me.Button2 = New System.Windows.Forms.Button()
         Me.Label20 = New System.Windows.Forms.Label()
         Me.NumericUpDown10 = New System.Windows.Forms.NumericUpDown()
         Me.Label5 = New System.Windows.Forms.Label()
@@ -180,6 +182,9 @@ Partial Class Form1
         Me.Button3 = New System.Windows.Forms.Button()
         Me.Button5 = New System.Windows.Forms.Button()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
+        Me.RadioButton4 = New System.Windows.Forms.RadioButton()
+        Me.Label18 = New System.Windows.Forms.Label()
+        Me.TextBox6 = New System.Windows.Forms.TextBox()
         Me.Label17 = New System.Windows.Forms.Label()
         Me.TextBox5 = New System.Windows.Forms.TextBox()
         Me.Label16 = New System.Windows.Forms.Label()
@@ -192,11 +197,6 @@ Partial Class Form1
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.FileSystemWatcher1 = New System.IO.FileSystemWatcher()
-        Me.TextBox6 = New System.Windows.Forms.TextBox()
-        Me.Label18 = New System.Windows.Forms.Label()
-        Me.RadioButton4 = New System.Windows.Forms.RadioButton()
-        Me.Label19 = New System.Windows.Forms.Label()
-        Me.GroupBox4 = New System.Windows.Forms.GroupBox()
         Me.TabControl1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
         Me.GroupBox8.SuspendLayout()
@@ -277,6 +277,25 @@ Partial Class Form1
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "Calibrate and instrument Range"
         Me.TabPage2.UseVisualStyleBackColor = True
+        '
+        'GroupBox4
+        '
+        Me.GroupBox4.Location = New System.Drawing.Point(43, 323)
+        Me.GroupBox4.Name = "GroupBox4"
+        Me.GroupBox4.Size = New System.Drawing.Size(538, 101)
+        Me.GroupBox4.TabIndex = 15
+        Me.GroupBox4.TabStop = False
+        Me.GroupBox4.Text = "Input test (receiving data)"
+        '
+        'Label19
+        '
+        Me.Label19.AutoSize = True
+        Me.Label19.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label19.Location = New System.Drawing.Point(39, 44)
+        Me.Label19.Name = "Label19"
+        Me.Label19.Size = New System.Drawing.Size(396, 20)
+        Me.Label19.TabIndex = 14
+        Me.Label19.Text = "PC is connected to LucidControl AI4 (500 ohm resistor)"
         '
         'GroupBox8
         '
@@ -587,15 +606,6 @@ Partial Class Form1
         Me.Label23.TabIndex = 2
         Me.Label23.Text = "PC is connected to LucidControl AO4"
         '
-        'Button2
-        '
-        Me.Button2.Location = New System.Drawing.Point(411, 47)
-        Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(87, 50)
-        Me.Button2.TabIndex = 1
-        Me.Button2.Text = "Set current output, send now"
-        Me.Button2.UseVisualStyleBackColor = True
-        '
         'GroupBox5
         '
         Me.GroupBox5.Controls.Add(Me.Label22)
@@ -663,6 +673,15 @@ Partial Class Form1
         Me.NumericUpDown14.TabIndex = 12
         Me.NumericUpDown14.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         Me.NumericUpDown14.Value = New Decimal(New Integer() {8, 0, 0, 0})
+        '
+        'Button2
+        '
+        Me.Button2.Location = New System.Drawing.Point(411, 47)
+        Me.Button2.Name = "Button2"
+        Me.Button2.Size = New System.Drawing.Size(87, 50)
+        Me.Button2.TabIndex = 1
+        Me.Button2.Text = "Set current output, send now"
+        Me.Button2.UseVisualStyleBackColor = True
         '
         'Label20
         '
@@ -789,16 +808,16 @@ Partial Class Form1
         '
         'Chart1
         '
-        ChartArea13.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea13)
-        Legend13.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend13)
+        ChartArea8.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea8)
+        Legend8.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend8)
         Me.Chart1.Location = New System.Drawing.Point(456, 369)
         Me.Chart1.Name = "Chart1"
-        Series13.ChartArea = "ChartArea1"
-        Series13.Legend = "Legend1"
-        Series13.Name = "Series1"
-        Me.Chart1.Series.Add(Series13)
+        Series8.ChartArea = "ChartArea1"
+        Series8.Legend = "Legend1"
+        Series8.Name = "Series1"
+        Me.Chart1.Series.Add(Series8)
         Me.Chart1.Size = New System.Drawing.Size(535, 297)
         Me.Chart1.TabIndex = 16
         Me.Chart1.Text = "Chart1"
@@ -1959,17 +1978,17 @@ Partial Class Form1
         '
         'Chart2
         '
-        ChartArea14.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea14)
+        ChartArea7.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea7)
         Me.Chart2.Dock = System.Windows.Forms.DockStyle.Fill
-        Legend14.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend14)
+        Legend7.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend7)
         Me.Chart2.Location = New System.Drawing.Point(0, 0)
         Me.Chart2.Name = "Chart2"
-        Series14.ChartArea = "ChartArea1"
-        Series14.Legend = "Legend1"
-        Series14.Name = "Series1"
-        Me.Chart2.Series.Add(Series14)
+        Series7.ChartArea = "ChartArea1"
+        Series7.Legend = "Legend1"
+        Series7.Name = "Series1"
+        Me.Chart2.Series.Add(Series7)
         Me.Chart2.Size = New System.Drawing.Size(823, 668)
         Me.Chart2.TabIndex = 17
         Me.Chart2.Text = "Chart2"
@@ -2012,6 +2031,33 @@ Partial Class Form1
         Me.GroupBox3.TabIndex = 3
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Manipulating K system"
+        '
+        'RadioButton4
+        '
+        Me.RadioButton4.AutoSize = True
+        Me.RadioButton4.Location = New System.Drawing.Point(16, 97)
+        Me.RadioButton4.Name = "RadioButton4"
+        Me.RadioButton4.Size = New System.Drawing.Size(73, 17)
+        Me.RadioButton4.TabIndex = 11
+        Me.RadioButton4.Text = "Saw tooth"
+        Me.RadioButton4.UseVisualStyleBackColor = True
+        '
+        'Label18
+        '
+        Me.Label18.AutoSize = True
+        Me.Label18.Location = New System.Drawing.Point(17, 232)
+        Me.Label18.Name = "Label18"
+        Me.Label18.Size = New System.Drawing.Size(50, 13)
+        Me.Label18.TabIndex = 10
+        Me.Label18.Text = "K bypass"
+        '
+        'TextBox6
+        '
+        Me.TextBox6.Location = New System.Drawing.Point(88, 229)
+        Me.TextBox6.Name = "TextBox6"
+        Me.TextBox6.Size = New System.Drawing.Size(57, 20)
+        Me.TextBox6.TabIndex = 9
+        Me.TextBox6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
         'Label17
         '
@@ -2068,7 +2114,7 @@ Partial Class Form1
         Me.NumericUpDown2.Size = New System.Drawing.Size(57, 20)
         Me.NumericUpDown2.TabIndex = 3
         Me.NumericUpDown2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        Me.NumericUpDown2.Value = New Decimal(New Integer() {20, 0, 0, 0})
+        Me.NumericUpDown2.Value = New Decimal(New Integer() {5, 0, 0, 0})
         '
         'RadioButton2
         '
@@ -2114,52 +2160,6 @@ Partial Class Form1
         Me.FileSystemWatcher1.EnableRaisingEvents = True
         Me.FileSystemWatcher1.SynchronizingObject = Me
         '
-        'TextBox6
-        '
-        Me.TextBox6.Location = New System.Drawing.Point(88, 229)
-        Me.TextBox6.Name = "TextBox6"
-        Me.TextBox6.Size = New System.Drawing.Size(57, 20)
-        Me.TextBox6.TabIndex = 9
-        Me.TextBox6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        '
-        'Label18
-        '
-        Me.Label18.AutoSize = True
-        Me.Label18.Location = New System.Drawing.Point(17, 232)
-        Me.Label18.Name = "Label18"
-        Me.Label18.Size = New System.Drawing.Size(50, 13)
-        Me.Label18.TabIndex = 10
-        Me.Label18.Text = "K bypass"
-        '
-        'RadioButton4
-        '
-        Me.RadioButton4.AutoSize = True
-        Me.RadioButton4.Location = New System.Drawing.Point(16, 97)
-        Me.RadioButton4.Name = "RadioButton4"
-        Me.RadioButton4.Size = New System.Drawing.Size(73, 17)
-        Me.RadioButton4.TabIndex = 11
-        Me.RadioButton4.Text = "Saw tooth"
-        Me.RadioButton4.UseVisualStyleBackColor = True
-        '
-        'Label19
-        '
-        Me.Label19.AutoSize = True
-        Me.Label19.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label19.Location = New System.Drawing.Point(39, 44)
-        Me.Label19.Name = "Label19"
-        Me.Label19.Size = New System.Drawing.Size(396, 20)
-        Me.Label19.TabIndex = 14
-        Me.Label19.Text = "PC is connected to LucidControl AI4 (500 ohm resistor)"
-        '
-        'GroupBox4
-        '
-        Me.GroupBox4.Location = New System.Drawing.Point(43, 323)
-        Me.GroupBox4.Name = "GroupBox4"
-        Me.GroupBox4.Size = New System.Drawing.Size(538, 101)
-        Me.GroupBox4.TabIndex = 15
-        Me.GroupBox4.TabStop = False
-        Me.GroupBox4.Text = "Input test (receiving data)"
-        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -2167,7 +2167,7 @@ Partial Class Form1
         Me.ClientSize = New System.Drawing.Size(1010, 700)
         Me.Controls.Add(Me.TabControl1)
         Me.Name = "Form1"
-        Me.Text = "Surge Control Simulation P16.0078, Tecnimont"
+        Me.Text = "Surge Control Simulation P16.0078, Tecnimont Rev 24-4-2017 "
         Me.TabControl1.ResumeLayout(False)
         Me.TabPage2.ResumeLayout(False)
         Me.TabPage2.PerformLayout()

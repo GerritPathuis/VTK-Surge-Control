@@ -31,3 +31,7 @@ C:\Repositories\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Co
 C:\Repositories\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.exe
 C:\Repositories\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.xml
 C:\Repositories\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.pdb
+C:\Repos\VTK-Surge-Control\Surge-Control\Surge-Control\bin\Debug\Surge-Control.exe.manifest
+C:\Repos\VTK-Surge-Control\Surge-Control\Surge-Control\bin\Debug\Surge-Control.application
+C:\Repos\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.exe.manifest
+C:\Repos\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.application
