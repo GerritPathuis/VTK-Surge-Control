@@ -400,7 +400,6 @@ Public Class Form1
         TextBox2.Text = Round(Cout(2), 1).ToString  'Pressure in [Pa]
         TextBox3.Text = Round(Cout(3), 1).ToString  'Delta P [Pa]
         TextBox23.Text = Round(Cout(4), 1).ToString 'Temp fan in [c]
-
     End Sub
     Private Function Calc_output(outType As String, value As Double) As Double
         Dim results, range, value_4ma As Double
@@ -436,6 +435,20 @@ Public Class Form1
     End Sub
 
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
+        Safe_to_file()
+    End Sub
+
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+        Reset()
+    End Sub
+    Private Sub ReceivedText(ByVal intext As String)
+        If TextBox26.TextLength > 100 Then TextBox26.Clear()   'Prevent over filling
+        TextBox26.Text += intext
+    End Sub
+    Private Sub TextBox24_TextChanged(sender As Object, e As EventArgs) Handles TextBox24.TextChanged
+        Calc_bypass_valve_position()
+    End Sub
+    Private Sub Safe_to_file()
         Dim file_name As String
         Dim dirpath_Home As String = "C:\Temp\"
 
@@ -447,18 +460,6 @@ Public Class Form1
             MessageBox.Show("File is NOT saved" & vbCrLf & "Directory doen not exist" & vbCrLf & "Please create " & dirpath_Home)
         End If
     End Sub
-
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
-        Reset()
-    End Sub
-
-    Private Sub ReceivedText(ByVal intext As String)
-        MessageBox.Show(intext)
-    End Sub
-    Private Sub TextBox24_TextChanged(sender As Object, e As EventArgs) Handles TextBox24.TextChanged
-        Calc_bypass_valve_position()
-    End Sub
-
     Private Sub Calc_bypass_valve_position()
         Dim bypass_valve_position, tmp As Double
         Double.TryParse(TextBox24.Text, tmp)

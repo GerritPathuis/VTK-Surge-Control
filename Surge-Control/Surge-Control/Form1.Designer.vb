@@ -23,12 +23,12 @@ Partial Class Form1
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea8 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend8 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series8 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
-        Dim ChartArea7 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend7 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series7 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series3 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea4 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend4 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series4 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage2 = New System.Windows.Forms.TabPage()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
@@ -197,8 +197,10 @@ Partial Class Form1
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.FileSystemWatcher1 = New System.IO.FileSystemWatcher()
+        Me.TextBox26 = New System.Windows.Forms.TextBox()
         Me.TabControl1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
+        Me.GroupBox4.SuspendLayout()
         Me.GroupBox8.SuspendLayout()
         CType(Me.NumericUpDown31, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.NumericUpDown32, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -280,9 +282,10 @@ Partial Class Form1
         '
         'GroupBox4
         '
+        Me.GroupBox4.Controls.Add(Me.TextBox26)
         Me.GroupBox4.Location = New System.Drawing.Point(43, 323)
         Me.GroupBox4.Name = "GroupBox4"
-        Me.GroupBox4.Size = New System.Drawing.Size(538, 101)
+        Me.GroupBox4.Size = New System.Drawing.Size(538, 165)
         Me.GroupBox4.TabIndex = 15
         Me.GroupBox4.TabStop = False
         Me.GroupBox4.Text = "Input test (receiving data)"
@@ -808,16 +811,16 @@ Partial Class Form1
         '
         'Chart1
         '
-        ChartArea8.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea8)
-        Legend8.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend8)
+        ChartArea3.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea3)
+        Legend3.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend3)
         Me.Chart1.Location = New System.Drawing.Point(456, 369)
         Me.Chart1.Name = "Chart1"
-        Series8.ChartArea = "ChartArea1"
-        Series8.Legend = "Legend1"
-        Series8.Name = "Series1"
-        Me.Chart1.Series.Add(Series8)
+        Series3.ChartArea = "ChartArea1"
+        Series3.Legend = "Legend1"
+        Series3.Name = "Series1"
+        Me.Chart1.Series.Add(Series3)
         Me.Chart1.Size = New System.Drawing.Size(535, 297)
         Me.Chart1.TabIndex = 16
         Me.Chart1.Text = "Chart1"
@@ -1978,17 +1981,17 @@ Partial Class Form1
         '
         'Chart2
         '
-        ChartArea7.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea7)
+        ChartArea4.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea4)
         Me.Chart2.Dock = System.Windows.Forms.DockStyle.Fill
-        Legend7.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend7)
+        Legend4.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend4)
         Me.Chart2.Location = New System.Drawing.Point(0, 0)
         Me.Chart2.Name = "Chart2"
-        Series7.ChartArea = "ChartArea1"
-        Series7.Legend = "Legend1"
-        Series7.Name = "Series1"
-        Me.Chart2.Series.Add(Series7)
+        Series4.ChartArea = "ChartArea1"
+        Series4.Legend = "Legend1"
+        Series4.Name = "Series1"
+        Me.Chart2.Series.Add(Series4)
         Me.Chart2.Size = New System.Drawing.Size(823, 668)
         Me.Chart2.TabIndex = 17
         Me.Chart2.Text = "Chart2"
@@ -2160,6 +2163,16 @@ Partial Class Form1
         Me.FileSystemWatcher1.EnableRaisingEvents = True
         Me.FileSystemWatcher1.SynchronizingObject = Me
         '
+        'TextBox26
+        '
+        Me.TextBox26.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TextBox26.Location = New System.Drawing.Point(3, 16)
+        Me.TextBox26.Multiline = True
+        Me.TextBox26.Name = "TextBox26"
+        Me.TextBox26.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.TextBox26.Size = New System.Drawing.Size(532, 146)
+        Me.TextBox26.TabIndex = 0
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -2171,6 +2184,8 @@ Partial Class Form1
         Me.TabControl1.ResumeLayout(False)
         Me.TabPage2.ResumeLayout(False)
         Me.TabPage2.PerformLayout()
+        Me.GroupBox4.ResumeLayout(False)
+        Me.GroupBox4.PerformLayout()
         Me.GroupBox8.ResumeLayout(False)
         Me.GroupBox8.PerformLayout()
         CType(Me.NumericUpDown31, System.ComponentModel.ISupportInitialize).EndInit()
@@ -2403,4 +2418,5 @@ Partial Class Form1
     Friend WithEvents RadioButton4 As RadioButton
     Friend WithEvents GroupBox4 As GroupBox
     Friend WithEvents Label19 As Label
+    Friend WithEvents TextBox26 As TextBox
 End Class
