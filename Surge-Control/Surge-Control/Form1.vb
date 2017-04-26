@@ -75,7 +75,7 @@ Public Class Form1
     Private Sub Reset()
         Init_Chart1()
         Init_Chart2()
-        Timer1.Interval = 100   'Berekeningsinterval 500 msec
+        Timer1.Interval = 1000   'Berekeningsinterval 1000 msec
         time = 0
 
         Timer1.Enabled = True
@@ -178,35 +178,48 @@ Public Class Form1
         Dim setup_string As String
 
         '---- This is in the test Tab-------------
-        setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w"
+        setup_string = "LucidIoCtrl –dCOM5 –tV –c0,1,2,3 –w"
         setup_string &= NumericUpDown5.Value.ToString("0.000") & ","
         setup_string &= NumericUpDown10.Value.ToString("0.000") & ","
         setup_string &= NumericUpDown14.Value.ToString("0.000") & ","
         setup_string &= NumericUpDown15.Value.ToString("0.000") & vbCrLf
 
-        'setup_string = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" 'example
+        'setup_string = "LucidIoCtrl –dCOM5 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" 'example
         Send_data(setup_string)
     End Sub
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        Dim setup_string_output, setup_string_input As String
+        Dim setup_string_output, setup_string_what_connected, setup_string_input As String
 
-        time += Timer1.Interval / 1000                  '[sec]
+        time += Timer1.Interval / 1000                  '[msec]--->[sec]
         Label1.Text = time.ToString("000.0")
 
+        'If SerialPort1.IsOpen Then
         '----------LucidControl Output module -------------
         'Send new setting to the  current output
-        setup_string_output = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w"
-        setup_string_output &= Cout(1).ToString("0.000") & ","
-        setup_string_output &= Cout(2).ToString("0.000") & ","
-        setup_string_output &= Cout(3).ToString("0.000") & ","
-        setup_string_output &= Cout(4).ToString("0.000") & vbCr
-        'setup_string_output = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" 'Example
-        Send_data(setup_string_output)
+        'setup_string_output = "LucidIoCtrl –dCOM5 –tV –c0,1,2,3 –w"
+        'setup_string_output &= Cout(1).ToString("0.000") & ","
+        'setup_string_output &= Cout(2).ToString("0.000") & ","
+        'setup_string_output &= Cout(3).ToString("0.000") & ","
+        'setup_string_output &= Cout(4).ToString("0.000") & vbCr
+        'setup_string_output = "LucidIoCtrl –dCOM5 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" 'Example
+        'Send_data(setup_string_output)
+        'TextBox26.Text &= setup_string_output & vbCrLf
+        'End If
 
-        '----------LucidControl Input module -------------
-        setup_string_input = "LucidIoCtrl –dCOM1 –tV –c0,1,2,3 –r" & vbCr
-        Send_data(setup_string_input)
+        If SerialPort1.IsOpen Then
+            '----- what is connected -------
+            setup_string_what_connected = "LucidIoCtrl –dCOM5 –i" & vbCr
+            Send_data(setup_string_what_connected)
+            TextBox26.Text &= setup_string_what_connected & vbCrLf
+
+            '----------LucidControl Input module -------------
+
+            setup_string_input = "LucidIoCtrl –dCOM5 –tV –c0,1,2,3 –r" & vbCr
+            Send_data(setup_string_input)
+            TextBox26.Text &= setup_string_input & vbCrLf
+        End If
+
         Update_calc_screen()
         Draw_Chart1()
         PID_controller()
@@ -233,8 +246,8 @@ Public Class Form1
         cmbBaud.Items.Add(38400)
         cmbBaud.SelectedIndex = 0    'Set cmbBaud text to 9600 Baud 
 
-        SerialPort1.ReceivedBytesThreshold = 24    'wait EOF char or until there are x bytes in the buffer, include \n and \r !!!!
-        SerialPort1.ReadBufferSize = 4096
+        ' SerialPort1.ReceivedBytesThreshold = 24    'wait EOF char or until there are x bytes in the buffer, include \n and \r !!!!
+        'SerialPort1.ReadBufferSize = 4096
         SerialPort1.DiscardNull = True              'important otherwise it will not work
         SerialPort1.Parity = Parity.None
         SerialPort1.StopBits = StopBits.One
@@ -485,18 +498,17 @@ Public Class Form1
         Reset()
     End Sub
     Private Sub ReceivedText(ByVal intext As String)
-        If TextBox26.TextLength > 100 Then TextBox26.Clear()   'Prevent over filling
-        TextBox26.Text += intext
+        'If TextBox26.TextLength > 100 Then TextBox26.Clear()   'Prevent over filling
+        TextBox26.Text &= intext
     End Sub
 
-    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click, TabPage5.Enter, NumericUpDown9.ValueChanged, NumericUpDown8.ValueChanged, NumericUpDown12.ValueChanged, NumericUpDown11.ValueChanged
-        PID_controller()
+    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click, TabPage5.Enter
+        'PID_controller()
     End Sub
     Private Sub PID_controller()
         Dim setpoint, deviation, PID_output, dt As Double
         Dim Kp, Ki, Kd As Double    'Setting PID controller 
-        Dim pv, input_ma, output_ma, range As Double
-
+        Dim pv, input_ma, output_ma, range, ddev As Double
 
         '----- input from Flow transmitter in [Mamp]----
         Double.TryParse(TextBox1.Text, input_ma)                '[mAmp]
@@ -511,16 +523,18 @@ Public Class Form1
         Double.TryParse(TextBox27.Text, pv)
         '------ time interval-----
         dt = Timer1.Interval / 1000     '[sec]
-        If dt <= 0 Then dt = 1          'Preventing devision by zero errors 
+        ' If dt <= 0 Then dt = 1          'Preventing devision by zero errors 
+
+        '------- convert Flow to procent----
+        Double.TryParse(TextBox11.Text, range)
+        setpoint = NumericUpDown8.Value
+        deviation = (pv - setpoint) / range * 100       '[%]
+        If deviation > 10000 Then deviation = 1          'for startup
+        If deviation < -10000 Then deviation = 1         'for startup
+
 
         If CheckBox1.Checked And pv > 0 Then
-
-            '------- convert Flow to procent----
-            Double.TryParse(TextBox11.Text, range)
-            setpoint = NumericUpDown8.Value
-            deviation = (pv - setpoint) / range * 100       '[%]
-            If deviation > 1000 Then deviation = 0          'for startup
-            If deviation < -1000 Then deviation = 0         'for startup
+            ddev = deviation - last_deviation               'change in deviation
             last_deviation = deviation
 
             '=========== Calculate PID controller==========
@@ -529,20 +543,22 @@ Public Class Form1
             Iterm = Iterm + Ki * deviation * dt             'I action
             If Iterm > 100 Then Iterm = 100                 'anti-Windup
             If Iterm < 0 Then Iterm = 0                     'anti-Windup
-            Dterm = Kd * (deviation - last_deviation) / dt  'D action
+
+            ' TextBox26.Text &= ddev.ToString & vbCrLf
+            Dterm = Kd * ddev / dt  'D action
             PID_output = Pterm + Iterm + Dterm
             '=============================================
             output_ma = Convert_Units_to_mAmp("Valve-positioner", PID_output)
 
             '---------- present results ------------
-            TextBox28.Text = Round(deviation, 2).ToString
-            TextBox29.Text = Round(input_ma, 2).ToString    'input [mAmp]
-            TextBox30.Text = Round(output_ma, 2).ToString   'output [mAmp]
-            TextBox31.Text = Round(PID_output, 2).ToString  'output [m3/hr]
+            TextBox28.Text = Round(deviation, 2).ToString("0.00")
+            TextBox29.Text = Round(input_ma, 2).ToString("0.00")    'input [mAmp]
+            TextBox30.Text = Round(output_ma, 2).ToString("0.00")   'output [mAmp]
+            TextBox31.Text = Round(PID_output, 2).ToString("0.00")  'output [m3/hr]
 
-            TextBox33.Text = Round(Pterm, 2).ToString
-            TextBox34.Text = Round(Iterm, 2).ToString
-            TextBox35.Text = Round(Dterm, 2).ToString
+            TextBox33.Text = Round(Pterm, 2).ToString("0.00")
+            TextBox34.Text = Round(Iterm, 2).ToString("0.00")
+            TextBox35.Text = Round(Dterm, 2).ToString("0.00")
         End If
     End Sub
     Private Sub TextBox24_TextChanged(sender As Object, e As EventArgs) Handles TextBox24.TextChanged
