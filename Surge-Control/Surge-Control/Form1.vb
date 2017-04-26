@@ -7,6 +7,7 @@ Imports System.Threading
 Public Class Form1
     Dim time As Double
 
+    Dim pv(4) As Double        'Process values 0,1,2,3,4
     Dim Cout(4) As Double      'Current Outputs
 
     Dim myPort As Array  'COM Ports detected on the system will be stored here
@@ -201,6 +202,7 @@ Public Class Form1
         Send_data(setup_string_input)
         Update_calc_screen()
         Draw_Chart1()
+        PID_controller()
     End Sub
 
     Private Sub Serial_setup() 'Serial port setup
@@ -401,6 +403,8 @@ Public Class Form1
         TextBox3.Text = Round(Cout(3), 1).ToString  'Delta P [Pa]
         TextBox23.Text = Round(Cout(4), 1).ToString 'Temp fan in [c]
     End Sub
+
+    '------- From fysical units ----> mAmp's  
     Private Function Calc_output(outType As String, value As Double) As Double
         Dim results, range, value_4ma As Double
         Select Case outType
@@ -418,6 +422,27 @@ Public Class Form1
                 results = (value - value_4ma) / range * 16.0 + 4.0
             Case Else
                 MessageBox.Show("Oops error in Calc_output function")
+        End Select
+        Return (results)
+    End Function
+    '------- From  from mAmp's ----> fysical units
+    Private Function Calc_input(outType As String, value As Double) As Double
+        Dim results, range, value_4ma As Double
+        Select Case outType
+            Case "Flow"
+                value_4ma = NumericUpDown27.Value
+                Double.TryParse(TextBox11.Text, range)
+                results = (value - 4) / 16 * range + value_4ma
+            Case "Temperature"
+                value_4ma = NumericUpDown30.Value
+                Double.TryParse(TextBox12.Text, range)
+                results = (value - 4) / 16 * range + value_4ma
+            Case "Pressure"
+                value_4ma = NumericUpDown32.Value
+                Double.TryParse(TextBox13.Text, range)
+                results = (value - 4) / 16 * range + value_4ma
+            Case Else
+                MessageBox.Show("Oops error in Calc_in function")
         End Select
         Return (results)
     End Function
@@ -445,8 +470,56 @@ Public Class Form1
         If TextBox26.TextLength > 100 Then TextBox26.Clear()   'Prevent over filling
         TextBox26.Text += intext
     End Sub
+
+    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click, TabPage5.Enter, NumericUpDown9.ValueChanged, NumericUpDown8.ValueChanged, NumericUpDown12.ValueChanged, NumericUpDown11.ValueChanged
+        PID_controller()
+    End Sub
+    Private Sub PID_controller()
+        Dim setpoint, output, dev, dt As Double
+        Dim Kp, Ki, Kd As Double    'Setting PID controller 
+        Dim input_ma, output_ma As Double
+
+        If CheckBox1.Checked Then
+
+            '----- input from Flow transmitter in [Mamp]----
+            Double.TryParse(TextBox1.Text, input_ma)                '[mAmp]
+            TextBox27.Text = Round(Calc_input("Flow", input_ma), 0).ToString  '[m3/hr]
+
+            '------ Setting PID controller --------
+            Kp = NumericUpDown9.Value
+            Ki = NumericUpDown11.Value
+            Kd = NumericUpDown12.Value
+
+            '------ time interval-----
+            dt = Timer1.Interval / 100
+
+            '------ shift register with process values
+            pv(0) = pv(1)
+            pv(1) = pv(2)
+            pv(2) = pv(3)
+            Double.TryParse(TextBox27.Text, pv(4))
+
+            setpoint = NumericUpDown8.Value
+            dev = pv(4) - setpoint
+
+            'Calculate PID controller
+            output = Kp * dev                           'P action
+            output += Ki * dev * dt                     'I action
+            output += Kd * (pv(4) - pv(3)) / dt         'D action
+
+
+            output_ma = Calc_output("Flow", output)     '[mAmp]
+
+            TextBox28.Text = Round(dev, 0).ToString
+            TextBox29.Text = Round(input_ma, 1).ToString    'input [mAmp]
+            TextBox30.Text = Round(output_ma, 1).ToString   'output [mAmp]
+            TextBox31.Text = Round(output, 0).ToString      'output [m3/hr]
+
+            ' MessageBox.Show("PID..")
+        End If
+    End Sub
     Private Sub TextBox24_TextChanged(sender As Object, e As EventArgs) Handles TextBox24.TextChanged
-        Calc_bypass_valve_position()
+        Convert_bypass_valve_mAmp_to_position()
     End Sub
     Private Sub Safe_to_file()
         Dim file_name As String
@@ -460,7 +533,7 @@ Public Class Form1
             MessageBox.Show("File is NOT saved" & vbCrLf & "Directory doen not exist" & vbCrLf & "Please create " & dirpath_Home)
         End If
     End Sub
-    Private Sub Calc_bypass_valve_position()
+    Private Sub Convert_bypass_valve_mAmp_to_position()
         Dim bypass_valve_position, tmp As Double
         Double.TryParse(TextBox24.Text, tmp)
         bypass_valve_position = (tmp - 4) / 16 * 100    '[%]

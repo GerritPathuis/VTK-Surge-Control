@@ -7,14 +7,14 @@
     <framework targetVersion="4.5.2" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="Surge-Control.exe.manifest" size="3488">
+    <dependentAssembly dependencyType="install" codebase="Surge-Control.exe.manifest" size="3489">
       <assemblyIdentity name="Surge-Control.exe" version="1.0.0.2" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>9MGSfrqOZpejEPpCZgOjme9BIV1ocSriMi7BCv8TVJM=</dsig:DigestValue>
+        <dsig:DigestValue>rNBCyS25r/P7RXe1vTvevlb4gmZg4o9JIFrEALbI1Ow=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
