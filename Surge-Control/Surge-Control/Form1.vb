@@ -7,8 +7,10 @@ Imports System.Threading
 Public Class Form1
     Dim time As Double
 
-    Dim pv(4) As Double        'Process values 0,1,2,3,4
-    Dim Cout(4) As Double      'Current Outputs
+    Dim pv(4) As Double             'Process values 0,1,2,3,4
+    Dim Cout(4) As Double           'Current Outputs
+    Dim last_deviation As Double    'PID control
+    Dim Pterm, Iterm, Dterm As Double
 
     Dim myPort As Array  'COM Ports detected on the system will be stored here
     Dim comOpen As Boolean
@@ -18,7 +20,7 @@ Public Class Form1
     Dim Temp_in, Temp_out As Double     '[Celsius]
     Dim Press_in, Press_out As Double   '[Pa]
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
+        Dim i As Integer
         Thread.CurrentThread.CurrentCulture = New CultureInfo("en-US")
         Thread.CurrentThread.CurrentUICulture = New CultureInfo("en-US")
 
@@ -62,6 +64,10 @@ Public Class Form1
 
         TextBox24.Text = "6.8" 'Test value [c]
 
+        For i = 0 To 3
+            pv(i) = 1       'Initial value
+        Next
+
         Reset()
         Update_calc_screen()
     End Sub
@@ -73,6 +79,7 @@ Public Class Form1
         time = 0
 
         Timer1.Enabled = True
+        TextBox31.Text = "50"   'PID controller output 50%
     End Sub
     Private Sub Init_Chart1()
         Dim i As Integer
@@ -309,7 +316,7 @@ Public Class Form1
     End Sub
 
     Private Sub Update_calc_screen()
-        Dim Range(2) As String
+        Dim Range(3) As String
         Dim K_sys, K_bypass, k_sum, K100, valve_open, dp, ro As Double
         Dim A, B, C, Qv_in, Qv_out, A1 As Double
         Dim Pin, Pout As Double
@@ -320,6 +327,7 @@ Public Class Form1
         Range(0) = CType(NumericUpDown28.Value - NumericUpDown27.Value, String)    'Flow
         Range(1) = CType(NumericUpDown29.Value - NumericUpDown30.Value, String)    'Temp
         Range(2) = CType(NumericUpDown31.Value - NumericUpDown32.Value, String)    'Pressure
+        Range(3) = CType(NumericUpDown13.Value - NumericUpDown34.Value, String)    'Pressure
 
         ro = NumericUpDown19.Value                  'Density [kg/Am3]
         A = NumericUpDown17.Value                   'Fan Curve [-]
@@ -382,6 +390,7 @@ Public Class Form1
             TextBox11.Text = Range(0).ToString
             TextBox12.Text = Range(1).ToString
             TextBox13.Text = Range(2).ToString
+            TextBox32.Text = Range(3).ToString
             TextBox14.Text = Round(K_sys, 2).ToString   'Resistance Total system
             TextBox15.Text = Round(Qv_in, 0).ToString
             TextBox21.Text = Round(Pin, 0).ToString     'Pressure inlet
@@ -393,10 +402,10 @@ Public Class Form1
         TextBox15.BackColor = CType(IIf(NumericUpDown1.Value < Qv_in, Color.White, Color.Red), Color)
 
         '---------- calc output currents
-        Cout(1) = Calc_output("Flow", Qv_in)
-        Cout(2) = Calc_output("Pressure", Pin)
-        Cout(3) = Calc_output("Pressure", dp)
-        Cout(4) = Calc_output("Temperature", Tin)
+        Cout(1) = Convert_Units_to_mAmp("Flow", Qv_in)
+        Cout(2) = Convert_Units_to_mAmp("Pressure", Pin)
+        Cout(3) = Convert_Units_to_mAmp("Pressure", dp)
+        Cout(4) = Convert_Units_to_mAmp("Temperature", Tin)
 
         TextBox1.Text = Round(Cout(1), 1).ToString  'Flow inlet/out Actual [Am3/hr]
         TextBox2.Text = Round(Cout(2), 1).ToString  'Pressure in [Pa]
@@ -404,8 +413,8 @@ Public Class Form1
         TextBox23.Text = Round(Cout(4), 1).ToString 'Temp fan in [c]
     End Sub
 
-    '------- From fysical units ----> mAmp's  
-    Private Function Calc_output(outType As String, value As Double) As Double
+    '------- Convert fysical units ----> mAmp's  
+    Private Function Convert_Units_to_mAmp(outType As String, value As Double) As Double
         Dim results, range, value_4ma As Double
         Select Case outType
             Case "Flow"
@@ -420,13 +429,18 @@ Public Class Form1
                 value_4ma = NumericUpDown32.Value
                 Double.TryParse(TextBox13.Text, range)
                 results = (value - value_4ma) / range * 16.0 + 4.0
+            Case "Valve-positioner"
+                value_4ma = NumericUpDown34.Value
+                Double.TryParse(TextBox32.Text, range)
+                ' MessageBox.Show(range.ToString)
+                results = (value - value_4ma) / range * 16.0 + 4.0
             Case Else
-                MessageBox.Show("Oops error in Calc_output function")
+                MessageBox.Show("Oops error in Convert_Units_to_mAmp function")
         End Select
         Return (results)
     End Function
-    '------- From  from mAmp's ----> fysical units
-    Private Function Calc_input(outType As String, value As Double) As Double
+    '------- Convert from mAmp's ----> fysical units
+    Private Function Convert_mAmp_to_Units(outType As String, value As Double) As Double
         Dim results, range, value_4ma As Double
         Select Case outType
             Case "Flow"
@@ -440,6 +454,10 @@ Public Class Form1
             Case "Pressure"
                 value_4ma = NumericUpDown32.Value
                 Double.TryParse(TextBox13.Text, range)
+                results = (value - 4) / 16 * range + value_4ma
+            Case "Valve-positioner"
+                value_4ma = NumericUpDown34.Value
+                Double.TryParse(TextBox32.Text, range)
                 results = (value - 4) / 16 * range + value_4ma
             Case Else
                 MessageBox.Show("Oops error in Calc_in function")
@@ -475,47 +493,56 @@ Public Class Form1
         PID_controller()
     End Sub
     Private Sub PID_controller()
-        Dim setpoint, output, dev, dt As Double
+        Dim setpoint, deviation, PID_output, dt As Double
         Dim Kp, Ki, Kd As Double    'Setting PID controller 
-        Dim input_ma, output_ma As Double
+        Dim pv, input_ma, output_ma, range As Double
 
-        If CheckBox1.Checked Then
 
-            '----- input from Flow transmitter in [Mamp]----
-            Double.TryParse(TextBox1.Text, input_ma)                '[mAmp]
-            TextBox27.Text = Round(Calc_input("Flow", input_ma), 0).ToString  '[m3/hr]
+        '----- input from Flow transmitter in [Mamp]----
+        Double.TryParse(TextBox1.Text, input_ma)                '[mAmp]
+        TextBox27.Text = Round(Convert_mAmp_to_Units("Flow", input_ma), 0).ToString  '[m3/hr]
 
-            '------ Setting PID controller --------
-            Kp = NumericUpDown9.Value
-            Ki = NumericUpDown11.Value
-            Kd = NumericUpDown12.Value
+        '------ Setting PID controller --------
+        Kp = NumericUpDown9.Value
+        Ki = NumericUpDown11.Value
+        Kd = NumericUpDown12.Value
 
-            '------ time interval-----
-            dt = Timer1.Interval / 100
+        '------ shift register with process values
+        Double.TryParse(TextBox27.Text, pv)
+        '------ time interval-----
+        dt = Timer1.Interval / 1000     '[sec]
+        If dt <= 0 Then dt = 1          'Preventing devision by zero errors 
 
-            '------ shift register with process values
-            pv(0) = pv(1)
-            pv(1) = pv(2)
-            pv(2) = pv(3)
-            Double.TryParse(TextBox27.Text, pv(4))
+        If CheckBox1.Checked And pv > 0 Then
 
+            '------- convert Flow to procent----
+            Double.TryParse(TextBox11.Text, range)
             setpoint = NumericUpDown8.Value
-            dev = pv(4) - setpoint
+            deviation = (pv - setpoint) / range * 100       '[%]
+            If deviation > 1000 Then deviation = 0          'for startup
+            If deviation < -1000 Then deviation = 0         'for startup
+            last_deviation = deviation
 
-            'Calculate PID controller
-            output = Kp * dev                           'P action
-            output += Ki * dev * dt                     'I action
-            output += Kd * (pv(4) - pv(3)) / dt         'D action
+            '=========== Calculate PID controller==========
+            Double.TryParse(TextBox31.Text, PID_output)
+            Pterm = Kp * deviation                          'P action
+            Iterm = Iterm + Ki * deviation * dt             'I action
+            If Iterm > 100 Then Iterm = 100                 'anti-Windup
+            If Iterm < 0 Then Iterm = 0                     'anti-Windup
+            Dterm = Kd * (deviation - last_deviation) / dt  'D action
+            PID_output = Pterm + Iterm + Dterm
+            '=============================================
+            output_ma = Convert_Units_to_mAmp("Valve-positioner", PID_output)
 
+            '---------- present results ------------
+            TextBox28.Text = Round(deviation, 2).ToString
+            TextBox29.Text = Round(input_ma, 2).ToString    'input [mAmp]
+            TextBox30.Text = Round(output_ma, 2).ToString   'output [mAmp]
+            TextBox31.Text = Round(PID_output, 2).ToString  'output [m3/hr]
 
-            output_ma = Calc_output("Flow", output)     '[mAmp]
-
-            TextBox28.Text = Round(dev, 0).ToString
-            TextBox29.Text = Round(input_ma, 1).ToString    'input [mAmp]
-            TextBox30.Text = Round(output_ma, 1).ToString   'output [mAmp]
-            TextBox31.Text = Round(output, 0).ToString      'output [m3/hr]
-
-            ' MessageBox.Show("PID..")
+            TextBox33.Text = Round(Pterm, 2).ToString
+            TextBox34.Text = Round(Iterm, 2).ToString
+            TextBox35.Text = Round(Dterm, 2).ToString
         End If
     End Sub
     Private Sub TextBox24_TextChanged(sender As Object, e As EventArgs) Handles TextBox24.TextChanged
