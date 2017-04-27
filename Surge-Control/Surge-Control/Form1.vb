@@ -189,35 +189,35 @@ Public Class Form1
     End Sub
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        Dim setup_string_output, setup_string_what_connected, setup_string_input As String
+
+        Dim GetIoGroup(4) As Byte   'Voltage, see Page 22 en 24
+        Dim GetId(4) As Byte        'Getid Page 30
+
+        GetIoGroup(1) = &H48   'OPC= GetIoGroup
+        GetIoGroup(2) = &H1    'Channel 1
+        GetIoGroup(3) = &H1C   'Voltage
+        GetIoGroup(4) = &H0    'LEN
+
+        GetId(1) = &HC0        'OPC= GetId
+        GetId(2) = &H0
+        GetId(3) = &H0
+        GetId(4) = &H0
+
 
         time += Timer1.Interval / 1000                  '[msec]--->[sec]
         Label1.Text = time.ToString("000.0")
 
-        'If SerialPort1.IsOpen Then
-        '----------LucidControl Output module -------------
-        'Send new setting to the  current output
-        'setup_string_output = "LucidIoCtrl –dCOM5 –tV –c0,1,2,3 –w"
-        'setup_string_output &= Cout(1).ToString("0.000") & ","
-        'setup_string_output &= Cout(2).ToString("0.000") & ","
-        'setup_string_output &= Cout(3).ToString("0.000") & ","
-        'setup_string_output &= Cout(4).ToString("0.000") & vbCr
-        'setup_string_output = "LucidIoCtrl –dCOM5 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" 'Example
-        'Send_data(setup_string_output)
-        'TextBox26.Text &= setup_string_output & vbCrLf
-        'End If
+        ' GetIoGroupa = BitConverter.GetBytes(Long.Parse(GetIoGroup, NumberStyles.AllowHexSpecifier))
 
         If SerialPort1.IsOpen Then
             '----- what is connected -------
-            setup_string_what_connected = "LucidIoCtrl –dCOM5 –i" & vbCr
-            Send_data(setup_string_what_connected)
-            TextBox26.Text &= setup_string_what_connected & vbCrLf
+            SerialPort1.Write(GetId, 1, 4)
 
             '----------LucidControl Input module -------------
-
-            setup_string_input = "LucidIoCtrl –dCOM5 –tV –c0,1,2,3 –r" & vbCr
-            Send_data(setup_string_input)
-            TextBox26.Text &= setup_string_input & vbCrLf
+            'SerialPort1.Write(GetId, 1, 4)
+            'MessageBox.Show(GetIoGroupa(1).ToString & GetIoGroupa(2).ToString & GetIoGroupa(3).ToString & GetIoGroupa(4).ToString & GetIoGroupa(5).ToString)
+            ' Send_data(GetIoGroup)
+            TextBox26.Text &= "."
         End If
 
         Update_calc_screen()
