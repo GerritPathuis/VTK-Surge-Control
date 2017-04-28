@@ -24,6 +24,7 @@ Public Class Form1
         Thread.CurrentThread.CurrentCulture = New CultureInfo("en-US")
         Thread.CurrentThread.CurrentUICulture = New CultureInfo("en-US")
 
+
         TextBox16.Text =
         "Based on " & vbCrLf &
         "Anti Surge Control Test Procedure, Guus van Gemert 2017" & vbCrLf &
@@ -190,33 +191,22 @@ Public Class Form1
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
 
-        Dim GetIoGroup(4) As Byte   'Voltage, see Page 22 en 24
+        Dim GetIoGroup(4) As Byte   'Get-Voltage, see Page 22 en 24
         Dim GetId(4) As Byte        'Getid Page 30
 
         GetIoGroup(1) = &H48   'OPC= GetIoGroup
-        GetIoGroup(2) = &HF    'Channel 1
+        GetIoGroup(2) = &H1    'Channel 1
         GetIoGroup(3) = &H1C   'Voltage
         GetIoGroup(4) = &H0    'LEN
-
-        GetId(1) = &HC0        'OPC= GetId
-        GetId(2) = &H0
-        GetId(3) = &H0
-        GetId(4) = &H0
-
 
         time += Timer1.Interval / 1000                  '[msec]--->[sec]
         Label1.Text = time.ToString("000.0")
 
-        ' GetIoGroupa = BitConverter.GetBytes(Long.Parse(GetIoGroup, NumberStyles.AllowHexSpecifier))
-
         If SerialPort1.IsOpen Then
-            '----- what is connected -------
-            SerialPort1.Write(GetId, 1, 4)
 
-            '----------LucidControl Input module -------------
-            'SerialPort1.Write(GetIoGroup, 1, 4)
-
-            'TextBox26.Text &= "."
+            '-------LucidControl AI4, 10Volt Input module -------------
+            SerialPort1.Write(GetIoGroup, 1, 4)
+            TextBox26.Text &= "."
         End If
 
         Update_calc_screen()
@@ -233,51 +223,49 @@ Public Class Form1
         Try
             myPort = SerialPort.GetPortNames() 'Get all com ports available
             For Each port In myPort
-                cmbPort.Items.Add(port)
+                combo_Port.Items.Add(port)
             Next port
-            cmbPort.Text = CType(cmbPort.Items.Item(0), String)    'Set cmbPort text to the first COM port detected
+            combo_Port.Text = CType(combo_Port.Items.Item(0), String)    'Set cmbPort text to the first COM port detected
         Catch ex As Exception
             MsgBox("No COM ports detected")
         End Try
 
-        cmbBaud.Items.Add(9600)     'Populate the cmbBaud Combo box to common baud rates used
-        cmbBaud.Items.Add(19200)
-        cmbBaud.Items.Add(38400)
-        cmbBaud.SelectedIndex = 0    'Set cmbBaud text to 9600 Baud 
-
-        SerialPort1.ReadBufferSize = 4096
-        SerialPort1.DiscardNull = True              'important otherwise it will not work
-        SerialPort1.Parity = Parity.None
-        SerialPort1.StopBits = StopBits.One
-        SerialPort1.Handshake = Handshake.None
-        SerialPort1.ParityReplace = CByte(True)
-        btnDisconnect.Enabled = False                  'Initially Disconnect Button is Disabled
+        combo_Baud.Items.Add(9600)     'Populate the cmbBaud Combo box to common baud rates used
+        combo_Baud.Items.Add(19200)
+        combo_Baud.Items.Add(38400)
+        combo_Baud.SelectedIndex = 0    'Set cmbBaud text to 9600 Baud 
+        'btnDisconnect.Enabled = False                'Initially Disconnect Button is Disabled
     End Sub
 
-    Private Sub CmbPort_Click(sender As Object, e As EventArgs) Handles cmbPort.Click
-        cmbPort.SelectedIndex = -1
-        cmbPort.Items.Clear()
+    Private Sub CmbPort_Click(sender As Object, e As EventArgs) Handles combo_Port.Click
+        combo_Port.SelectedIndex = -1
+        combo_Port.Items.Clear()
         Serial_setup()
     End Sub
 
     Private Sub BtnConnect_Click(sender As System.Object, e As System.EventArgs) Handles btnConnect.Click
         SerialPort1.Close()                     'Close existing 
-        If cmbPort.Text.Length = 0 Then
+        If combo_Port.Text.Length = 0 Then
             MsgBox("Sorry, did not find any connected Lucid Controllers")
         Else
-            SerialPort1.PortName = cmbPort.Text         'Set SerialPort1 to the selected COM port at startup
-            SerialPort1.BaudRate = CInt(cmbBaud.Text)         'Set Baud rate to the selected value on
-
-            'Other Serial Port Property
-            SerialPort1.Parity = IO.Ports.Parity.None
-            SerialPort1.StopBits = IO.Ports.StopBits.One
-            SerialPort1.DataBits = 8                  'Open our serial port
+            SerialPort1.PortName = combo_Port.Text         'Set SerialPort1 to the selected COM port at startup
+            SerialPort1.BaudRate = CInt(combo_Baud.Text)   'Set Baud rate to the selected value on
+            SerialPort1.Parity = Parity.None
+            SerialPort1.StopBits = StopBits.One
+            SerialPort1.Handshake = Handshake.None
+            SerialPort1.DataBits = 8                   'Open our serial port
+            SerialPort1.ReadBufferSize = 4096
+            SerialPort1.ReceivedBytesThreshold = 4
+            SerialPort1.DiscardNull = False              'important otherwise it will not work
+            'SerialPort1.DtrEnable = True
+            'SerialPort1.RtsEnable = True
+            ' SerialPort1.ParityReplace = CByte(True)
 
             Try
                 SerialPort1.Open()
                 btnConnect.Enabled = False              'Disable Connect button
                 btnConnect.BackColor = Color.Yellow
-                cmbPort.BackColor = Color.Yellow
+                combo_Port.BackColor = Color.Yellow
                 btnConnect.Text = "OK connected"
                 btnDisconnect.Enabled = True            'and Enable Disconnect button
             Catch ex As Exception
@@ -318,26 +306,21 @@ Public Class Form1
             MsgBox("Error nr 887 IO exception" & exc.Message)
         End Try
     End Sub
-    Private Sub SerialPort1_DataReceived(sender As System.Object, e As System.IO.Ports.SerialDataReceivedEventArgs) Handles SerialPort1.DataReceived
+    Private Sub SerialPort1_DataReceived(sender As System.Object, e As SerialDataReceivedEventArgs) Handles SerialPort1.DataReceived
         Dim intext_hex As String = String.Empty
         Dim intext As String = String.Empty
-
-        'see https://msdn.microsoft.com/en-us/library/05cts4c3(v=vs.110).aspx
-        Try
-            intext_hex = SerialPort1.ReadLine()
-
-            If Not String.IsNullOrEmpty(intext_hex) Then
-                intext &= StrToHex(intext_hex) & vbCrLf
-                Invoke(Sub() TextBox26.Text &= intext)
-            End If
-        Catch exc As IOException
-            MsgBox("Error 453 IO exception" & exc.Message)
-        End Try
+        Dim byte_in_buffer As Integer = SerialPort1.BytesToRead
+        'Beep()
+        intext_hex = SerialPort1.ReadExisting
+        intext &= StrToHex(intext_hex) & " gp" & vbCrLf
+        Invoke(Sub() TextBox26.Text &= intext)
     End Sub
 
     Public Function StrToHex(Data As String) As String
-        Dim sVal As String
-        Dim sHex As String = ""
+        Dim sVal As String = String.Empty
+        Dim sHex As String = String.Empty
+        'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
+
         While Data.Length > 0
             sVal = Conversion.Hex(Strings.Asc(Data.Substring(0, 1).ToString()))
             Data = Data.Substring(1)
@@ -515,6 +498,25 @@ Public Class Form1
 
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
         Safe_to_file()
+    End Sub
+
+    Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
+        Dim GetId(4) As Byte       'Getid Page 30
+
+        GetId(1) = &HC0        'OPC= GetId
+        GetId(2) = &H0
+        GetId(3) = &H0
+        GetId(4) = &H0
+
+        If SerialPort1.IsOpen Then
+            SerialPort1.Write(GetId, 1, 4)
+        Else
+            MessageBox.Show("Port is closed")
+        End If
+    End Sub
+
+    Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
+        TextBox26.Clear()
     End Sub
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
