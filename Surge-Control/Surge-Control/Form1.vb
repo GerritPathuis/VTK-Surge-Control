@@ -203,10 +203,8 @@ Public Class Form1
         Label1.Text = time.ToString("000.0")
 
         If SerialPort1.IsOpen Then
-
             '-------LucidControl AI4, 10Volt Input module -------------
             SerialPort1.Write(GetIoGroup, 1, 4)
-            TextBox26.Text &= "."
         End If
 
         Update_calc_screen()
@@ -309,10 +307,23 @@ Public Class Form1
     Private Sub SerialPort1_DataReceived(sender As System.Object, e As SerialDataReceivedEventArgs) Handles SerialPort1.DataReceived
         Dim intext_hex As String = String.Empty
         Dim intext As String = String.Empty
-        Dim byte_in_buffer As Integer = SerialPort1.BytesToRead
+        Dim status_code As String = String.Empty
+        Dim status_OK As String = "00"
+        Dim Value_channel_0 As String  'Lucid-Control AI4, 10V module
+        Dim Volt_channel_0 As Double  'Lucid-Control AI4, 10V module
+
         'Beep()
-        intext_hex = SerialPort1.ReadExisting
-        intext &= StrToHex(intext_hex) & " gp" & vbCrLf
+        intext_hex = SerialPort1.ReadExisting       'Read the data
+        intext &= StrToHex(intext_hex) & vbCrLf     'Convert data to hex
+        '--------- Status Communication-------
+        status_code = intext.Substring(0, 2)
+        If Not String.Equals(status_code, status_OK) Then MessageBox.Show("Lucid Communication problem Status Code= " & status_code)
+        '---------- Get the value -----------
+        Value_channel_0 = intext.Substring(4, 4)
+        Volt_channel_0 = Convert.ToInt32(Value_channel_0, 16) / 10000    '[uVolt] Channel 0'
+
+        '--------- Present data--------------
+        Invoke(Sub() TextBox37.Text = Volt_channel_0.ToString)
         Invoke(Sub() TextBox26.Text &= intext)
     End Sub
 
@@ -322,18 +333,17 @@ Public Class Form1
         'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
 
         While Data.Length > 0
-            sVal = Conversion.Hex(Strings.Asc(Data.Substring(0, 1).ToString()))
+            sVal = Hex(Strings.Asc(Data.Substring(0, 1).ToString()))
             Data = Data.Substring(1)
             If sVal.Length < 2 Then
                 sHex = sHex & "0" & sVal
             Else
                 sHex = sHex & sVal
             End If
+            'sHex = sHex & " "
         End While
         Return sHex
     End Function
-
-
     Private Sub Update_calc_screen()
         Dim Range(3) As String
         Dim K_sys, K_bypass, k_sum, K100, valve_open, dp, ro As Double
@@ -343,6 +353,8 @@ Public Class Form1
         Dim γ As Double
         Dim p_time, period, amplitude As Double
         Dim Qv_a, Qv_b As Double
+
+        'Range is required for converting the signal to and from 4-20 mAmp
         Range(0) = CType(NumericUpDown28.Value - NumericUpDown27.Value, String)    'Flow
         Range(1) = CType(NumericUpDown29.Value - NumericUpDown30.Value, String)    'Temp
         Range(2) = CType(NumericUpDown31.Value - NumericUpDown32.Value, String)    'Pressure
@@ -501,9 +513,9 @@ Public Class Form1
     End Sub
 
     Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
-        Dim GetId(4) As Byte       'Getid Page 30
+        Dim GetId(4) As Byte       'Getid 
 
-        GetId(1) = &HC0        'OPC= GetId
+        GetId(1) = &HC0        'OPC= GetId Page 30
         GetId(2) = &H0
         GetId(3) = &H0
         GetId(4) = &H0
@@ -511,7 +523,7 @@ Public Class Form1
         If SerialPort1.IsOpen Then
             SerialPort1.Write(GetId, 1, 4)
         Else
-            MessageBox.Show("Port is closed")
+            MessageBox.Show("Cannot get ID Port is closed")
         End If
     End Sub
 
