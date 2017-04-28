@@ -194,7 +194,7 @@ Public Class Form1
         Dim GetId(4) As Byte        'Getid Page 30
 
         GetIoGroup(1) = &H48   'OPC= GetIoGroup
-        GetIoGroup(2) = &H1    'Channel 1
+        GetIoGroup(2) = &HF    'Channel 1
         GetIoGroup(3) = &H1C   'Voltage
         GetIoGroup(4) = &H0    'LEN
 
@@ -214,10 +214,9 @@ Public Class Form1
             SerialPort1.Write(GetId, 1, 4)
 
             '----------LucidControl Input module -------------
-            'SerialPort1.Write(GetId, 1, 4)
-            'MessageBox.Show(GetIoGroupa(1).ToString & GetIoGroupa(2).ToString & GetIoGroupa(3).ToString & GetIoGroupa(4).ToString & GetIoGroupa(5).ToString)
-            ' Send_data(GetIoGroup)
-            TextBox26.Text &= "."
+            'SerialPort1.Write(GetIoGroup, 1, 4)
+
+            'TextBox26.Text &= "."
         End If
 
         Update_calc_screen()
@@ -246,8 +245,7 @@ Public Class Form1
         cmbBaud.Items.Add(38400)
         cmbBaud.SelectedIndex = 0    'Set cmbBaud text to 9600 Baud 
 
-        ' SerialPort1.ReceivedBytesThreshold = 24    'wait EOF char or until there are x bytes in the buffer, include \n and \r !!!!
-        'SerialPort1.ReadBufferSize = 4096
+        SerialPort1.ReadBufferSize = 4096
         SerialPort1.DiscardNull = True              'important otherwise it will not work
         SerialPort1.Parity = Parity.None
         SerialPort1.StopBits = StopBits.One
@@ -321,12 +319,37 @@ Public Class Form1
         End Try
     End Sub
     Private Sub SerialPort1_DataReceived(sender As System.Object, e As System.IO.Ports.SerialDataReceivedEventArgs) Handles SerialPort1.DataReceived
+        Dim intext_hex As String = String.Empty
+        Dim intext As String = String.Empty
+
+        'see https://msdn.microsoft.com/en-us/library/05cts4c3(v=vs.110).aspx
         Try
-            ReceivedText(SerialPort1.ReadLine())    'Automatically called every time a data is received at the serialPortb
+            intext_hex = SerialPort1.ReadLine()
+
+            If Not String.IsNullOrEmpty(intext_hex) Then
+                intext &= StrToHex(intext_hex) & vbCrLf
+                Invoke(Sub() TextBox26.Text &= intext)
+            End If
         Catch exc As IOException
             MsgBox("Error 453 IO exception" & exc.Message)
         End Try
     End Sub
+
+    Public Function StrToHex(Data As String) As String
+        Dim sVal As String
+        Dim sHex As String = ""
+        While Data.Length > 0
+            sVal = Conversion.Hex(Strings.Asc(Data.Substring(0, 1).ToString()))
+            Data = Data.Substring(1)
+            If sVal.Length < 2 Then
+                sHex = sHex & "0" & sVal
+            Else
+                sHex = sHex & sVal
+            End If
+        End While
+        Return sHex
+    End Function
+
 
     Private Sub Update_calc_screen()
         Dim Range(3) As String
@@ -496,14 +519,6 @@ Public Class Form1
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
-    End Sub
-    Private Sub ReceivedText(ByVal intext As String)
-        'If TextBox26.TextLength > 100 Then TextBox26.Clear()   'Prevent over filling
-        TextBox26.Text &= intext
-    End Sub
-
-    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click, TabPage5.Enter
-        'PID_controller()
     End Sub
     Private Sub PID_controller()
         Dim setpoint, deviation, PID_output, dt As Double
