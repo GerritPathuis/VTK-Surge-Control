@@ -176,17 +176,22 @@ Public Class Form1
         End Try
     End Sub
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        Dim setup_string As String
+        Dim SetIoGroup(4) As Byte   'Get-Voltage, see Page 22 en 24
 
-        '---- This is in the test Tab-------------
-        setup_string = "LucidIoCtrl –dCOM5 –tV –c0,1,2,3 –w"
-        setup_string &= NumericUpDown5.Value.ToString("0.000") & ","
-        setup_string &= NumericUpDown10.Value.ToString("0.000") & ","
-        setup_string &= NumericUpDown14.Value.ToString("0.000") & ","
-        setup_string &= NumericUpDown15.Value.ToString("0.000") & vbCrLf
+        SetIoGroup(1) = &H42   'OPC= SetIoGroup
+        SetIoGroup(2) = &HF    'Channel 1...4
+        SetIoGroup(3) = &H23   'Current  (0 to 1,000,000 MicroAmp)
+        SetIoGroup(4) = &H4    'LEN
 
-        'setup_string = "LucidIoCtrl –dCOM5 –tV –c0,1,2,3 –w5.000,2.500,1.250,0.625" 'example
-        Send_data(setup_string)
+        '----------- current channel #1---------------
+        SetIoGroup(5) = &H42   '
+        SetIoGroup(6) = &HF    '
+        SetIoGroup(7) = &H23   '
+        SetIoGroup(8) = &H0    '
+
+        'Volt_channel_0 = Convert.ToInt32(Value_channel_0, 16) / 10000    '[uVolt] Channel 0'
+
+        SerialPort1.Write(SetIoGroup, 1, 8)
     End Sub
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
@@ -294,15 +299,6 @@ Public Class Form1
     End Sub
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
         Reset()
-    End Sub
-    Private Sub Send_data(rtbtransmit As String)
-        Try
-            If SerialPort1.IsOpen Then
-                SerialPort1.WriteLine(rtbtransmit) 'The text contained in the txtText will be sent to the serial port as ascii
-            End If
-        Catch exc As IOException
-            MsgBox("Error nr 887 IO exception" & exc.Message)
-        End Try
     End Sub
     Private Sub SerialPort1_DataReceived(sender As System.Object, e As SerialDataReceivedEventArgs) Handles SerialPort1.DataReceived
         Dim intext_hex As String = String.Empty

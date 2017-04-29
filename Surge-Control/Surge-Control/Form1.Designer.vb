@@ -32,6 +32,10 @@ Partial Class Form1
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage2 = New System.Windows.Forms.TabPage()
+        Me.GroupBox14 = New System.Windows.Forms.GroupBox()
+        Me.TextBox37 = New System.Windows.Forms.TextBox()
+        Me.Label102 = New System.Windows.Forms.Label()
+        Me.Label103 = New System.Windows.Forms.Label()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
         Me.Button8 = New System.Windows.Forms.Button()
         Me.TextBox26 = New System.Windows.Forms.TextBox()
@@ -243,12 +247,13 @@ Partial Class Form1
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.FileSystemWatcher1 = New System.IO.FileSystemWatcher()
-        Me.GroupBox14 = New System.Windows.Forms.GroupBox()
-        Me.Label102 = New System.Windows.Forms.Label()
-        Me.Label103 = New System.Windows.Forms.Label()
-        Me.TextBox37 = New System.Windows.Forms.TextBox()
+        Me.TextBox36 = New System.Windows.Forms.TextBox()
+        Me.Label104 = New System.Windows.Forms.Label()
+        Me.Label105 = New System.Windows.Forms.Label()
+        Me.GroupBox15 = New System.Windows.Forms.GroupBox()
         Me.TabControl1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
+        Me.GroupBox14.SuspendLayout()
         Me.GroupBox4.SuspendLayout()
         Me.GroupBox8.SuspendLayout()
         CType(Me.NumericUpDown13, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -308,7 +313,7 @@ Partial Class Form1
         CType(Me.NumericUpDown9, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.NumericUpDown8, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.FileSystemWatcher1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.GroupBox14.SuspendLayout()
+        Me.GroupBox15.SuspendLayout()
         Me.SuspendLayout()
         '
         'TabControl1
@@ -327,12 +332,11 @@ Partial Class Form1
         '
         'TabPage2
         '
+        Me.TabPage2.Controls.Add(Me.GroupBox15)
         Me.TabPage2.Controls.Add(Me.GroupBox14)
         Me.TabPage2.Controls.Add(Me.GroupBox4)
-        Me.TabPage2.Controls.Add(Me.Label19)
         Me.TabPage2.Controls.Add(Me.GroupBox8)
         Me.TabPage2.Controls.Add(Me.GroupBox9)
-        Me.TabPage2.Controls.Add(Me.Label23)
         Me.TabPage2.Controls.Add(Me.GroupBox5)
         Me.TabPage2.Location = New System.Drawing.Point(4, 22)
         Me.TabPage2.Name = "TabPage2"
@@ -342,11 +346,55 @@ Partial Class Form1
         Me.TabPage2.Text = "Calibrate and instrument Range"
         Me.TabPage2.UseVisualStyleBackColor = True
         '
+        'GroupBox14
+        '
+        Me.GroupBox14.Controls.Add(Me.Label105)
+        Me.GroupBox14.Controls.Add(Me.Label104)
+        Me.GroupBox14.Controls.Add(Me.TextBox36)
+        Me.GroupBox14.Controls.Add(Me.TextBox37)
+        Me.GroupBox14.Controls.Add(Me.Label102)
+        Me.GroupBox14.Controls.Add(Me.Label103)
+        Me.GroupBox14.Location = New System.Drawing.Point(580, 77)
+        Me.GroupBox14.Name = "GroupBox14"
+        Me.GroupBox14.Size = New System.Drawing.Size(403, 106)
+        Me.GroupBox14.TabIndex = 16
+        Me.GroupBox14.TabStop = False
+        Me.GroupBox14.Text = "Feed back from ASC unit"
+        '
+        'TextBox37
+        '
+        Me.TextBox37.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox37.Location = New System.Drawing.Point(292, 30)
+        Me.TextBox37.Name = "TextBox37"
+        Me.TextBox37.Size = New System.Drawing.Size(80, 24)
+        Me.TextBox37.TabIndex = 67
+        Me.TextBox37.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        '
+        'Label102
+        '
+        Me.Label102.AutoSize = True
+        Me.Label102.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label102.Location = New System.Drawing.Point(231, 33)
+        Me.Label102.Name = "Label102"
+        Me.Label102.Size = New System.Drawing.Size(41, 18)
+        Me.Label102.TabIndex = 66
+        Me.Label102.Text = "[Volt]"
+        '
+        'Label103
+        '
+        Me.Label103.AutoSize = True
+        Me.Label103.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label103.Location = New System.Drawing.Point(15, 60)
+        Me.Label103.Name = "Label103"
+        Me.Label103.Size = New System.Drawing.Size(150, 18)
+        Me.Label103.TabIndex = 65
+        Me.Label103.Text = "Bypass valve position"
+        '
         'GroupBox4
         '
         Me.GroupBox4.Controls.Add(Me.Button8)
         Me.GroupBox4.Controls.Add(Me.TextBox26)
-        Me.GroupBox4.Location = New System.Drawing.Point(43, 332)
+        Me.GroupBox4.Location = New System.Drawing.Point(24, 332)
         Me.GroupBox4.Name = "GroupBox4"
         Me.GroupBox4.Size = New System.Drawing.Size(538, 161)
         Me.GroupBox4.TabIndex = 15
@@ -377,7 +425,7 @@ Partial Class Form1
         '
         Me.Label19.AutoSize = True
         Me.Label19.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label19.Location = New System.Drawing.Point(39, 44)
+        Me.Label19.Location = New System.Drawing.Point(8, 36)
         Me.Label19.Name = "Label19"
         Me.Label19.Size = New System.Drawing.Size(396, 20)
         Me.Label19.TabIndex = 14
@@ -408,7 +456,7 @@ Partial Class Form1
         Me.GroupBox8.Controls.Add(Me.Label56)
         Me.GroupBox8.Controls.Add(Me.NumericUpDown27)
         Me.GroupBox8.Controls.Add(Me.Label57)
-        Me.GroupBox8.Location = New System.Drawing.Point(40, 499)
+        Me.GroupBox8.Location = New System.Drawing.Point(21, 499)
         Me.GroupBox8.Name = "GroupBox8"
         Me.GroupBox8.Size = New System.Drawing.Size(538, 167)
         Me.GroupBox8.TabIndex = 13
@@ -677,7 +725,7 @@ Partial Class Form1
         Me.GroupBox9.Controls.Add(Me.combo_Baud)
         Me.GroupBox9.Controls.Add(Me.Label25)
         Me.GroupBox9.Controls.Add(Me.combo_Port)
-        Me.GroupBox9.Location = New System.Drawing.Point(43, 77)
+        Me.GroupBox9.Location = New System.Drawing.Point(24, 77)
         Me.GroupBox9.Name = "GroupBox9"
         Me.GroupBox9.Size = New System.Drawing.Size(538, 91)
         Me.GroupBox9.TabIndex = 10
@@ -742,11 +790,11 @@ Partial Class Form1
         '
         Me.Label23.AutoSize = True
         Me.Label23.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label23.Location = New System.Drawing.Point(39, 19)
+        Me.Label23.Location = New System.Drawing.Point(6, 16)
         Me.Label23.Name = "Label23"
-        Me.Label23.Size = New System.Drawing.Size(271, 20)
+        Me.Label23.Size = New System.Drawing.Size(316, 20)
         Me.Label23.TabIndex = 2
-        Me.Label23.Text = "PC is connected to LucidControl AO4"
+        Me.Label23.Text = "PC is connected to LucidControl AO4-20M4"
         '
         'GroupBox5
         '
@@ -760,7 +808,7 @@ Partial Class Form1
         Me.GroupBox5.Controls.Add(Me.NumericUpDown10)
         Me.GroupBox5.Controls.Add(Me.Label5)
         Me.GroupBox5.Controls.Add(Me.NumericUpDown5)
-        Me.GroupBox5.Location = New System.Drawing.Point(43, 181)
+        Me.GroupBox5.Location = New System.Drawing.Point(24, 181)
         Me.GroupBox5.Name = "GroupBox5"
         Me.GroupBox5.Size = New System.Drawing.Size(538, 136)
         Me.GroupBox5.TabIndex = 0
@@ -2726,46 +2774,45 @@ Partial Class Form1
         Me.FileSystemWatcher1.EnableRaisingEvents = True
         Me.FileSystemWatcher1.SynchronizingObject = Me
         '
-        'GroupBox14
+        'TextBox36
         '
-        Me.GroupBox14.Controls.Add(Me.TextBox37)
-        Me.GroupBox14.Controls.Add(Me.Label102)
-        Me.GroupBox14.Controls.Add(Me.Label103)
-        Me.GroupBox14.Location = New System.Drawing.Point(600, 77)
-        Me.GroupBox14.Name = "GroupBox14"
-        Me.GroupBox14.Size = New System.Drawing.Size(382, 91)
-        Me.GroupBox14.TabIndex = 16
-        Me.GroupBox14.TabStop = False
-        Me.GroupBox14.Text = "Input Lucid-Control AI4, 10V module"
+        Me.TextBox36.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox36.Location = New System.Drawing.Point(292, 60)
+        Me.TextBox36.Name = "TextBox36"
+        Me.TextBox36.Size = New System.Drawing.Size(80, 24)
+        Me.TextBox36.TabIndex = 68
+        Me.TextBox36.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
-        'Label102
+        'Label104
         '
-        Me.Label102.AutoSize = True
-        Me.Label102.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label102.Location = New System.Drawing.Point(129, 34)
-        Me.Label102.Name = "Label102"
-        Me.Label102.Size = New System.Drawing.Size(41, 18)
-        Me.Label102.TabIndex = 66
-        Me.Label102.Text = "[Volt]"
+        Me.Label104.AutoSize = True
+        Me.Label104.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label104.Location = New System.Drawing.Point(231, 62)
+        Me.Label104.Name = "Label104"
+        Me.Label104.Size = New System.Drawing.Size(29, 18)
+        Me.Label104.TabIndex = 69
+        Me.Label104.Text = "[%]"
         '
-        'Label103
+        'Label105
         '
-        Me.Label103.AutoSize = True
-        Me.Label103.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label103.Location = New System.Drawing.Point(17, 34)
-        Me.Label103.Name = "Label103"
-        Me.Label103.Size = New System.Drawing.Size(82, 18)
-        Me.Label103.TabIndex = 65
-        Me.Label103.Text = "Flow meter"
+        Me.Label105.AutoSize = True
+        Me.Label105.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label105.Location = New System.Drawing.Point(15, 33)
+        Me.Label105.Name = "Label105"
+        Me.Label105.Size = New System.Drawing.Size(195, 18)
+        Me.Label105.TabIndex = 70
+        Me.Label105.Text = "Input Lucid-Control AI4 (10V)"
         '
-        'TextBox37
+        'GroupBox15
         '
-        Me.TextBox37.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox37.Location = New System.Drawing.Point(202, 33)
-        Me.TextBox37.Name = "TextBox37"
-        Me.TextBox37.Size = New System.Drawing.Size(115, 24)
-        Me.TextBox37.TabIndex = 67
-        Me.TextBox37.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        Me.GroupBox15.Controls.Add(Me.Label23)
+        Me.GroupBox15.Controls.Add(Me.Label19)
+        Me.GroupBox15.Location = New System.Drawing.Point(24, 6)
+        Me.GroupBox15.Name = "GroupBox15"
+        Me.GroupBox15.Size = New System.Drawing.Size(538, 65)
+        Me.GroupBox15.TabIndex = 17
+        Me.GroupBox15.TabStop = False
+        Me.GroupBox15.Text = "Hardware setup"
         '
         'Form1
         '
@@ -2777,7 +2824,8 @@ Partial Class Form1
         Me.Text = "Surge Control Simulation P16.0078, Tecnimont Rev 24-4-2017 "
         Me.TabControl1.ResumeLayout(False)
         Me.TabPage2.ResumeLayout(False)
-        Me.TabPage2.PerformLayout()
+        Me.GroupBox14.ResumeLayout(False)
+        Me.GroupBox14.PerformLayout()
         Me.GroupBox4.ResumeLayout(False)
         Me.GroupBox4.PerformLayout()
         Me.GroupBox8.ResumeLayout(False)
@@ -2852,8 +2900,8 @@ Partial Class Form1
         CType(Me.NumericUpDown9, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.NumericUpDown8, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.FileSystemWatcher1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.GroupBox14.ResumeLayout(False)
-        Me.GroupBox14.PerformLayout()
+        Me.GroupBox15.ResumeLayout(False)
+        Me.GroupBox15.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -3075,4 +3123,8 @@ Partial Class Form1
     Friend WithEvents Label102 As Label
     Friend WithEvents Label103 As Label
     Friend WithEvents TextBox37 As TextBox
+    Friend WithEvents Label104 As Label
+    Friend WithEvents TextBox36 As TextBox
+    Friend WithEvents GroupBox15 As GroupBox
+    Friend WithEvents Label105 As Label
 End Class
