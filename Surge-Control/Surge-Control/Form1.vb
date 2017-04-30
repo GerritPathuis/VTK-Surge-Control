@@ -176,23 +176,90 @@ Public Class Form1
         End Try
     End Sub
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        Dim SetIoGroup(4) As Byte   'Get-Voltage, see Page 22 en 24
+        Dim SetIoGroup(3) As Byte   'Get-Voltage, see Page 22 en 24
+        Dim SetIoG As String = String.Empty
+        Dim str_hex1 As String = String.Empty
+        Dim str_hex2 As String = String.Empty
+        'Dim str_hex3 As String = String.Empty
+        'Dim str_hex4 As String = String.Empty
+        Dim str_hex_little_endian As String 'This in reverse order
+        Dim message_length As Integer = 0
 
-        SetIoGroup(1) = &H42   'OPC= SetIoGroup
-        SetIoGroup(2) = &HF    'Channel 1...4
-        SetIoGroup(3) = &H23   'Current  (0 to 1,000,000 MicroAmp)
-        SetIoGroup(4) = &H4    'LEN
+        SetIoGroup(0) = &H42   'OPC= SetIoGroup
+        SetIoGroup(1) = &HF    'Channel 1...4
+        SetIoGroup(2) = &H23   'Current  (0 to 1,000,000 MicroAmp)
+        SetIoGroup(3) = &H8    'LEN
+
+        '------ make Command string of the Command byte array---
+        SetIoG = System.Text.Encoding.Default.GetString(SetIoGroup)
+        ' MessageBox.Show("SetIoG=" & StrToHex(SetIoG))
 
         '----------- current channel #1---------------
-        SetIoGroup(5) = &H42   '
-        SetIoGroup(6) = &HF    '
-        SetIoGroup(7) = &H23   '
-        SetIoGroup(8) = &H0    '
 
-        'Volt_channel_0 = Convert.ToInt32(Value_channel_0, 16) / 10000    '[uVolt] Channel 0'
+        str_hex1 = Hex(5000000).PadLeft(1)
+        str_hex2 = Hex(2500000)
+        'MessageBox.Show("5000000 hex =" & str_hex1)
 
-        SerialPort1.Write(SetIoGroup, 1, 8)
+        '----------- convert to Little endian------
+
+        str_hex_little_endian = To_big_endian(str_hex1)
+        str_hex_little_endian = To_big_endian(str_hex2)
+
+        ' MessageBox.Show("5000000 little endian=" & str_hex_little_endian)
+
+        '------ adding all string-sections to one string
+        SetIoG &= To_big_endian(str_hex1)
+        SetIoG &= To_big_endian(str_hex2)
+
+
+        ' MessageBox.Show(SetIoG)
+
+        If SerialPort1.IsOpen Then
+            SerialPort1.WriteLine(SetIoG)
+        End If
     End Sub
+
+    Private Function To_big_endian(num As String) As String
+        Dim return_val As String = String.Empty
+        Dim bytes() As Byte = {&H0, &H0, &H0, &H0}
+        Dim bytes_big() As Byte = {&H0, &H0, &H0, &H0}
+        Dim b As Byte
+        Dim byte_0x00() As Byte = {&H0, &H0, &H0, &H0}
+        Dim byte_sum() As Byte = {&H0, &H0, &H0, &H0}
+        Dim number As Integer
+
+        MessageBox.Show("Num" & num.ToString)
+
+        number = Convert.ToInt32(num, 16)
+        bytes = BitConverter.GetBytes(number)
+        MessageBox.Show((bytes.Length - 1).ToString)
+        'Array.Reverse(bytes)
+
+
+        MessageBox.Show("Bytes length=" & (bytes.Length - 1).ToString)
+        MessageBox.Show(" bytes(0)= " & Conversion.Hex(bytes(0))) '0x40
+        MessageBox.Show(" bytes(1)= " & Conversion.Hex(bytes(1))) '0x4B
+        MessageBox.Show(" bytes(2)= " & Conversion.Hex(bytes(2))) '0x4C
+        MessageBox.Show(" bytes(3)= " & Conversion.Hex(bytes(3)))
+
+
+        '----[3 bytes]----- move right and add zero------
+        bytes_big(0) = bytes(2)
+        bytes_big(1) = bytes(1)
+        bytes_big(2) = bytes(0)
+        bytes_big(3) = &H0
+        Array.Reverse(bytes_big)
+
+        '--------- make the string-------
+        For Each b In bytes_big
+            return_val += b.ToString("X2")
+        Next
+
+
+        MessageBox.Show("Little Endian=" & num.ToString & " To_big_endian= " & return_val.ToString)
+        Return return_val
+    End Function
+
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
 
@@ -327,7 +394,9 @@ Public Class Form1
         Dim sVal As String = String.Empty
         Dim sHex As String = String.Empty
         'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
-
+        'usage messagebox.show(HexToString("73696D306E"))
+        'Used for information received from Lucid-Control modules
+        'Convert ascii-String to Hex string
         While Data.Length > 0
             sVal = Hex(Strings.Asc(Data.Substring(0, 1).ToString()))
             Data = Data.Substring(1)
@@ -339,6 +408,15 @@ Public Class Form1
             'sHex = sHex & " "
         End While
         Return sHex
+    End Function
+    Public Function HexToStr(ByVal Data As String) As String
+        Dim com As String = String.Empty
+        'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
+        'Convert Hex-String to ascii string
+        For x = 0 To Data.Length - 1 Step 2
+            com &= ChrW(CInt("&H" & Data.Substring(x, 2)))
+        Next
+        Return com
     End Function
     Private Sub Update_calc_screen()
         Dim Range(3) As String
