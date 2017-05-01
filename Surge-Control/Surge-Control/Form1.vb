@@ -180,83 +180,102 @@ Public Class Form1
         Dim SetIoG As String = String.Empty
         Dim str_hex1 As String = String.Empty
         Dim str_hex2 As String = String.Empty
-        'Dim str_hex3 As String = String.Empty
-        'Dim str_hex4 As String = String.Empty
+        Dim str_hex3 As String = String.Empty
+        Dim str_hex4 As String = String.Empty
         Dim str_hex_little_endian As String 'This in reverse order
         Dim message_length As Integer = 0
 
         SetIoGroup(0) = &H42   'OPC= SetIoGroup
         SetIoGroup(1) = &HF    'Channel 1...4
         SetIoGroup(2) = &H23   'Current  (0 to 1,000,000 MicroAmp)
-        SetIoGroup(3) = &H8    'LEN
+        SetIoGroup(3) = &H10   'Len (4 x 4=16 bytes)
 
         '------ make Command string of the Command byte array---
         SetIoG = System.Text.Encoding.Default.GetString(SetIoGroup)
-        ' MessageBox.Show("SetIoG=" & StrToHex(SetIoG))
+
 
         '----------- current channel #1---------------
-
-        str_hex1 = Hex(5000000).PadLeft(1)
-        str_hex2 = Hex(2500000)
-        'MessageBox.Show("5000000 hex =" & str_hex1)
+        str_hex1 = Hex(254)
+        str_hex2 = Hex(64123)
+        str_hex3 = Hex(164123)
+        str_hex4 = Hex(264123)
 
         '----------- convert to Little endian------
-
         str_hex_little_endian = To_big_endian(str_hex1)
         str_hex_little_endian = To_big_endian(str_hex2)
-
-        ' MessageBox.Show("5000000 little endian=" & str_hex_little_endian)
+        str_hex_little_endian = To_big_endian(str_hex3)
+        str_hex_little_endian = To_big_endian(str_hex4)
 
         '------ adding all string-sections to one string
         SetIoG &= To_big_endian(str_hex1)
         SetIoG &= To_big_endian(str_hex2)
+        SetIoG &= To_big_endian(str_hex3)
+        SetIoG &= To_big_endian(str_hex4)
 
-
-        ' MessageBox.Show(SetIoG)
+        ' MessageBox.Show("SetIoG=" & StrToHex(SetIoG))
 
         If SerialPort1.IsOpen Then
             SerialPort1.WriteLine(SetIoG)
         End If
     End Sub
 
-    Private Function To_big_endian(num As String) As String
+    Private Function To_big_endian(str_num As String) As String
         Dim return_val As String = String.Empty
         Dim bytes() As Byte = {&H0, &H0, &H0, &H0}
         Dim bytes_big() As Byte = {&H0, &H0, &H0, &H0}
         Dim b As Byte
         Dim byte_0x00() As Byte = {&H0, &H0, &H0, &H0}
         Dim byte_sum() As Byte = {&H0, &H0, &H0, &H0}
-        Dim number As Integer
+        Dim value, no_bytes As Integer
 
-        MessageBox.Show("Num" & num.ToString)
+        value = Convert.ToInt32(str_num, 16)
+        bytes = BitConverter.GetBytes(value)
 
-        number = Convert.ToInt32(num, 16)
-        bytes = BitConverter.GetBytes(number)
-        MessageBox.Show((bytes.Length - 1).ToString)
-        'Array.Reverse(bytes)
+        '------- determine number significant bytes
+        Select Case value
+            Case Is > 16777215
+                MessageBox.Show("Out of range in function; To_big_Endian")
+            Case Is > 65535
+                no_bytes = 3
+            Case Is > 255
+                no_bytes = 2
+            Case Is <= 255
+                no_bytes = 1
+        End Select
 
+        'MessageBox.Show(" No_bytes= " & no_bytes.ToString)
+        'MessageBox.Show(" bytes(0)= " & Conversion.Hex(bytes(0)))
+        'MessageBox.Show(" bytes(1)= " & Conversion.Hex(bytes(1)))
+        'MessageBox.Show(" bytes(2)= " & Conversion.Hex(bytes(2)))
+        'MessageBox.Show(" bytes(3)= " & Conversion.Hex(bytes(3)))
 
-        MessageBox.Show("Bytes length=" & (bytes.Length - 1).ToString)
-        MessageBox.Show(" bytes(0)= " & Conversion.Hex(bytes(0))) '0x40
-        MessageBox.Show(" bytes(1)= " & Conversion.Hex(bytes(1))) '0x4B
-        MessageBox.Show(" bytes(2)= " & Conversion.Hex(bytes(2))) '0x4C
-        MessageBox.Show(" bytes(3)= " & Conversion.Hex(bytes(3)))
-
-
-        '----[3 bytes]----- move right and add zero------
-        bytes_big(0) = bytes(2)
-        bytes_big(1) = bytes(1)
-        bytes_big(2) = bytes(0)
-        bytes_big(3) = &H0
-        Array.Reverse(bytes_big)
+        Select Case no_bytes
+            Case 1  '[1 bytes] move right and add zero
+                bytes_big(0) = bytes(0)
+                bytes_big(1) = &H0
+                bytes_big(2) = &H0
+                bytes_big(3) = &H0
+            Case 2   '[2 bytes] move right and add zero
+                bytes_big(0) = bytes(1)
+                bytes_big(1) = bytes(0)
+                bytes_big(2) = &H0
+                bytes_big(3) = &H0
+            Case 3          '[3 bytes] move right and add zero (This one works!!)
+                bytes_big(0) = bytes(2)
+                bytes_big(1) = bytes(1)
+                bytes_big(2) = bytes(0)
+                bytes_big(3) = &H0
+            Case 4
+                'Do nothing
+        End Select
+        Array.Reverse(bytes_big)    'Now reverse order
 
         '--------- make the string-------
         For Each b In bytes_big
             return_val += b.ToString("X2")
         Next
 
-
-        MessageBox.Show("Little Endian=" & num.ToString & " To_big_endian= " & return_val.ToString)
+        MessageBox.Show("Little Endian=" & str_num.ToString & " To_big_endian= " & return_val.ToString)
         Return return_val
     End Function
 
