@@ -182,7 +182,6 @@ Public Class Form1
         Dim str_hex2 As String = String.Empty
         Dim str_hex3 As String = String.Empty
         Dim str_hex4 As String = String.Empty
-        Dim str_hex_little_endian As String 'This in reverse order
         Dim message_length As Integer = 0
 
         SetIoGroup(0) = &H42   'OPC= SetIoGroup
@@ -196,25 +195,22 @@ Public Class Form1
         '----------- current channel #1...4 -------------
         str_hex1 = Hex(CDec(NumericUpDown5.Value - 4) / 16 * 1000000)
         str_hex2 = Hex(CDec(NumericUpDown10.Value - 4) / 16 * 1000000)
-        str_hex3 = Hex(CDec(NumericUpDown15.Value - 4) / 16 * 1000000)
+        str_hex3 = Hex(CDec(NumericUpDown14.Value - 4) / 16 * 1000000)
         str_hex4 = Hex(CDec(NumericUpDown15.Value - 4) / 16 * 1000000)
 
-        '----------- convert to Little endian------
-        str_hex_little_endian = To_big_endian(str_hex1)
-        str_hex_little_endian = To_big_endian(str_hex2)
-        str_hex_little_endian = To_big_endian(str_hex3)
-        str_hex_little_endian = To_big_endian(str_hex4)
-
+        '------ convert to Big endian and ------
         '------ adding all string-sections to one string
-        SetIoG &= To_big_endian(str_hex1)
-        SetIoG &= To_big_endian(str_hex2)
-        SetIoG &= To_big_endian(str_hex3)
-        SetIoG &= To_big_endian(str_hex4)
+        SetIoG &= To_big_endian(str_hex1)   '& "-"
+        SetIoG &= To_big_endian(str_hex2)   '& "-"
+        SetIoG &= To_big_endian(str_hex3)   '& "-"
+        SetIoG &= To_big_endian(str_hex4)   '& "-"
 
-        ' MessageBox.Show("SetIoG=" & StrToHex(SetIoG))
+        TextBox26.Text &= "SetIoG= " & SetIoG & vbCrLf
 
         If SerialPort1.IsOpen Then
             SerialPort1.WriteLine(SetIoG)
+        Else
+            TextBox26.Text &= "SerialPort1 is closed" & vbCrLf
         End If
     End Sub
 
