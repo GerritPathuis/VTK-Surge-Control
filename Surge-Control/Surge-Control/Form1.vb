@@ -298,18 +298,26 @@ Public Class Form1
         PID_controller()
     End Sub
 
-    Private Sub Serial_setup() 'Serial port setup
-        If (SerialPort1.IsOpen = True) Then ' Preventing exceptions
-            SerialPort1.DiscardInBuffer()
+    Private Sub Serial_setup()                  'Serial ports setup
+        combo_Baud.Items.Clear()
+
+        If (SerialPort1.IsOpen = True) Then     'Write to Instruments
+            SerialPort1.DiscardInBuffer()       'Preventing exceptions
             SerialPort1.Close()
         End If
 
+        If (SerialPort2.IsOpen = True) Then     'Read from Bypass Valve 
+            SerialPort2.DiscardInBuffer()       'Preventing exceptions
+            SerialPort2.Close()
+        End If
         Try
             myPort = SerialPort.GetPortNames() 'Get all com ports available
             For Each port In myPort
-                combo_Port.Items.Add(port)
+                combo_Port1.Items.Add(port)
+                combo_Port2.Items.Add(port)
             Next port
-            combo_Port.Text = CType(combo_Port.Items.Item(0), String)    'Set cmbPort text to the first COM port detected
+            combo_Port1.Text = CType(combo_Port1.Items.Item(0), String)    'Set cmbPort text to the first COM port detected
+            combo_Port2.Text = CType(combo_Port2.Items.Item(0), String)    'Set cmbPort text to the first COM port detected
         Catch ex As Exception
             MsgBox("No COM ports detected")
         End Try
@@ -321,35 +329,46 @@ Public Class Form1
         'btnDisconnect.Enabled = False                'Initially Disconnect Button is Disabled
     End Sub
 
-    Private Sub CmbPort_Click(sender As Object, e As EventArgs) Handles combo_Port.Click
-        combo_Port.SelectedIndex = -1
-        combo_Port.Items.Clear()
+    Private Sub CmbPort_Click(sender As Object, e As EventArgs) Handles combo_Port1.Click, combo_Port2.Click
+        combo_Port1.SelectedIndex = -1  'To instruments
+        combo_Port1.Items.Clear()
+        combo_Port2.SelectedIndex = -1  'From Bypass valve
+        combo_Port2.Items.Clear()
         Serial_setup()
     End Sub
 
     Private Sub BtnConnect_Click(sender As System.Object, e As System.EventArgs) Handles btnConnect.Click
         SerialPort1.Close()                     'Close existing 
-        If combo_Port.Text.Length = 0 Then
+        If combo_Port1.Text.Length = 0 Then
             MsgBox("Sorry, did not find any connected Lucid Controllers")
         Else
-            SerialPort1.PortName = combo_Port.Text         'Set SerialPort1 to the selected COM port at startup
-            SerialPort1.BaudRate = CInt(combo_Baud.Text)   'Set Baud rate to the selected value on
+            SerialPort1.PortName = combo_Port1.Text         'Set SerialPort1 to the selected COM port at startup
+            SerialPort1.BaudRate = CInt(combo_Baud.Text)    'Set Baud rate to the selected value on
             SerialPort1.Parity = Parity.None
             SerialPort1.StopBits = StopBits.One
             SerialPort1.Handshake = Handshake.None
-            SerialPort1.DataBits = 8                   'Open our serial port
+            SerialPort1.DataBits = 8                        'Open our serial port
             SerialPort1.ReadBufferSize = 4096
             SerialPort1.ReceivedBytesThreshold = 4
-            SerialPort1.DiscardNull = False              'important otherwise it will not work
-            'SerialPort1.DtrEnable = True
-            'SerialPort1.RtsEnable = True
-            ' SerialPort1.ParityReplace = CByte(True)
+            SerialPort1.DiscardNull = False                 'important otherwise it will not work
+
+            SerialPort2.PortName = combo_Port2.Text         'Set SerialPort2 to the selected COM port at startup
+            SerialPort2.BaudRate = CInt(combo_Baud.Text)    'Set Baud rate to the selected value on
+            SerialPort2.Parity = Parity.None
+            SerialPort2.StopBits = StopBits.One
+            SerialPort2.Handshake = Handshake.None
+            SerialPort2.DataBits = 8                        'Open our serial port
+            SerialPort2.ReadBufferSize = 4096
+            SerialPort2.ReceivedBytesThreshold = 4
+            SerialPort2.DiscardNull = False                 'important otherwise it will not work
 
             Try
                 SerialPort1.Open()
+                SerialPort2.Open()
                 btnConnect.Enabled = False              'Disable Connect button
                 btnConnect.BackColor = Color.Yellow
-                combo_Port.BackColor = Color.Yellow
+                combo_Port1.BackColor = Color.Yellow
+                combo_Port2.BackColor = Color.Yellow
                 btnConnect.Text = "OK connected"
                 btnDisconnect.Enabled = True            'and Enable Disconnect button
             Catch ex As Exception
@@ -359,6 +378,8 @@ Public Class Form1
             Try
                 SerialPort1.DiscardInBuffer()        'empty inbuffer
                 SerialPort1.DiscardOutBuffer()       'empty outbuffer
+                SerialPort2.DiscardInBuffer()        'empty inbuffer
+                SerialPort2.DiscardOutBuffer()       'empty outbuffer
             Catch ex As Exception
                 MsgBox("Error 786 Open: " & ex.Message)
             End Try
@@ -370,8 +391,14 @@ Public Class Form1
             SerialPort1.DiscardInBuffer()
             SerialPort1.Close()             'Close our Serial Port
             SerialPort1.Dispose()
+            SerialPort2.DiscardInBuffer()
+            SerialPort2.Close()             'Close our Serial Port
+            SerialPort2.Dispose()
+
             btnConnect.Enabled = True
             btnConnect.BackColor = Color.Red
+            combo_Port1.BackColor = Color.White
+            combo_Port2.BackColor = Color.White
             btnConnect.Text = "Connect"
             btnDisconnect.Enabled = False
         Catch ex As Exception

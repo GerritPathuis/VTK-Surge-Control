@@ -23,12 +23,12 @@ Partial Class Form1
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series3 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea4 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend4 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series4 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage2 = New System.Windows.Forms.TabPage()
@@ -70,12 +70,14 @@ Partial Class Form1
         Me.NumericUpDown27 = New System.Windows.Forms.NumericUpDown()
         Me.Label57 = New System.Windows.Forms.Label()
         Me.GroupBox9 = New System.Windows.Forms.GroupBox()
+        Me.Label106 = New System.Windows.Forms.Label()
+        Me.combo_Port2 = New System.Windows.Forms.ComboBox()
         Me.Label24 = New System.Windows.Forms.Label()
         Me.btnConnect = New System.Windows.Forms.Button()
         Me.btnDisconnect = New System.Windows.Forms.Button()
         Me.combo_Baud = New System.Windows.Forms.ComboBox()
         Me.Label25 = New System.Windows.Forms.Label()
-        Me.combo_Port = New System.Windows.Forms.ComboBox()
+        Me.combo_Port1 = New System.Windows.Forms.ComboBox()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
         Me.Button7 = New System.Windows.Forms.Button()
         Me.Label22 = New System.Windows.Forms.Label()
@@ -251,6 +253,7 @@ Partial Class Form1
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.FileSystemWatcher1 = New System.IO.FileSystemWatcher()
+        Me.SerialPort2 = New System.IO.Ports.SerialPort(Me.components)
         Me.TabControl1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
         Me.GroupBox15.SuspendLayout()
@@ -350,9 +353,9 @@ Partial Class Form1
         '
         Me.GroupBox15.Controls.Add(Me.Label23)
         Me.GroupBox15.Controls.Add(Me.Label19)
-        Me.GroupBox15.Location = New System.Drawing.Point(24, 6)
+        Me.GroupBox15.Location = New System.Drawing.Point(580, 190)
         Me.GroupBox15.Name = "GroupBox15"
-        Me.GroupBox15.Size = New System.Drawing.Size(538, 65)
+        Me.GroupBox15.Size = New System.Drawing.Size(403, 65)
         Me.GroupBox15.TabIndex = 17
         Me.GroupBox15.TabStop = False
         Me.GroupBox15.Text = "Hardware setup"
@@ -769,43 +772,63 @@ Partial Class Form1
         '
         'GroupBox9
         '
+        Me.GroupBox9.Controls.Add(Me.Label106)
+        Me.GroupBox9.Controls.Add(Me.combo_Port2)
         Me.GroupBox9.Controls.Add(Me.Label24)
         Me.GroupBox9.Controls.Add(Me.btnConnect)
         Me.GroupBox9.Controls.Add(Me.btnDisconnect)
         Me.GroupBox9.Controls.Add(Me.combo_Baud)
         Me.GroupBox9.Controls.Add(Me.Label25)
-        Me.GroupBox9.Controls.Add(Me.combo_Port)
-        Me.GroupBox9.Location = New System.Drawing.Point(24, 77)
+        Me.GroupBox9.Controls.Add(Me.combo_Port1)
+        Me.GroupBox9.Location = New System.Drawing.Point(24, 18)
         Me.GroupBox9.Name = "GroupBox9"
-        Me.GroupBox9.Size = New System.Drawing.Size(538, 91)
+        Me.GroupBox9.Size = New System.Drawing.Size(538, 143)
         Me.GroupBox9.TabIndex = 10
         Me.GroupBox9.TabStop = False
         Me.GroupBox9.Text = "USB port info"
         '
+        'Label106
+        '
+        Me.Label106.AutoSize = True
+        Me.Label106.Location = New System.Drawing.Point(17, 79)
+        Me.Label106.Name = "Label106"
+        Me.Label106.Size = New System.Drawing.Size(172, 13)
+        Me.Label106.TabIndex = 7
+        Me.Label106.Text = "Com port_2 <-- ASC (Bypass valve)"
+        '
+        'combo_Port2
+        '
+        Me.combo_Port2.BackColor = System.Drawing.Color.Red
+        Me.combo_Port2.FormattingEnabled = True
+        Me.combo_Port2.Location = New System.Drawing.Point(223, 76)
+        Me.combo_Port2.Name = "combo_Port2"
+        Me.combo_Port2.Size = New System.Drawing.Size(98, 21)
+        Me.combo_Port2.TabIndex = 6
+        '
         'Label24
         '
         Me.Label24.AutoSize = True
-        Me.Label24.Location = New System.Drawing.Point(10, 24)
+        Me.Label24.Location = New System.Drawing.Point(17, 52)
         Me.Label24.Name = "Label24"
-        Me.Label24.Size = New System.Drawing.Size(49, 13)
+        Me.Label24.Size = New System.Drawing.Size(203, 13)
         Me.Label24.TabIndex = 4
-        Me.Label24.Text = "Com port"
+        Me.Label24.Text = "Com port_1 --> ASC (simulate instruments)"
         '
         'btnConnect
         '
         Me.btnConnect.BackColor = System.Drawing.Color.Red
-        Me.btnConnect.Location = New System.Drawing.Point(184, 21)
+        Me.btnConnect.Location = New System.Drawing.Point(384, 19)
         Me.btnConnect.Name = "btnConnect"
-        Me.btnConnect.Size = New System.Drawing.Size(205, 26)
+        Me.btnConnect.Size = New System.Drawing.Size(87, 49)
         Me.btnConnect.TabIndex = 0
         Me.btnConnect.Text = "Connect"
         Me.btnConnect.UseVisualStyleBackColor = False
         '
         'btnDisconnect
         '
-        Me.btnDisconnect.Location = New System.Drawing.Point(184, 53)
+        Me.btnDisconnect.Location = New System.Drawing.Point(384, 79)
         Me.btnDisconnect.Name = "btnDisconnect"
-        Me.btnDisconnect.Size = New System.Drawing.Size(205, 22)
+        Me.btnDisconnect.Size = New System.Drawing.Size(86, 48)
         Me.btnDisconnect.TabIndex = 1
         Me.btnDisconnect.Text = "Disconnect"
         Me.btnDisconnect.UseVisualStyleBackColor = True
@@ -813,7 +836,7 @@ Partial Class Form1
         'combo_Baud
         '
         Me.combo_Baud.FormattingEnabled = True
-        Me.combo_Baud.Location = New System.Drawing.Point(71, 52)
+        Me.combo_Baud.Location = New System.Drawing.Point(223, 19)
         Me.combo_Baud.Name = "combo_Baud"
         Me.combo_Baud.Size = New System.Drawing.Size(98, 21)
         Me.combo_Baud.TabIndex = 3
@@ -821,20 +844,20 @@ Partial Class Form1
         'Label25
         '
         Me.Label25.AutoSize = True
-        Me.Label25.Location = New System.Drawing.Point(6, 55)
+        Me.Label25.Location = New System.Drawing.Point(17, 22)
         Me.Label25.Name = "Label25"
         Me.Label25.Size = New System.Drawing.Size(53, 13)
         Me.Label25.TabIndex = 5
         Me.Label25.Text = "Baud rate"
         '
-        'combo_Port
+        'combo_Port1
         '
-        Me.combo_Port.BackColor = System.Drawing.Color.Red
-        Me.combo_Port.FormattingEnabled = True
-        Me.combo_Port.Location = New System.Drawing.Point(71, 21)
-        Me.combo_Port.Name = "combo_Port"
-        Me.combo_Port.Size = New System.Drawing.Size(98, 21)
-        Me.combo_Port.TabIndex = 2
+        Me.combo_Port1.BackColor = System.Drawing.Color.Red
+        Me.combo_Port1.FormattingEnabled = True
+        Me.combo_Port1.Location = New System.Drawing.Point(223, 49)
+        Me.combo_Port1.Name = "combo_Port1"
+        Me.combo_Port1.Size = New System.Drawing.Size(98, 21)
+        Me.combo_Port1.TabIndex = 2
         '
         'GroupBox5
         '
@@ -1048,16 +1071,16 @@ Partial Class Form1
         '
         'Chart1
         '
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea3.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea3)
+        Legend3.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend3)
         Me.Chart1.Location = New System.Drawing.Point(456, 369)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series3.ChartArea = "ChartArea1"
+        Series3.Legend = "Legend1"
+        Series3.Name = "Series1"
+        Me.Chart1.Series.Add(Series3)
         Me.Chart1.Size = New System.Drawing.Size(535, 297)
         Me.Chart1.TabIndex = 16
         Me.Chart1.Text = "Chart1"
@@ -2218,17 +2241,17 @@ Partial Class Form1
         '
         'Chart2
         '
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea2)
+        ChartArea4.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea4)
         Me.Chart2.Dock = System.Windows.Forms.DockStyle.Fill
-        Legend2.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend2)
+        Legend4.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend4)
         Me.Chart2.Location = New System.Drawing.Point(0, 0)
         Me.Chart2.Name = "Chart2"
-        Series2.ChartArea = "ChartArea1"
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart2.Series.Add(Series2)
+        Series4.ChartArea = "ChartArea1"
+        Series4.Legend = "Legend1"
+        Series4.Name = "Series1"
+        Me.Chart2.Series.Add(Series4)
         Me.Chart2.Size = New System.Drawing.Size(823, 668)
         Me.Chart2.TabIndex = 17
         Me.Chart2.Text = "Chart2"
@@ -2927,7 +2950,7 @@ Partial Class Form1
     Friend WithEvents btnDisconnect As Button
     Friend WithEvents combo_Baud As ComboBox
     Friend WithEvents Label25 As Label
-    Friend WithEvents combo_Port As ComboBox
+    Friend WithEvents combo_Port1 As ComboBox
     Friend WithEvents TabPage3 As TabPage
     Friend WithEvents GroupBox6 As GroupBox
     Friend WithEvents Label42 As Label
@@ -3127,4 +3150,7 @@ Partial Class Form1
     Friend WithEvents TextBox36 As TextBox
     Friend WithEvents GroupBox15 As GroupBox
     Friend WithEvents Label105 As Label
+    Friend WithEvents Label106 As Label
+    Friend WithEvents combo_Port2 As ComboBox
+    Friend WithEvents SerialPort2 As IO.Ports.SerialPort
 End Class
