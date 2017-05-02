@@ -193,12 +193,11 @@ Public Class Form1
         '------ make Command string of the Command byte array---
         SetIoG = System.Text.Encoding.Default.GetString(SetIoGroup)
 
-
-        '----------- current channel #1---------------
-        str_hex1 = Hex(254)
-        str_hex2 = Hex(64123)
-        str_hex3 = Hex(164123)
-        str_hex4 = Hex(264123)
+        '----------- current channel #1...4 -------------
+        str_hex1 = Hex(CDec(NumericUpDown5.Value - 4) / 16 * 1000000)
+        str_hex2 = Hex(CDec(NumericUpDown10.Value - 4) / 16 * 1000000)
+        str_hex3 = Hex(CDec(NumericUpDown15.Value - 4) / 16 * 1000000)
+        str_hex4 = Hex(CDec(NumericUpDown15.Value - 4) / 16 * 1000000)
 
         '----------- convert to Little endian------
         str_hex_little_endian = To_big_endian(str_hex1)
