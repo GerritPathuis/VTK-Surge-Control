@@ -207,8 +207,8 @@ Public Class Form1
 
         TextBox26.Text &= "SetIoG= " & SetIoG & vbCrLf
 
-        If SerialPort1.IsOpen Then
-            SerialPort1.WriteLine(SetIoG)
+        If SerialPort2.IsOpen Then
+            SerialPort2.WriteLine(SetIoG)
         Else
             TextBox26.Text &= "SerialPort1 is closed" & vbCrLf
         End If
@@ -297,6 +297,20 @@ Public Class Form1
         Draw_Chart1()
         PID_controller()
     End Sub
+    Private Sub CmbPort_Click(sender As Object, e As EventArgs)
+        'Disconnect
+
+
+    End Sub
+
+    Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
+        'Find ports----------
+        combo_Port1.SelectedIndex = -1  'To instruments
+        combo_Port1.Items.Clear()
+        combo_Port2.SelectedIndex = -1  'From Bypass valve
+        combo_Port2.Items.Clear()
+        Serial_setup()
+    End Sub
 
     Private Sub Serial_setup()                  'Serial ports setup
         combo_Baud.Items.Clear()
@@ -329,16 +343,8 @@ Public Class Form1
         'btnDisconnect.Enabled = False                'Initially Disconnect Button is Disabled
     End Sub
 
-    Private Sub CmbPort_Click(sender As Object, e As EventArgs) Handles combo_Port1.Click, combo_Port2.Click
-        combo_Port1.SelectedIndex = -1  'To instruments
-        combo_Port1.Items.Clear()
-        combo_Port2.SelectedIndex = -1  'From Bypass valve
-        combo_Port2.Items.Clear()
-        Serial_setup()
-    End Sub
-
     Private Sub BtnConnect_Click(sender As System.Object, e As System.EventArgs) Handles btnConnect.Click
-        SerialPort1.Close()                     'Close existing 
+        'Connect
         If combo_Port1.Text.Length = 0 Then
             MsgBox("Sorry, did not find any connected Lucid Controllers")
         Else
@@ -387,6 +393,7 @@ Public Class Form1
     End Sub
 
     Private Sub BtnDisconnect_Click(sender As System.Object, e As System.EventArgs) Handles btnDisconnect.Click
+        'Disconnect ports
         Try
             SerialPort1.DiscardInBuffer()
             SerialPort1.Close()             'Close our Serial Port
@@ -429,6 +436,13 @@ Public Class Form1
         '--------- Present data--------------
         Invoke(Sub() TextBox37.Text = Volt_channel_0.ToString)
         Invoke(Sub() TextBox26.Text &= intext)
+    End Sub
+
+    Private Sub SerialPort2_DataReceived(sender As Object, e As SerialDataReceivedEventArgs) Handles SerialPort2.DataReceived
+        '-------- Keep the buffer empty----------
+        Dim intext_hex As String = String.Empty
+
+        intext_hex = SerialPort2.ReadExisting       'Read the data
     End Sub
 
     Public Function StrToHex(Data As String) As String
@@ -645,6 +659,8 @@ Public Class Form1
     Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
         TextBox26.Clear()
     End Sub
+
+
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
