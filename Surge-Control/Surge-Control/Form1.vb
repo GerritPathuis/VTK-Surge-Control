@@ -282,7 +282,7 @@ Public Class Form1
 
         GetIoGroup(1) = &H48   'OPC= GetIoGroup
         GetIoGroup(2) = &H1    'Channel 1
-        GetIoGroup(3) = &H1C   'Voltage
+        GetIoGroup(3) = &H1C   'Voltage range 0-30000 mV
         GetIoGroup(4) = &H0    'LEN
 
         time += Timer1.Interval / 1000                  '[msec]--->[sec]
@@ -339,7 +339,8 @@ Public Class Form1
         combo_Baud.Items.Add(9600)     'Populate the cmbBaud Combo box to common baud rates used
         combo_Baud.Items.Add(19200)
         combo_Baud.Items.Add(38400)
-        combo_Baud.SelectedIndex = 0    'Set cmbBaud text to 9600 Baud 
+        combo_Baud.Items.Add(57600)
+        combo_Baud.SelectedIndex = 3     'Set cmbBaud text to 38400 Baud 
         'btnDisconnect.Enabled = False                'Initially Disconnect Button is Disabled
     End Sub
 
@@ -420,22 +421,35 @@ Public Class Form1
         Dim intext As String = String.Empty
         Dim status_code As String = String.Empty
         Dim status_OK As String = "00"
-        Dim Value_channel_0 As String  'Lucid-Control AI4, 10V module
-        Dim Volt_channel_0 As Double  'Lucid-Control AI4, 10V module
+        Dim Value_channel_0_hex As String  'Lucid-Control AI4, 10V module
+        Dim Value_channel_0_dec As Int32  'Lucid-Control AI4, 10V module
+        Dim Volt_channel_0 As Double    'Lucid-Control AI4, 10V module
 
         'Beep()
         intext_hex = SerialPort1.ReadExisting       'Read the data
         intext &= StrToHex(intext_hex) & vbCrLf     'Convert data to hex
         '--------- Status Communication-------
         status_code = intext.Substring(0, 2)
-        If Not String.Equals(status_code, status_OK) Then MessageBox.Show("Lucid Communication problem Status Code= " & status_code)
-        '---------- Get the value -----------
-        Value_channel_0 = intext.Substring(4, 4)
-        Volt_channel_0 = Convert.ToInt32(Value_channel_0, 16) / 10000    '[uVolt] Channel 0'
+        If String.Equals(status_code, status_OK) Then
+            '---------- Get the value -----------
+            Value_channel_0_hex = intext.Substring(4, 4)                     'Hex
+            Value_channel_0_dec = Convert.ToInt32(Value_channel_0_hex, 16)   '[Volt] Channel 0'
+            Volt_channel_0 = Value_channel_0_dec / 3300                      '[Volt] converted
 
-        '--------- Present data--------------
-        Invoke(Sub() TextBox37.Text = Volt_channel_0.ToString)
-        Invoke(Sub() TextBox26.Text &= intext)
+            '--------- Present data--------------
+            Invoke(Sub() TextBox38.Text = intext.Substring(4, 4))           'Hex
+            Invoke(Sub() TextBox39.Text = Value_channel_0_dec.ToString)     'Decimal
+            Invoke(Sub() TextBox37.Text = Round(Volt_channel_0, 2).ToString)
+            Invoke(Sub() TextBox26.Text &= intext.Substring(4, 4) & " ")
+            Invoke(Sub() TextBox36.Text = Round(Volt_channel_0 * 10, 0).ToString)       'bypass % open
+            If CheckBox2.Checked Then 'Feedback from SCS controller ON/OFF
+                Invoke(Sub() NumericUpDown33.Value = CDec(Round(Volt_channel_0 * 10, 0)))   'bypass % open
+            End If
+        Else
+            SerialPort1.DiscardInBuffer()        'empty inbuffer
+            'MessageBox.Show("Lucid Communication problem Status Code= " & status_code)
+        End If
+
     End Sub
 
     Private Sub SerialPort2_DataReceived(sender As Object, e As SerialDataReceivedEventArgs) Handles SerialPort2.DataReceived
@@ -506,7 +520,7 @@ Public Class Form1
             amplitude = NumericUpDown2.Value
             p_time = time Mod period
             Select Case True
-                Case RadioButton1.Checked           'Flat line
+                Case RadioButton1.Checked           'Feedback from ASC controller
                     K_sys = NumericUpDown25.Value
                 Case RadioButton2.Checked           'Square wave
                     If (p_time > (period / 2)) Then
@@ -518,6 +532,7 @@ Public Class Form1
                     K_sys = NumericUpDown25.Value + (amplitude / 2) * Sin(p_time / period * 2 * PI)
                 Case RadioButton4.Checked           'Saw tooth
                     K_sys = NumericUpDown25.Value - (amplitude / 2) + amplitude * p_time / period
+
             End Select
             TextBox5.Text = Round(K_sys, 1).ToString
             TextBox6.Text = Round(K_bypass, 1).ToString
@@ -659,9 +674,6 @@ Public Class Form1
     Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
         TextBox26.Clear()
     End Sub
-
-
-
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
     End Sub
