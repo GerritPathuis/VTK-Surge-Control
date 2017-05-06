@@ -11,7 +11,7 @@ Public Class Form1
     Dim Cout(4) As Double           'Current Outputs
     Dim last_deviation As Double    'PID control
     Dim Pterm, Iterm, Dterm As Double
-
+    Dim counter As Integer = 0
     Dim myPort As Array  'COM Ports detected on the system will be stored here
     Dim comOpen As Boolean
     Private Property ConnectionOK As Boolean
@@ -63,11 +63,13 @@ Public Class Form1
         "opening the bybass valve and returning to a save spot on the" & vbCrLf &
         "fan-Curve."
 
-        TextBox24.Text = "6.8" 'Test value [c]
+        TextBox24.Text = "6.8"  'Test value [c]
+        Label108.Text = ""      'Communication Error codes
 
         For i = 0 To 3
             pv(i) = 1       'Initial value
         Next
+
 
         Reset()
         Update_calc_screen()
@@ -282,10 +284,12 @@ Public Class Form1
 
         GetIoGroup(1) = &H48   'OPC= GetIoGroup
         GetIoGroup(2) = &H1    'Channel 1
-        GetIoGroup(3) = &H1C   'Voltage range 0-30000 mV
+        ' GetIoGroup(3) = &H1C   'Voltage range 0-30000 mV (2Bytes)
+        GetIoGroup(3) = &H1D   'Voltage range 0-100,000,000 mV (4Bytes)
+        ' GetIoGroup(3) = &H23   'Amp range 0-1,000,000 mAmp (4Bytes)
         GetIoGroup(4) = &H0    'LEN
 
-        time += Timer1.Interval / 1000                  '[msec]--->[sec]
+        time += Timer1.Interval / 5000                  '[msec]--->[sec]
         Label1.Text = time.ToString("000.0")
 
         If SerialPort1.IsOpen Then
@@ -296,11 +300,6 @@ Public Class Form1
         Update_calc_screen()
         Draw_Chart1()
         PID_controller()
-    End Sub
-    Private Sub CmbPort_Click(sender As Object, e As EventArgs)
-        'Disconnect
-
-
     End Sub
 
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
@@ -340,7 +339,7 @@ Public Class Form1
         combo_Baud.Items.Add(19200)
         combo_Baud.Items.Add(38400)
         combo_Baud.Items.Add(57600)
-        combo_Baud.SelectedIndex = 3     'Set cmbBaud text to 38400 Baud 
+        combo_Baud.SelectedIndex = 0     'Set cmbBaud text to 9600 Baud 
         'btnDisconnect.Enabled = False                'Initially Disconnect Button is Disabled
     End Sub
 
@@ -374,22 +373,14 @@ Public Class Form1
                 SerialPort2.Open()
                 btnConnect.Enabled = False              'Disable Connect button
                 btnConnect.BackColor = Color.Yellow
-                combo_Port1.BackColor = Color.Yellow
-                combo_Port2.BackColor = Color.Yellow
                 btnConnect.Text = "OK connected"
                 btnDisconnect.Enabled = True            'and Enable Disconnect button
             Catch ex As Exception
                 MsgBox("Error 654 Open: " & ex.Message)
             End Try
 
-            Try
-                SerialPort1.DiscardInBuffer()        'empty inbuffer
-                SerialPort1.DiscardOutBuffer()       'empty outbuffer
-                SerialPort2.DiscardInBuffer()        'empty inbuffer
-                SerialPort2.DiscardOutBuffer()       'empty outbuffer
-            Catch ex As Exception
-                MsgBox("Error 786 Open: " & ex.Message)
-            End Try
+            combo_Port1.BackColor = CType(IIf(SerialPort1.IsOpen, Color.Yellow, Color.Red), Color)
+            combo_Port2.BackColor = CType(IIf(SerialPort2.IsOpen, Color.Yellow, Color.Red), Color)
         End If
     End Sub
 
@@ -427,36 +418,44 @@ Public Class Form1
 
         'Beep()
         intext_hex = SerialPort1.ReadExisting       'Read the data
-        intext &= StrToHex(intext_hex) & vbCrLf     'Convert data to hex
+        intext &= StrToHex(intext_hex)              'Convert data to hex
         '--------- Status Communication-------
         status_code = intext.Substring(0, 2)
-        If String.Equals(status_code, status_OK) Then
+
+        If String.Equals(status_code, status_OK) And (intext_hex.Length = 6) Then
             '---------- Get the value -----------
             Value_channel_0_hex = intext.Substring(4, 4)                     'Hex
-            Value_channel_0_dec = Convert.ToInt32(Value_channel_0_hex, 16)   '[Volt] Channel 0'
-            Volt_channel_0 = Value_channel_0_dec / 3300                      '[Volt] converted
+            Value_channel_0_dec = (Convert.ToInt32(Value_channel_0_hex, 16))   '[Volt] Channel 0'
+            Volt_channel_0 = Value_channel_0_dec / 10000                       '[Volt] converted
 
             '--------- Present data--------------
-            Invoke(Sub() TextBox38.Text = intext.Substring(4, 4))           'Hex
-            Invoke(Sub() TextBox39.Text = Value_channel_0_dec.ToString)     'Decimal
-            Invoke(Sub() TextBox37.Text = Round(Volt_channel_0, 2).ToString)
-            Invoke(Sub() TextBox26.Text &= intext.Substring(4, 4) & " ")
-            Invoke(Sub() TextBox36.Text = Round(Volt_channel_0 * 10, 0).ToString)       'bypass % open
+            Try
+                Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))           'Hex 4 Bytes
+                Invoke(Sub() TextBox39.Text = Value_channel_0_dec.ToString)     'Decimal
+                Invoke(Sub() TextBox37.Text = Round(Volt_channel_0, 2).ToString)
+                Invoke(Sub() TextBox26.Text &= intext & " ")
+                Invoke(Sub() TextBox36.Text = Round(Volt_channel_0 * 10, 0).ToString)       'bypass % open
+            Catch ex As Exception
+
+            End Try
+            '------- Feedback ON/OFF----------
             If CheckBox2.Checked Then 'Feedback from SCS controller ON/OFF
                 Invoke(Sub() NumericUpDown33.Value = CDec(Round(Volt_channel_0 * 10, 0)))   'bypass % open
             End If
         Else
-            SerialPort1.DiscardInBuffer()        'empty inbuffer
+            counter += 1
+            Invoke(Sub() Label108.Text = counter.ToString & " statuscode=" & StrToHex(status_code))
             'MessageBox.Show("Lucid Communication problem Status Code= " & status_code)
+            SerialPort1.DiscardInBuffer()        'empty inbuffer
         End If
 
     End Sub
 
     Private Sub SerialPort2_DataReceived(sender As Object, e As SerialDataReceivedEventArgs) Handles SerialPort2.DataReceived
         '-------- Keep the buffer empty----------
-        Dim intext_hex As String = String.Empty
+        Dim intext_hex2 As String = String.Empty
 
-        intext_hex = SerialPort2.ReadExisting       'Read the data
+        intext_hex2 = SerialPort2.ReadExisting       'Read the data
     End Sub
 
     Public Function StrToHex(Data As String) As String
