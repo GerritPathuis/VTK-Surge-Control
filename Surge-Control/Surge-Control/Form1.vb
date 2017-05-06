@@ -178,7 +178,7 @@ Public Class Form1
         End Try
     End Sub
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        Dim SetIoGroup(3) As Byte   'Get-Voltage, see Page 22 en 24
+        Dim SetIoGroup(3) As Byte   'Get-Voltage, see Page 22 en 26
         Dim SetIoG As String = String.Empty
         Dim str_hex1 As String = String.Empty
         Dim str_hex2 As String = String.Empty
@@ -186,7 +186,7 @@ Public Class Form1
         Dim str_hex4 As String = String.Empty
         Dim message_length As Integer = 0
 
-        SetIoGroup(0) = &H42   'OPC= SetIoGroup
+        SetIoGroup(0) = &H42   'OPC= SetIoGroup !!!
         SetIoGroup(1) = &HF    'Channel 1...4
         SetIoGroup(2) = &H23   'Current  (0 to 1,000,000 MicroAmp)
         SetIoGroup(3) = &H10   'Len (4 x 4=16 bytes)
@@ -275,31 +275,30 @@ Public Class Form1
         MessageBox.Show("Little Endian=" & str_num.ToString & " To_big_endian= " & return_val.ToString)
         Return return_val
     End Function
-
-
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-
-        Dim GetIoGroup(4) As Byte   'Get-Voltage, see Page 22 en 24
+        GetIO()
+        Update_calc_screen()
+        Draw_Chart1()
+        PID_controller()
+    End Sub
+    Private Sub GetIO()
+        Dim GetIo(4) As Byte   'Get-Voltage, see Page 22 en 23
         Dim GetId(4) As Byte        'Getid Page 30
 
-        GetIoGroup(1) = &H48   'OPC= GetIoGroup
-        GetIoGroup(2) = &H1    'Channel 1
-        ' GetIoGroup(3) = &H1C   'Voltage range 0-30000 mV (2Bytes)
-        GetIoGroup(3) = &H1D   'Voltage range 0-100,000,000 mV (4Bytes)
-        ' GetIoGroup(3) = &H23   'Amp range 0-1,000,000 mAmp (4Bytes)
-        GetIoGroup(4) = &H0    'LEN
+        GetIo(1) = &H46   'OPC= GetIoGroup
+        GetIo(2) = &H1    'Channel 1
+        ' GetIo(3) = &H1C   'Voltage range 0-30000 mV (2Bytes)
+        GetIo(3) = &H1D   'Voltage range 0-100,000,000 mV (4Bytes)
+        ' GetIo(3) = &H23   'Amp range 0-1,000,000 mAmp (4Bytes)
+        GetIo(4) = &H0    'LEN
 
         time += Timer1.Interval / 5000                  '[msec]--->[sec]
         Label1.Text = time.ToString("000.0")
 
         If SerialPort1.IsOpen Then
             '-------LucidControl AI4, 10Volt Input module -------------
-            SerialPort1.Write(GetIoGroup, 1, 4)
+            SerialPort1.Write(GetIo, 1, 4)
         End If
-
-        Update_calc_screen()
-        Draw_Chart1()
-        PID_controller()
     End Sub
 
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
@@ -415,6 +414,7 @@ Public Class Form1
         Dim Value_channel_0_hex As String  'Lucid-Control AI4, 10V module
         Dim Value_channel_0_dec As Int32  'Lucid-Control AI4, 10V module
         Dim Volt_channel_0 As Double    'Lucid-Control AI4, 10V module
+        Dim bigE As String = String.Empty
 
         'Beep()
         intext_hex = SerialPort1.ReadExisting       'Read the data
@@ -423,16 +423,26 @@ Public Class Form1
         status_code = intext.Substring(0, 2)
 
         If String.Equals(status_code, status_OK) And (intext_hex.Length = 6) Then
+
             '---------- Get the value -----------
-            Value_channel_0_hex = intext.Substring(4, 4)                     'Hex
-            Value_channel_0_dec = (Convert.ToInt32(Value_channel_0_hex, 16))   '[Volt] Channel 0'
-            Volt_channel_0 = Value_channel_0_dec / 10000                       '[Volt] converted
+            'intext = "0004" & "404b4c00"                   'Test value 5.000 Volt
+            Value_channel_0_hex = intext.Substring(4, 8)       'Hex
+
+            '---- received value is little-Endian (reverse order)-----
+            bigE = Value_channel_0_hex.Substring(6, 2)
+            bigE &= Value_channel_0_hex.Substring(4, 2)
+            bigE &= Value_channel_0_hex.Substring(2, 2)
+            bigE &= Value_channel_0_hex.Substring(0, 2)
+            Invoke(Sub() TextBox40.Text = bigE)
+
+            Value_channel_0_dec = (Convert.ToInt32(bigE, 16))   '[Volt] Channel 0'
+            Volt_channel_0 = Value_channel_0_dec / 10000                      '[Volt] converted
 
             '--------- Present data--------------
             Try
                 Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))           'Hex 4 Bytes
                 Invoke(Sub() TextBox39.Text = Value_channel_0_dec.ToString)     'Decimal
-                Invoke(Sub() TextBox37.Text = Round(Volt_channel_0, 2).ToString)
+                Invoke(Sub() TextBox37.Text = Round(Volt_channel_0, 4).ToString)
                 Invoke(Sub() TextBox26.Text &= intext & " ")
                 Invoke(Sub() TextBox36.Text = Round(Volt_channel_0 * 10, 0).ToString)       'bypass % open
             Catch ex As Exception
