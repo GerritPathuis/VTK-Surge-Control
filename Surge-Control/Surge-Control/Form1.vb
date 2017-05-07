@@ -70,7 +70,6 @@ Public Class Form1
             pv(i) = 1       'Initial value
         Next
 
-
         Reset()
         Update_calc_screen()
     End Sub
@@ -78,7 +77,7 @@ Public Class Form1
     Private Sub Reset()
         Init_Chart1()
         Init_Chart2()
-        Timer1.Interval = 1000   'Berekeningsinterval 1000 msec
+        Timer1.Interval = 2000   'Berekeningsinterval 2000 msec
         time = 0
 
         Timer1.Enabled = True
@@ -178,7 +177,7 @@ Public Class Form1
         End Try
     End Sub
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        Dim SetIoGroup(3) As Byte   'Get-Voltage, see Page 22 en 26
+        Dim SetIoGroup(3) As Byte   'Set-Voltage or Current, see Page 22 en 26
         Dim SetIoG As String = String.Empty
         Dim str_hex1 As String = String.Empty
         Dim str_hex2 As String = String.Empty
@@ -187,32 +186,48 @@ Public Class Form1
         Dim message_length As Integer = 0
 
         SetIoGroup(0) = &H42   'OPC= SetIoGroup !!!
-        SetIoGroup(1) = &HF    'Channel 1...4
-        SetIoGroup(2) = &H23   'Current  (0 to 1,000,000 MicroAmp)
-        SetIoGroup(3) = &H10   'Len (4 x 4=16 bytes)
+        ' SetIoGroup(1) = &HF    'Channel 1...4 (0000.1111==0x0F)
+        SetIoGroup(1) = &H3    'Channel 1 or 2)
+        If RadioButton8.Checked Then
+            SetIoGroup(2) = &H1D   'Volt (0 to 1,000,000 MicroVolt)
+        Else
+            SetIoGroup(2) = &H23   'Current  (0 to 1,000,000 MicroAmp)
+        End If
+        'SetIoGroup(3) = &H10   'Len (4 x 4=16 bytes)
+        SetIoGroup(3) = &H8   'Len (4,8,12 or 16)
 
         '------ make Command string of the Command byte array---
         SetIoG = System.Text.Encoding.Default.GetString(SetIoGroup)
+        '---------- now convert to hex-------
+        SetIoG = StrToHex(SetIoG) '& "-"
 
-        '----------- current channel #1...4 -------------
-        str_hex1 = Hex(CDec(NumericUpDown5.Value - 4) / 16 * 1000000)
-        str_hex2 = Hex(CDec(NumericUpDown10.Value - 4) / 16 * 1000000)
-        str_hex3 = Hex(CDec(NumericUpDown14.Value - 4) / 16 * 1000000)
-        str_hex4 = Hex(CDec(NumericUpDown15.Value - 4) / 16 * 1000000)
+        If RadioButton8.Checked Then
+            'Voltage output, channel #1...4 
+            str_hex1 = Hex(CDec(NumericUpDown5.Value * 10 ^ 6))
+            str_hex2 = Hex(CDec(NumericUpDown10.Value * 10 ^ 6))
+            'str_hex3 = Hex(CDec(NumericUpDown14.Value * 10 ^ 6))
+            'str_hex4 = Hex(CDec(NumericUpDown15.Value * 10 ^ 6))
+        Else
+            '----------- current output, channel #1...4 -------------
+            str_hex1 = Hex(CDec(NumericUpDown5.Value - 4) / 16 * 10 ^ 6)
+            str_hex2 = Hex(CDec(NumericUpDown10.Value - 4) / 16 * 10 ^ 6)
+            'str_hex3 = Hex(CDec(NumericUpDown14.Value - 4) / 16 * 10 ^ 6)
+            'str_hex4 = Hex(CDec(NumericUpDown15.Value - 4) / 16 * 10 ^ 6)
 
+        End If
         '------ convert to Big endian and ------
         '------ adding all string-sections to one string
         SetIoG &= To_big_endian(str_hex1)   '& "-"
         SetIoG &= To_big_endian(str_hex2)   '& "-"
-        SetIoG &= To_big_endian(str_hex3)   '& "-"
-        SetIoG &= To_big_endian(str_hex4)   '& "-"
+        'SetIoG &= To_big_endian(str_hex3)   '& "-"
+        'SetIoG &= To_big_endian(str_hex4)   '& "-"
 
         TextBox26.Text &= "SetIoG= " & SetIoG & vbCrLf
 
         If SerialPort2.IsOpen Then
             SerialPort2.WriteLine(SetIoG)
         Else
-            TextBox26.Text &= "SerialPort1 is closed" & vbCrLf
+            TextBox26.Text &= "SerialPort2 is closed" & vbCrLf
         End If
     End Sub
 
@@ -229,18 +244,19 @@ Public Class Form1
         bytes = BitConverter.GetBytes(value)
 
         '------- determine number significant bytes
+        If value > 2 ^ 32 Then MessageBox.Show("Problem in To_big_endian")
         Select Case value
-            Case Is > 16777215
-                MessageBox.Show("Out of range in function; To_big_Endian")
-            Case Is > 65535
+            Case Is >= CInt(2 ^ 24)
+                no_bytes = 4
+            Case Is < CInt(2 ^ 24)
                 no_bytes = 3
-            Case Is > 255
+            Case Is < CInt(2 ^ 16)
                 no_bytes = 2
-            Case Is <= 255
+            Case Is < CInt(2 ^ 8)
                 no_bytes = 1
         End Select
 
-        'MessageBox.Show(" No_bytes= " & no_bytes.ToString)
+        'MessageBox.Show("str_num=" & str_num & " No_bytes= " & no_bytes.ToString)
         'MessageBox.Show(" bytes(0)= " & Conversion.Hex(bytes(0)))
         'MessageBox.Show(" bytes(1)= " & Conversion.Hex(bytes(1)))
         'MessageBox.Show(" bytes(2)= " & Conversion.Hex(bytes(2)))
@@ -248,20 +264,20 @@ Public Class Form1
 
         Select Case no_bytes
             Case 1  '[1 bytes] move right and add zero
-                bytes_big(0) = bytes(0)
+                bytes_big(0) = &H0
                 bytes_big(1) = &H0
                 bytes_big(2) = &H0
-                bytes_big(3) = &H0
+                bytes_big(3) = bytes(0)
             Case 2   '[2 bytes] move right and add zero
-                bytes_big(0) = bytes(1)
-                bytes_big(1) = bytes(0)
-                bytes_big(2) = &H0
-                bytes_big(3) = &H0
+                bytes_big(0) = &H0
+                bytes_big(1) = &H0
+                bytes_big(2) = bytes(1)
+                bytes_big(3) = bytes(0)
             Case 3          '[3 bytes] move right and add zero (This one works!!)
-                bytes_big(0) = bytes(2)
-                bytes_big(1) = bytes(1)
-                bytes_big(2) = bytes(0)
-                bytes_big(3) = &H0
+                bytes_big(0) = &H0
+                bytes_big(1) = bytes(2)
+                bytes_big(2) = bytes(1)
+                bytes_big(3) = bytes(0)
             Case 4
                 'Do nothing
         End Select
@@ -272,7 +288,7 @@ Public Class Form1
             return_val += b.ToString("X2")
         Next
 
-        MessageBox.Show("Little Endian=" & str_num.ToString & " To_big_endian= " & return_val.ToString)
+        ' MessageBox.Show("Little Endian=" & str_num.ToString & " To_big_endian= " & return_val.ToString)
         Return return_val
     End Function
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
@@ -283,17 +299,20 @@ Public Class Form1
     End Sub
     Private Sub GetIO()
         Dim GetIo(4) As Byte   'Get-Voltage, see Page 22 en 23
-        Dim GetId(4) As Byte        'Getid Page 30
 
+        '--------- update time on sceen-------
+        time += Timer1.Interval * 0.001                  '[msec]--->[sec]
+        Label1.Text = time.ToString("000.0")
+
+        '--------- prepare request to Lucid Control------
         GetIo(1) = &H46   'OPC= GetIoGroup
         GetIo(2) = &H1    'Channel 1
-        ' GetIo(3) = &H1C   'Voltage range 0-30000 mV (2Bytes)
-        GetIo(3) = &H1D   'Voltage range 0-100,000,000 mV (4Bytes)
-        ' GetIo(3) = &H23   'Amp range 0-1,000,000 mAmp (4Bytes)
+        If RadioButton5.Checked Then
+            GetIo(3) = &H1D   'Voltage range 0-100,000,000 mV (4Bytes)
+        Else
+            GetIo(3) = &H23   'Amp range 0-1,000,000 mAmp (4Bytes)
+        End If
         GetIo(4) = &H0    'LEN
-
-        time += Timer1.Interval / 5000                  '[msec]--->[sec]
-        Label1.Text = time.ToString("000.0")
 
         If SerialPort1.IsOpen Then
             '-------LucidControl AI4, 10Volt Input module -------------
@@ -339,7 +358,6 @@ Public Class Form1
         combo_Baud.Items.Add(38400)
         combo_Baud.Items.Add(57600)
         combo_Baud.SelectedIndex = 0     'Set cmbBaud text to 9600 Baud 
-        'btnDisconnect.Enabled = False                'Initially Disconnect Button is Disabled
     End Sub
 
     Private Sub BtnConnect_Click(sender As System.Object, e As System.EventArgs) Handles btnConnect.Click
@@ -418,35 +436,37 @@ Public Class Form1
 
         'Beep()
         intext_hex = SerialPort1.ReadExisting       'Read the data
-        intext &= StrToHex(intext_hex)              'Convert data to hex
+        intext = StrToHex(intext_hex)              'Convert data to hex
         '--------- Status Communication-------
         status_code = intext.Substring(0, 2)
 
-        If String.Equals(status_code, status_OK) And (intext_hex.Length = 6) Then
+        If String.Equals(status_code, status_OK) And (intext.Length = 12) Then
 
             '---------- Get the value -----------
-            'intext = "0004" & "404b4c00"                   'Test value 5.000 Volt
-            Value_channel_0_hex = intext.Substring(4, 8)       'Hex
+            'intext = "0004" & "D0121300"                   'Test value +1.2500 Volt
+            'intext = "0004" & "A0252600"                   'Test value +2.5000 Volt
+            'intext = "0004" & "404b4c00"                   'Test value +5.000 Volt
+            'intext = "0004" & "C0B4B3FF"                   'Test value -5.000 Volt
 
-            '---- received value is little-Endian (reverse order)-----
+            Value_channel_0_hex = intext.Substring(4, 8)    'Hex
+
+            '---- The received value is little-Endian (now reverse order)-----
             bigE = Value_channel_0_hex.Substring(6, 2)
             bigE &= Value_channel_0_hex.Substring(4, 2)
             bigE &= Value_channel_0_hex.Substring(2, 2)
             bigE &= Value_channel_0_hex.Substring(0, 2)
-            Invoke(Sub() TextBox40.Text = bigE)
 
-            Value_channel_0_dec = (Convert.ToInt32(bigE, 16))   '[Volt] Channel 0'
-            Volt_channel_0 = Value_channel_0_dec / 10000                      '[Volt] converted
+            Value_channel_0_dec = Convert.ToInt32(bigE, 16)         '[microVolt] Channel 0
+            Volt_channel_0 = CDbl(Value_channel_0_dec) / 10 ^ 6     '[microV-->Volt] 
 
             '--------- Present data--------------
             Try
-                Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))           'Hex 4 Bytes
+                Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))           'Hex 4 Bytes value
                 Invoke(Sub() TextBox39.Text = Value_channel_0_dec.ToString)     'Decimal
-                Invoke(Sub() TextBox37.Text = Round(Volt_channel_0, 4).ToString)
+                Invoke(Sub() TextBox37.Text = Round(Volt_channel_0, 2).ToString("0.00"))    'Volt
                 Invoke(Sub() TextBox26.Text &= intext & " ")
                 Invoke(Sub() TextBox36.Text = Round(Volt_channel_0 * 10, 0).ToString)       'bypass % open
             Catch ex As Exception
-
             End Try
             '------- Feedback ON/OFF----------
             If CheckBox2.Checked Then 'Feedback from SCS controller ON/OFF
@@ -472,9 +492,9 @@ Public Class Form1
         Dim sVal As String = String.Empty
         Dim sHex As String = String.Empty
         'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
-        'usage messagebox.show(HexToString("73696D306E"))
+        'usage messagebox.show(HexToStr("73696D306E"))
         'Used for information received from Lucid-Control modules
-        'Convert ascii-String to Hex string
+        'Convert ascii-String to Hex-string
         While Data.Length > 0
             sVal = Hex(Strings.Asc(Data.Substring(0, 1).ToString()))
             Data = Data.Substring(1)
@@ -683,6 +703,40 @@ Public Class Form1
     Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
         TextBox26.Clear()
     End Sub
+
+    Private Sub RadioButton8_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton8.CheckedChanged
+        GroupBox5.Text = "Outputs test values 0-5 Volt"
+        NumericUpDown5.Minimum = 0
+        NumericUpDown5.Maximum = 5
+        NumericUpDown10.Minimum = 0
+        NumericUpDown10.Maximum = 5
+        NumericUpDown14.Minimum = 0
+        NumericUpDown14.Maximum = 5
+        NumericUpDown15.Minimum = 0
+        NumericUpDown15.Maximum = 5
+
+        NumericUpDown5.Value = 0
+        NumericUpDown10.Value = 0
+        NumericUpDown14.Value = 0
+        NumericUpDown15.Value = 0
+    End Sub
+
+    Private Sub RadioButton7_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton7.CheckedChanged
+        GroupBox5.Text = "Outputs test values 4-20 mAmp"
+        NumericUpDown5.Value = 4
+        NumericUpDown10.Value = 4
+        NumericUpDown14.Value = 4
+        NumericUpDown15.Value = 4
+        NumericUpDown5.Minimum = 4
+        NumericUpDown5.Maximum = 20
+        NumericUpDown10.Minimum = 4
+        NumericUpDown10.Maximum = 20
+        NumericUpDown14.Minimum = 4
+        NumericUpDown14.Maximum = 20
+        NumericUpDown15.Minimum = 4
+        NumericUpDown15.Maximum = 20
+    End Sub
+
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
     End Sub
@@ -703,8 +757,7 @@ Public Class Form1
         '------ shift register with process values
         Double.TryParse(TextBox27.Text, pv)
         '------ time interval-----
-        dt = Timer1.Interval / 1000     '[sec]
-        ' If dt <= 0 Then dt = 1          'Preventing devision by zero errors 
+        dt = Timer1.Interval * 0.001     '[sec]
 
         '------- convert Flow to procent----
         Double.TryParse(TextBox11.Text, range)
