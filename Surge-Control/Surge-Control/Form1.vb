@@ -492,7 +492,7 @@ Public Class Form1
         Dim sVal As String = String.Empty
         Dim sHex As String = String.Empty
         'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
-        'usage messagebox.show(String_Hex_to_ascii("73696D306E"))
+        'Example string   Ascii HEX= 0x48 0x45 0x58 = 72 69 88
         'Used for information received from Lucid-Control modules
         'Convert ascii-String to Hex-string
         While Data.Length > 0
@@ -510,8 +510,8 @@ Public Class Form1
     Public Function String_Hex_to_ascii(Data As String) As String
         Dim com As String = String.Empty
         'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
-        'Data = "49204c6f76652050726f6772616d6d696e672e"    'Example string
-        'Convert Hex-String to ascii string
+        'Data = "484558"    'Example string   Ascii HEX= 0x48 0x45 0x58 = 72 69 88
+
         For x = 0 To Data.Length - 1 Step 2
             com &= ChrW(CInt("&H" & Data.Substring(x, 2)))
         Next
@@ -540,7 +540,6 @@ Public Class Form1
         'JUST TESTING
 
         Dim hexstring As String = "484558FF"  'ASCII= HEX
-        'Dim hexstring As String = "01050001FFFF8FFB"
         Dim bb() As Byte
         Dim ret As String
 
@@ -554,8 +553,6 @@ Public Class Form1
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
         'JUST TESTING  String_ascii_to_Hex_ascii
         Dim ret As String
-        'Dim hexstring As String = "0105ff"
-        'Dim hexstring As String = "484558FF"  'ASCII= HEX
         Dim hexstring As String = "HEX"  'ASCII= HEX
 
         ret = String_ascii_to_Hex_ascii(hexstring)
@@ -565,7 +562,6 @@ Public Class Form1
     Private Sub Button12_Click(sender As Object, e As EventArgs) Handles Button12.Click
         'JUST TESTING  String_Hex_to_ascii
         Dim ret As String
-        'Dim hexstring As String = "0105ff"
         Dim hexstring As String = "484558FF"  'ASCII= HEX
 
         ret = String_Hex_to_ascii(hexstring)
