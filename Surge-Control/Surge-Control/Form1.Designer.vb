@@ -672,7 +672,7 @@ Partial Class Form1
         '
         Me.NumericUpDown13.BackColor = System.Drawing.SystemColors.Window
         Me.NumericUpDown13.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.NumericUpDown13.Location = New System.Drawing.Point(310, 127)
+        Me.NumericUpDown13.Location = New System.Drawing.Point(314, 127)
         Me.NumericUpDown13.Name = "NumericUpDown13"
         Me.NumericUpDown13.Size = New System.Drawing.Size(105, 24)
         Me.NumericUpDown13.TabIndex = 63
@@ -684,17 +684,17 @@ Partial Class Form1
         '
         Me.Label99.AutoSize = True
         Me.Label99.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label99.Location = New System.Drawing.Point(118, 129)
+        Me.Label99.Location = New System.Drawing.Point(112, 129)
         Me.Label99.Name = "Label99"
-        Me.Label99.Size = New System.Drawing.Size(29, 18)
+        Me.Label99.Size = New System.Drawing.Size(77, 18)
         Me.Label99.TabIndex = 62
-        Me.Label99.Text = "[%]"
+        Me.Label99.Text = "[% closed]"
         '
         'NumericUpDown34
         '
         Me.NumericUpDown34.BackColor = System.Drawing.SystemColors.Window
         Me.NumericUpDown34.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.NumericUpDown34.Location = New System.Drawing.Point(194, 127)
+        Me.NumericUpDown34.Location = New System.Drawing.Point(205, 127)
         Me.NumericUpDown34.Name = "NumericUpDown34"
         Me.NumericUpDown34.Size = New System.Drawing.Size(93, 24)
         Me.NumericUpDown34.TabIndex = 60
@@ -753,7 +753,7 @@ Partial Class Form1
         Me.NumericUpDown31.BackColor = System.Drawing.SystemColors.Window
         Me.NumericUpDown31.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.NumericUpDown31.Increment = New Decimal(New Integer() {10000, 0, 0, 0})
-        Me.NumericUpDown31.Location = New System.Drawing.Point(310, 97)
+        Me.NumericUpDown31.Location = New System.Drawing.Point(314, 97)
         Me.NumericUpDown31.Maximum = New Decimal(New Integer() {1000000, 0, 0, 0})
         Me.NumericUpDown31.Minimum = New Decimal(New Integer() {4, 0, 0, 0})
         Me.NumericUpDown31.Name = "NumericUpDown31"
@@ -767,7 +767,7 @@ Partial Class Form1
         '
         Me.Label62.AutoSize = True
         Me.Label62.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label62.Location = New System.Drawing.Point(118, 99)
+        Me.Label62.Location = New System.Drawing.Point(112, 99)
         Me.Label62.Name = "Label62"
         Me.Label62.Size = New System.Drawing.Size(34, 18)
         Me.Label62.TabIndex = 53
@@ -778,7 +778,7 @@ Partial Class Form1
         Me.NumericUpDown32.BackColor = System.Drawing.SystemColors.Window
         Me.NumericUpDown32.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.NumericUpDown32.Increment = New Decimal(New Integer() {10000, 0, 0, 0})
-        Me.NumericUpDown32.Location = New System.Drawing.Point(194, 97)
+        Me.NumericUpDown32.Location = New System.Drawing.Point(205, 97)
         Me.NumericUpDown32.Maximum = New Decimal(New Integer() {100000, 0, 0, 0})
         Me.NumericUpDown32.Minimum = New Decimal(New Integer() {100000, 0, 0, -2147483648})
         Me.NumericUpDown32.Name = "NumericUpDown32"
@@ -803,7 +803,7 @@ Partial Class Form1
         Me.NumericUpDown29.BackColor = System.Drawing.SystemColors.Window
         Me.NumericUpDown29.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.NumericUpDown29.Increment = New Decimal(New Integer() {10, 0, 0, 0})
-        Me.NumericUpDown29.Location = New System.Drawing.Point(310, 67)
+        Me.NumericUpDown29.Location = New System.Drawing.Point(314, 67)
         Me.NumericUpDown29.Maximum = New Decimal(New Integer() {450, 0, 0, 0})
         Me.NumericUpDown29.Minimum = New Decimal(New Integer() {4, 0, 0, 0})
         Me.NumericUpDown29.Name = "NumericUpDown29"
@@ -816,7 +816,7 @@ Partial Class Form1
         '
         Me.Label60.AutoSize = True
         Me.Label60.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label60.Location = New System.Drawing.Point(118, 69)
+        Me.Label60.Location = New System.Drawing.Point(112, 69)
         Me.Label60.Name = "Label60"
         Me.Label60.Size = New System.Drawing.Size(65, 18)
         Me.Label60.TabIndex = 49
@@ -827,7 +827,7 @@ Partial Class Form1
         Me.NumericUpDown30.BackColor = System.Drawing.SystemColors.Window
         Me.NumericUpDown30.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.NumericUpDown30.Increment = New Decimal(New Integer() {10, 0, 0, 0})
-        Me.NumericUpDown30.Location = New System.Drawing.Point(194, 67)
+        Me.NumericUpDown30.Location = New System.Drawing.Point(205, 67)
         Me.NumericUpDown30.Maximum = New Decimal(New Integer() {2000, 0, 0, 0})
         Me.NumericUpDown30.Minimum = New Decimal(New Integer() {200, 0, 0, -2147483648})
         Me.NumericUpDown30.Name = "NumericUpDown30"
@@ -849,7 +849,7 @@ Partial Class Form1
         '
         Me.Label59.AutoSize = True
         Me.Label59.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label59.Location = New System.Drawing.Point(323, 15)
+        Me.Label59.Location = New System.Drawing.Point(327, 15)
         Me.Label59.Name = "Label59"
         Me.Label59.Size = New System.Drawing.Size(71, 18)
         Me.Label59.TabIndex = 46
@@ -860,7 +860,7 @@ Partial Class Form1
         Me.NumericUpDown28.BackColor = System.Drawing.SystemColors.Window
         Me.NumericUpDown28.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.NumericUpDown28.Increment = New Decimal(New Integer() {1000, 0, 0, 0})
-        Me.NumericUpDown28.Location = New System.Drawing.Point(310, 37)
+        Me.NumericUpDown28.Location = New System.Drawing.Point(314, 37)
         Me.NumericUpDown28.Maximum = New Decimal(New Integer() {30000, 0, 0, 0})
         Me.NumericUpDown28.Name = "NumericUpDown28"
         Me.NumericUpDown28.Size = New System.Drawing.Size(105, 24)
@@ -873,7 +873,7 @@ Partial Class Form1
         '
         Me.Label58.AutoSize = True
         Me.Label58.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label58.Location = New System.Drawing.Point(200, 15)
+        Me.Label58.Location = New System.Drawing.Point(211, 15)
         Me.Label58.Name = "Label58"
         Me.Label58.Size = New System.Drawing.Size(63, 18)
         Me.Label58.TabIndex = 44
@@ -883,7 +883,7 @@ Partial Class Form1
         '
         Me.Label56.AutoSize = True
         Me.Label56.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label56.Location = New System.Drawing.Point(118, 39)
+        Me.Label56.Location = New System.Drawing.Point(112, 39)
         Me.Label56.Name = "Label56"
         Me.Label56.Size = New System.Drawing.Size(63, 18)
         Me.Label56.TabIndex = 43
@@ -894,7 +894,7 @@ Partial Class Form1
         Me.NumericUpDown27.BackColor = System.Drawing.SystemColors.Window
         Me.NumericUpDown27.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.NumericUpDown27.Increment = New Decimal(New Integer() {100, 0, 0, 0})
-        Me.NumericUpDown27.Location = New System.Drawing.Point(194, 37)
+        Me.NumericUpDown27.Location = New System.Drawing.Point(205, 37)
         Me.NumericUpDown27.Maximum = New Decimal(New Integer() {5000, 0, 0, 0})
         Me.NumericUpDown27.Name = "NumericUpDown27"
         Me.NumericUpDown27.Size = New System.Drawing.Size(93, 24)
