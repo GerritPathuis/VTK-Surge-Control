@@ -199,7 +199,7 @@ Public Class Form1
         '------ make Command string of the Command byte array---
         SetIoG = System.Text.Encoding.Default.GetString(SetIoGroup)
         '---------- now convert to hex-------
-        SetIoG = StrToHex(SetIoG) '& "-"
+        SetIoG = String_ascii_to_Hex_ascii(SetIoG) '& "-"
 
         If RadioButton8.Checked Then
             'Voltage output, channel #1...4 
@@ -436,7 +436,7 @@ Public Class Form1
 
         'Beep()
         intext_hex = SerialPort1.ReadExisting       'Read the data
-        intext = StrToHex(intext_hex)              'Convert data to hex
+        intext = String_ascii_to_Hex_ascii(intext_hex)              'Convert data to hex
         '--------- Status Communication-------
         status_code = intext.Substring(0, 2)
 
@@ -474,7 +474,7 @@ Public Class Form1
             End If
         Else
             counter += 1
-            Invoke(Sub() Label108.Text = counter.ToString & " statuscode=" & StrToHex(status_code))
+            Invoke(Sub() Label108.Text = counter.ToString & " statuscode=" & String_ascii_to_Hex_ascii(status_code))
             'MessageBox.Show("Lucid Communication problem Status Code= " & status_code)
             SerialPort1.DiscardInBuffer()        'empty inbuffer
         End If
@@ -488,11 +488,11 @@ Public Class Form1
         intext_hex2 = SerialPort2.ReadExisting       'Read the data
     End Sub
 
-    Public Function StrToHex(Data As String) As String
+    Public Function String_ascii_to_Hex_ascii(Data As String) As String
         Dim sVal As String = String.Empty
         Dim sHex As String = String.Empty
         'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
-        'usage messagebox.show(HexToStr("73696D306E"))
+        'usage messagebox.show(String_Hex_to_ascii("73696D306E"))
         'Used for information received from Lucid-Control modules
         'Convert ascii-String to Hex-string
         While Data.Length > 0
@@ -503,19 +503,74 @@ Public Class Form1
             Else
                 sHex = sHex & sVal
             End If
-            'sHex = sHex & " "
+            'sHex = sHex & " "  'for testing
         End While
         Return sHex
     End Function
-    Public Function HexToStr(ByVal Data As String) As String
+    Public Function String_Hex_to_ascii(Data As String) As String
         Dim com As String = String.Empty
         'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
+        'Data = "49204c6f76652050726f6772616d6d696e672e"    'Example string
         'Convert Hex-String to ascii string
         For x = 0 To Data.Length - 1 Step 2
             com &= ChrW(CInt("&H" & Data.Substring(x, 2)))
         Next
         Return com
     End Function
+    Public Function HexStringToByteArray(hexString As String) As Byte()
+        Dim com As String = String.Empty
+        'see http://www.vbforums.com/showthread.php?643593-Hex-String-to-Byte-Array
+        'hexString=  "01050001FFFF8FFB"  'Example string
+        Dim length As Integer = hexString.Length
+        Dim upperBound As Integer = length \ 2
+        Dim bytes(upperBound) As Byte
+
+        If length Mod 2 = 0 Then
+            upperBound -= 1
+        Else
+            hexString = "0" & hexString
+        End If
+
+        For i As Integer = 0 To upperBound
+            bytes(i) = Convert.ToByte(hexString.Substring(i * 2, 2), 16)
+        Next
+        Return bytes
+    End Function
+    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
+        'JUST TESTING
+
+        Dim hexstring As String = "484558FF"  'ASCII= HEX
+        'Dim hexstring As String = "01050001FFFF8FFB"
+        Dim bb() As Byte
+        Dim ret As String
+
+        bb = HexStringToByteArray(hexstring)
+
+        'Present result----------
+        ret = String.Join(",", Array.ConvertAll(bb, Function(byteValue) byteValue.ToString))
+        MessageBox.Show("input string=" & hexstring & ",  array of bytes=" & ret)
+    End Sub
+
+    Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
+        'JUST TESTING  String_ascii_to_Hex_ascii
+        Dim ret As String
+        'Dim hexstring As String = "0105ff"
+        'Dim hexstring As String = "484558FF"  'ASCII= HEX
+        Dim hexstring As String = "HEX"  'ASCII= HEX
+
+        ret = String_ascii_to_Hex_ascii(hexstring)
+        MessageBox.Show("input string=" & hexstring & ",  result=" & ret)
+    End Sub
+
+    Private Sub Button12_Click(sender As Object, e As EventArgs) Handles Button12.Click
+        'JUST TESTING  String_Hex_to_ascii
+        Dim ret As String
+        'Dim hexstring As String = "0105ff"
+        Dim hexstring As String = "484558FF"  'ASCII= HEX
+
+        ret = String_Hex_to_ascii(hexstring)
+        MessageBox.Show("input string=" & hexstring & ",  result=" & ret)
+    End Sub
     Private Sub Update_calc_screen()
         Dim Range(3) As String
         Dim K_sys, K_bypass, k_sum, K100, valve_open, dp, ro As Double
@@ -736,6 +791,8 @@ Public Class Form1
         NumericUpDown15.Minimum = 4
         NumericUpDown15.Maximum = 20
     End Sub
+
+
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
