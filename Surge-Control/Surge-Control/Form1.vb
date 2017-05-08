@@ -225,7 +225,13 @@ Public Class Form1
         TextBox26.Text &= "SetIoG= " & SetIoG & vbCrLf
 
         If SerialPort2.IsOpen Then
-            SerialPort2.WriteLine(SetIoG)
+            Dim bb() As Byte
+            Dim ret As String
+            bb = HexStringToByteArray(SetIoG)
+            'SerialPort2.WriteLine(SetIoG)
+            SerialPort2.Write(bb, 1, 10)
+            ret = String.Join(",", Array.ConvertAll(bb, Function(byteValue) byteValue.ToString))
+            TextBox26.Text &= "=" & ret & "=" & vbCrLf
         Else
             TextBox26.Text &= "SerialPort2 is closed" & vbCrLf
         End If
