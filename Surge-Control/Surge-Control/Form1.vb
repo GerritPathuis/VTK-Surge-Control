@@ -301,6 +301,14 @@ Public Class Form1
         Return return_val
     End Function
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+
+        If CheckBox3.Checked Then
+            Decimal.TryParse(TextBox1.Text, NumericUpDown5.Value)       'Flow
+            Decimal.TryParse(TextBox2.Text, NumericUpDown10.Value)      'Pinlet
+            Decimal.TryParse(TextBox3.Text, NumericUpDown14.Value)      'delta Pressure
+            Decimal.TryParse(TextBox23.Text, NumericUpDown15.Value)     'Tinlet
+        End If
+
         GetIO()                                 'Get the feedback value
         If CheckBox3.Checked Then SetOut()      'Set the output values
         Update_calc_screen()
@@ -546,37 +554,7 @@ Public Class Form1
         Next
         Return bytes
     End Function
-    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
-        'JUST TESTING
 
-        Dim hexstring As String = "484558FF"  'ASCII= HEX
-        Dim bb() As Byte
-        Dim ret As String
-
-        bb = HexStringToByteArray(hexstring)
-
-        'Present result----------
-        ret = String.Join(",", Array.ConvertAll(bb, Function(byteValue) byteValue.ToString))
-        MessageBox.Show("input string=" & hexstring & ",  array of bytes=" & ret)
-    End Sub
-
-    Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
-        'JUST TESTING  String_ascii_to_Hex_ascii
-        Dim ret As String
-        Dim hexstring As String = "HEX"  'ASCII= HEX
-
-        ret = String_ascii_to_Hex_ascii(hexstring)
-        MessageBox.Show("input string=" & hexstring & ",  result=" & ret)
-    End Sub
-
-    Private Sub Button12_Click(sender As Object, e As EventArgs) Handles Button12.Click
-        'JUST TESTING  String_Hex_to_ascii
-        Dim ret As String
-        Dim hexstring As String = "484558FF"  'ASCII= HEX
-
-        ret = String_Hex_to_ascii(hexstring)
-        MessageBox.Show("input string=" & hexstring & ",  result=" & ret)
-    End Sub
     Private Sub Update_calc_screen()
         Dim Range(3) As String
         Dim K_sys, K_bypass, k_sum, K100, valve_open, dp, ro As Double
@@ -767,15 +745,16 @@ Public Class Form1
 
     Private Sub RadioButton8_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton8.CheckedChanged
         GroupBox5.Text = "Outputs test values 0-5 Volt"
+        '---- max and min
         NumericUpDown5.Minimum = 0
-        NumericUpDown5.Maximum = 5
+        NumericUpDown5.Maximum = 10
         NumericUpDown10.Minimum = 0
-        NumericUpDown10.Maximum = 5
+        NumericUpDown10.Maximum = 10
         NumericUpDown14.Minimum = 0
-        NumericUpDown14.Maximum = 5
+        NumericUpDown14.Maximum = 10
         NumericUpDown15.Minimum = 0
-        NumericUpDown15.Maximum = 5
-
+        NumericUpDown15.Maximum = 10
+        '---- value
         NumericUpDown5.Value = 0
         NumericUpDown10.Value = 0
         NumericUpDown14.Value = 0
@@ -784,10 +763,12 @@ Public Class Form1
 
     Private Sub RadioButton7_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton7.CheckedChanged
         GroupBox5.Text = "Outputs test values 4-20 mAmp"
+        '---- value ----
         NumericUpDown5.Value = 4
         NumericUpDown10.Value = 4
         NumericUpDown14.Value = 4
         NumericUpDown15.Value = 4
+        '---- max and min
         NumericUpDown5.Minimum = 4
         NumericUpDown5.Maximum = 20
         NumericUpDown10.Minimum = 4

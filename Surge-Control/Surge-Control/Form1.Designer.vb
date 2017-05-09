@@ -32,9 +32,6 @@ Partial Class Form1
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage2 = New System.Windows.Forms.TabPage()
-        Me.Button12 = New System.Windows.Forms.Button()
-        Me.Button11 = New System.Windows.Forms.Button()
-        Me.Button10 = New System.Windows.Forms.Button()
         Me.Label108 = New System.Windows.Forms.Label()
         Me.GroupBox15 = New System.Windows.Forms.GroupBox()
         Me.GroupBox17 = New System.Windows.Forms.GroupBox()
@@ -92,6 +89,7 @@ Partial Class Form1
         Me.Label25 = New System.Windows.Forms.Label()
         Me.combo_Port1 = New System.Windows.Forms.ComboBox()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
+        Me.CheckBox3 = New System.Windows.Forms.CheckBox()
         Me.Button7 = New System.Windows.Forms.Button()
         Me.Label22 = New System.Windows.Forms.Label()
         Me.NumericUpDown15 = New System.Windows.Forms.NumericUpDown()
@@ -267,7 +265,6 @@ Partial Class Form1
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.FileSystemWatcher1 = New System.IO.FileSystemWatcher()
         Me.SerialPort2 = New System.IO.Ports.SerialPort(Me.components)
-        Me.CheckBox3 = New System.Windows.Forms.CheckBox()
         Me.TabControl1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
         Me.GroupBox15.SuspendLayout()
@@ -351,9 +348,6 @@ Partial Class Form1
         '
         'TabPage2
         '
-        Me.TabPage2.Controls.Add(Me.Button12)
-        Me.TabPage2.Controls.Add(Me.Button11)
-        Me.TabPage2.Controls.Add(Me.Button10)
         Me.TabPage2.Controls.Add(Me.Label108)
         Me.TabPage2.Controls.Add(Me.GroupBox15)
         Me.TabPage2.Controls.Add(Me.GroupBox14)
@@ -368,33 +362,6 @@ Partial Class Form1
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "Calibrate and instrument Range"
         Me.TabPage2.UseVisualStyleBackColor = True
-        '
-        'Button12
-        '
-        Me.Button12.Location = New System.Drawing.Point(666, 470)
-        Me.Button12.Name = "Button12"
-        Me.Button12.Size = New System.Drawing.Size(232, 30)
-        Me.Button12.TabIndex = 21
-        Me.Button12.Text = "HexToStr"
-        Me.Button12.UseVisualStyleBackColor = True
-        '
-        'Button11
-        '
-        Me.Button11.Location = New System.Drawing.Point(666, 434)
-        Me.Button11.Name = "Button11"
-        Me.Button11.Size = New System.Drawing.Size(232, 30)
-        Me.Button11.TabIndex = 20
-        Me.Button11.Text = "StrtoHex"
-        Me.Button11.UseVisualStyleBackColor = True
-        '
-        'Button10
-        '
-        Me.Button10.Location = New System.Drawing.Point(666, 398)
-        Me.Button10.Name = "Button10"
-        Me.Button10.Size = New System.Drawing.Size(232, 30)
-        Me.Button10.TabIndex = 19
-        Me.Button10.Text = "Test Hex String to Byte Array"
-        Me.Button10.UseVisualStyleBackColor = True
         '
         'Label108
         '
@@ -425,7 +392,7 @@ Partial Class Form1
         Me.GroupBox17.Size = New System.Drawing.Size(198, 45)
         Me.GroupBox17.TabIndex = 20
         Me.GroupBox17.TabStop = False
-        Me.GroupBox17.Text = "Port_2 Lucidcontrol transmit"
+        Me.GroupBox17.Text = "Port_2 Lucidcontrol output"
         '
         'RadioButton7
         '
@@ -458,7 +425,7 @@ Partial Class Form1
         Me.GroupBox16.Size = New System.Drawing.Size(198, 45)
         Me.GroupBox16.TabIndex = 19
         Me.GroupBox16.TabStop = False
-        Me.GroupBox16.Text = "Port_1 Lucidcontrol receive"
+        Me.GroupBox16.Text = "Port_1 Lucidcontrol input"
         '
         'RadioButton6
         '
@@ -610,7 +577,7 @@ Partial Class Form1
         '
         'Button8
         '
-        Me.Button8.Location = New System.Drawing.Point(447, 116)
+        Me.Button8.Location = New System.Drawing.Point(448, 177)
         Me.Button8.Name = "Button8"
         Me.Button8.Size = New System.Drawing.Size(67, 28)
         Me.Button8.TabIndex = 1
@@ -1034,6 +1001,17 @@ Partial Class Form1
         Me.GroupBox5.TabStop = False
         Me.GroupBox5.Text = "Outputs TEST VALUES "
         '
+        'CheckBox3
+        '
+        Me.CheckBox3.AutoSize = True
+        Me.CheckBox3.BackColor = System.Drawing.Color.Yellow
+        Me.CheckBox3.Location = New System.Drawing.Point(419, 23)
+        Me.CheckBox3.Name = "CheckBox3"
+        Me.CheckBox3.Size = New System.Drawing.Size(93, 17)
+        Me.CheckBox3.TabIndex = 17
+        Me.CheckBox3.Text = "Auto send ON"
+        Me.CheckBox3.UseVisualStyleBackColor = False
+        '
         'Button7
         '
         Me.Button7.Location = New System.Drawing.Point(308, 77)
@@ -1049,9 +1027,9 @@ Partial Class Form1
         Me.Label22.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label22.Location = New System.Drawing.Point(30, 101)
         Me.Label22.Name = "Label22"
-        Me.Label22.Size = New System.Drawing.Size(76, 18)
+        Me.Label22.Size = New System.Drawing.Size(148, 18)
         Me.Label22.TabIndex = 15
-        Me.Label22.Text = "Output #4 "
+        Me.Label22.Text = "Output #4 (not conn.)"
         '
         'NumericUpDown15
         '
@@ -1060,7 +1038,7 @@ Partial Class Form1
         Me.NumericUpDown15.DecimalPlaces = 2
         Me.NumericUpDown15.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.NumericUpDown15.Increment = New Decimal(New Integer() {1, 0, 0, 131072})
-        Me.NumericUpDown15.Location = New System.Drawing.Point(175, 99)
+        Me.NumericUpDown15.Location = New System.Drawing.Point(193, 99)
         Me.NumericUpDown15.Maximum = New Decimal(New Integer() {5, 0, 0, 0})
         Me.NumericUpDown15.Name = "NumericUpDown15"
         Me.NumericUpDown15.Size = New System.Drawing.Size(85, 24)
@@ -1074,9 +1052,9 @@ Partial Class Form1
         Me.Label21.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label21.Location = New System.Drawing.Point(30, 75)
         Me.Label21.Name = "Label21"
-        Me.Label21.Size = New System.Drawing.Size(72, 18)
+        Me.Label21.Size = New System.Drawing.Size(122, 18)
         Me.Label21.TabIndex = 13
-        Me.Label21.Text = "Output #3"
+        Me.Label21.Text = "Output #3 (Pinlet)"
         '
         'NumericUpDown14
         '
@@ -1085,7 +1063,7 @@ Partial Class Form1
         Me.NumericUpDown14.DecimalPlaces = 2
         Me.NumericUpDown14.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.NumericUpDown14.Increment = New Decimal(New Integer() {1, 0, 0, 131072})
-        Me.NumericUpDown14.Location = New System.Drawing.Point(175, 73)
+        Me.NumericUpDown14.Location = New System.Drawing.Point(193, 73)
         Me.NumericUpDown14.Maximum = New Decimal(New Integer() {5, 0, 0, 0})
         Me.NumericUpDown14.Name = "NumericUpDown14"
         Me.NumericUpDown14.Size = New System.Drawing.Size(85, 24)
@@ -1108,9 +1086,9 @@ Partial Class Form1
         Me.Label20.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label20.Location = New System.Drawing.Point(30, 49)
         Me.Label20.Name = "Label20"
-        Me.Label20.Size = New System.Drawing.Size(76, 18)
+        Me.Label20.Size = New System.Drawing.Size(121, 18)
         Me.Label20.TabIndex = 11
-        Me.Label20.Text = "Output #2 "
+        Me.Label20.Text = "Output #2 (Tinlet)"
         '
         'NumericUpDown10
         '
@@ -1119,7 +1097,7 @@ Partial Class Form1
         Me.NumericUpDown10.DecimalPlaces = 2
         Me.NumericUpDown10.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.NumericUpDown10.Increment = New Decimal(New Integer() {1, 0, 0, 131072})
-        Me.NumericUpDown10.Location = New System.Drawing.Point(175, 47)
+        Me.NumericUpDown10.Location = New System.Drawing.Point(193, 47)
         Me.NumericUpDown10.Maximum = New Decimal(New Integer() {5, 0, 0, 0})
         Me.NumericUpDown10.Name = "NumericUpDown10"
         Me.NumericUpDown10.Size = New System.Drawing.Size(85, 24)
@@ -1133,9 +1111,9 @@ Partial Class Form1
         Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label5.Location = New System.Drawing.Point(30, 23)
         Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(76, 18)
+        Me.Label5.Size = New System.Drawing.Size(122, 18)
         Me.Label5.TabIndex = 9
-        Me.Label5.Text = "Output #1 "
+        Me.Label5.Text = "Output #1 (Flow) "
         '
         'NumericUpDown5
         '
@@ -1144,7 +1122,7 @@ Partial Class Form1
         Me.NumericUpDown5.DecimalPlaces = 2
         Me.NumericUpDown5.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.NumericUpDown5.Increment = New Decimal(New Integer() {1, 0, 0, 131072})
-        Me.NumericUpDown5.Location = New System.Drawing.Point(175, 21)
+        Me.NumericUpDown5.Location = New System.Drawing.Point(193, 21)
         Me.NumericUpDown5.Maximum = New Decimal(New Integer() {5, 0, 0, 0})
         Me.NumericUpDown5.Name = "NumericUpDown5"
         Me.NumericUpDown5.Size = New System.Drawing.Size(85, 24)
@@ -2996,17 +2974,6 @@ Partial Class Form1
         'SerialPort2
         '
         '
-        'CheckBox3
-        '
-        Me.CheckBox3.AutoSize = True
-        Me.CheckBox3.BackColor = System.Drawing.Color.Yellow
-        Me.CheckBox3.Location = New System.Drawing.Point(419, 23)
-        Me.CheckBox3.Name = "CheckBox3"
-        Me.CheckBox3.Size = New System.Drawing.Size(93, 17)
-        Me.CheckBox3.TabIndex = 17
-        Me.CheckBox3.Text = "Auto send ON"
-        Me.CheckBox3.UseVisualStyleBackColor = False
-        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -3337,8 +3304,5 @@ Partial Class Form1
     Friend WithEvents GroupBox16 As GroupBox
     Friend WithEvents RadioButton6 As RadioButton
     Friend WithEvents RadioButton5 As RadioButton
-    Friend WithEvents Button10 As Button
-    Friend WithEvents Button12 As Button
-    Friend WithEvents Button11 As Button
     Friend WithEvents CheckBox3 As CheckBox
 End Class
