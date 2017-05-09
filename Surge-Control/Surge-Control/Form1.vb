@@ -301,12 +301,29 @@ Public Class Form1
         Return return_val
     End Function
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+        Dim t1, t2, t3, t4 As Double
 
+        'Send result calculations to the outputs 
         If CheckBox3.Checked Then
-            Decimal.TryParse(TextBox1.Text, NumericUpDown5.Value)       'Flow
-            Decimal.TryParse(TextBox2.Text, NumericUpDown10.Value)      'Pinlet
-            Decimal.TryParse(TextBox3.Text, NumericUpDown14.Value)      'delta Pressure
-            Decimal.TryParse(TextBox23.Text, NumericUpDown15.Value)     'Tinlet
+            Double.TryParse(TextBox1.Text, t1)     'Flow
+            Double.TryParse(TextBox2.Text, t2)     'Pinlet
+            Double.TryParse(TextBox3.Text, t3)     'delta Pressure
+            Double.TryParse(TextBox23.Text, t4)    'Tinlet
+
+            'keeps things with the selected output range-----
+            If t1 > NumericUpDown5.Maximum Then t1 = NumericUpDown5.Maximum
+            If t2 > NumericUpDown10.Maximum Then t2 = NumericUpDown10.Maximum
+            If t3 > NumericUpDown14.Maximum Then t3 = NumericUpDown14.Maximum
+            If t4 > NumericUpDown15.Maximum Then t4 = NumericUpDown15.Maximum
+            If t1 < NumericUpDown5.Minimum Then t1 = NumericUpDown5.Minimum
+            If t2 < NumericUpDown10.Minimum Then t2 = NumericUpDown10.Minimum
+            If t3 < NumericUpDown14.Minimum Then t3 = NumericUpDown14.Minimum
+            If t4 < NumericUpDown15.Minimum Then t4 = NumericUpDown15.Minimum
+
+            NumericUpDown5.Value = CDec(t1)     'Flow
+            NumericUpDown10.Value = CDec(t2)    'Pinlet
+            NumericUpDown14.Value = CDec(t3)    'delta Pressure
+            NumericUpDown15.Value = CDec(t4)    'Tinlet
         End If
 
         GetIO()                                 'Get the feedback value
