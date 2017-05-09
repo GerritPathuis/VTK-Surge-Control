@@ -177,24 +177,26 @@ Public Class Form1
         End Try
     End Sub
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        Dim SetIoGroup(3) As Byte   'Set-Voltage or Current, see Page 22 en 26
+        Dim SetIoGroup(4) As Byte   'Set-Voltage or Current, see Page 22 en 26
         Dim SetIoG As String = String.Empty
         Dim str_hex1 As String = String.Empty
         Dim str_hex2 As String = String.Empty
         Dim str_hex3 As String = String.Empty
         Dim str_hex4 As String = String.Empty
         Dim message_length As Integer = 0
+        Dim bb() As Byte
+        Dim ret As String
 
-        SetIoGroup(0) = &H42   'OPC= SetIoGroup !!!
-        ' SetIoGroup(1) = &HF    'Channel 1...4 (0000.1111==0x0F)
-        SetIoGroup(1) = &H3    'Channel 1 or 2)
+        SetIoGroup(1) = &H42   'OPC= SetIoGroup !!!
+        ' SetIoGroup(2) = &HF    'Channel 1...4 (0000.1111==0x0F)
+        SetIoGroup(2) = &H3    'Channel 1 or 2)
         If RadioButton8.Checked Then
-            SetIoGroup(2) = &H1D   'Volt (0 to 1,000,000 MicroVolt)
+            SetIoGroup(3) = &H1D   'Volt (0 to 1,000,000 MicroVolt)
         Else
-            SetIoGroup(2) = &H23   'Current  (0 to 1,000,000 MicroAmp)
+            SetIoGroup(3) = &H23   'Current  (0 to 1,000,000 MicroAmp)
         End If
-        'SetIoGroup(3) = &H10   'Len (4 x 4=16 bytes)
-        SetIoGroup(3) = &H8   'Len (4,8,12 or 16)
+        'SetIoGroup(4) = &H10   'Len (4 x 4=16 bytes)
+        SetIoGroup(4) = &H8   'Len (4,8,12 or 16)
 
         '------ make Command string of the Command byte array---
         SetIoG = System.Text.Encoding.Default.GetString(SetIoGroup)
@@ -222,14 +224,12 @@ Public Class Form1
         'SetIoG &= To_big_endian(str_hex3)   '& "-"
         'SetIoG &= To_big_endian(str_hex4)   '& "-"
 
+        '------ convert to bytes and write to port-----
         TextBox26.Text &= "SetIoG= " & SetIoG & vbCrLf
+        bb = HexStringToByteArray(SetIoG)
 
         If SerialPort2.IsOpen Then
-            Dim bb() As Byte
-            Dim ret As String
-            bb = HexStringToByteArray(SetIoG)
-            'SerialPort2.WriteLine(SetIoG)
-            SerialPort2.Write(bb, 1, 10)
+            SerialPort2.Write(bb, 1, 12)
             ret = String.Join(",", Array.ConvertAll(bb, Function(byteValue) byteValue.ToString))
             TextBox26.Text &= "=" & ret & "=" & vbCrLf
         Else
