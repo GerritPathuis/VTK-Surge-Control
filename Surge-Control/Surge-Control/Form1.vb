@@ -177,6 +177,9 @@ Public Class Form1
         End Try
     End Sub
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        SetOut()
+    End Sub
+    Private Sub SetOut()
         Dim SetIoGroup(4) As Byte   'Set-Voltage or Current, see Page 22 en 26
         Dim SetIoG As String = String.Empty
         Dim str_hex1 As String = String.Empty
@@ -188,18 +191,17 @@ Public Class Form1
         Dim ret As String
 
         SetIoGroup(1) = &H42   'OPC= SetIoGroup !!!
-        ' SetIoGroup(2) = &HF    'Channel 1...4 (0000.1111==0x0F)
-        SetIoGroup(2) = &H3    'Channel 1 or 2)
+        SetIoGroup(2) = &HF    'Channel 1...4 (0000.1111==0x0F)
         If RadioButton8.Checked Then
             SetIoGroup(3) = &H1D   'Volt (0 to 1,000,000 MicroVolt)
         Else
             SetIoGroup(3) = &H23   'Current  (0 to 1,000,000 MicroAmp)
         End If
-        'SetIoGroup(4) = &H10   'Len (4 x 4=16 bytes)
-        SetIoGroup(4) = &H8   'Len (4,8,12 or 16)
+        SetIoGroup(4) = &H10   'Len (4 x 4=16 bytes)
 
         '------ make Command string of the Command byte array---
         SetIoG = System.Text.Encoding.Default.GetString(SetIoGroup)
+
         '---------- now convert to hex-------
         SetIoG = String_ascii_to_Hex_ascii(SetIoG) '& "-"
 
@@ -207,35 +209,36 @@ Public Class Form1
             'Voltage output, channel #1...4 
             str_hex1 = Hex(CDec(NumericUpDown5.Value * 10 ^ 6))
             str_hex2 = Hex(CDec(NumericUpDown10.Value * 10 ^ 6))
-            'str_hex3 = Hex(CDec(NumericUpDown14.Value * 10 ^ 6))
-            'str_hex4 = Hex(CDec(NumericUpDown15.Value * 10 ^ 6))
+            str_hex3 = Hex(CDec(NumericUpDown14.Value * 10 ^ 6))
+            str_hex4 = Hex(CDec(NumericUpDown15.Value * 10 ^ 6))
         Else
             '----------- current output, channel #1...4 -------------
             str_hex1 = Hex(CDec(NumericUpDown5.Value - 4) / 16 * 10 ^ 6)
             str_hex2 = Hex(CDec(NumericUpDown10.Value - 4) / 16 * 10 ^ 6)
-            'str_hex3 = Hex(CDec(NumericUpDown14.Value - 4) / 16 * 10 ^ 6)
-            'str_hex4 = Hex(CDec(NumericUpDown15.Value - 4) / 16 * 10 ^ 6)
+            str_hex3 = Hex(CDec(NumericUpDown14.Value - 4) / 16 * 10 ^ 6)
+            str_hex4 = Hex(CDec(NumericUpDown15.Value - 4) / 16 * 10 ^ 6)
 
         End If
         '------ convert to Big endian and ------
         '------ adding all string-sections to one string
-        SetIoG &= To_big_endian(str_hex1)   '& "-"
-        SetIoG &= To_big_endian(str_hex2)   '& "-"
-        'SetIoG &= To_big_endian(str_hex3)   '& "-"
-        'SetIoG &= To_big_endian(str_hex4)   '& "-"
+        SetIoG &= To_big_endian(str_hex1)
+        SetIoG &= To_big_endian(str_hex2)
+        SetIoG &= To_big_endian(str_hex3)
+        SetIoG &= To_big_endian(str_hex4)
 
         '------ convert to bytes and write to port-----
         TextBox26.Text &= "SetIoG= " & SetIoG & vbCrLf
         bb = HexStringToByteArray(SetIoG)
 
         If SerialPort2.IsOpen Then
-            SerialPort2.Write(bb, 1, 12)
+            SerialPort2.Write(bb, 1, 20)
             ret = String.Join(",", Array.ConvertAll(bb, Function(byteValue) byteValue.ToString))
             TextBox26.Text &= "=" & ret & "=" & vbCrLf
         Else
             TextBox26.Text &= "SerialPort2 is closed" & vbCrLf
         End If
     End Sub
+
 
     Private Function To_big_endian(str_num As String) As String
         Dim return_val As String = String.Empty
@@ -298,7 +301,8 @@ Public Class Form1
         Return return_val
     End Function
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        GetIO()
+        GetIO()                                 'Get the feedback value
+        If CheckBox3.Checked Then SetOut()      'Set the output values
         Update_calc_screen()
         Draw_Chart1()
         PID_controller()
@@ -793,9 +797,6 @@ Public Class Form1
         NumericUpDown15.Minimum = 4
         NumericUpDown15.Maximum = 20
     End Sub
-
-
-
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
     End Sub
