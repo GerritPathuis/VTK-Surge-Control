@@ -190,7 +190,7 @@ Public Class Form1
         Dim bb() As Byte
         Dim ret As String
 
-        SetIoGroup(1) = &H42   'OPC= SetIoGroup !!!
+        SetIoGroup(1) = &H42   'OPC= SetIoGroup !!!!
         SetIoGroup(2) = &HF    'Channel 1...4 (0000.1111==0x0F)
         If RadioButton8.Checked Then
             SetIoGroup(3) = &H1D   'Volt (0 to 1,000,000 MicroVolt)
