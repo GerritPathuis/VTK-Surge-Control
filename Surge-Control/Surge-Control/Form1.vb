@@ -795,6 +795,45 @@ Public Class Form1
         NumericUpDown15.Minimum = 4
         NumericUpDown15.Maximum = 20
     End Sub
+
+    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
+        Dim callib(4) As Byte       'callib 
+        Dim result As DialogResult
+        Dim ret As String
+
+        callib(1) = &H52     'OPC= Calibrate 30
+        callib(2) = &H1      'Channel 1
+        callib(3) = &H0
+        callib(4) = &H0
+        Timer1.Stop()
+        MessageBox.Show("For Calibration" & vbCrLf & "Bridge the channel inputs !!")
+        result = MessageBox.Show("Are you sure", " ", MessageBoxButtons.OKCancel)
+        If result = DialogResult.OK Then
+            result = MessageBox.Show("Realy sure ???", " ", MessageBoxButtons.OKCancel)
+            If result = DialogResult.OK Then
+                Select Case NumericUpDown35.Value
+                    Case 1
+                        callib(2) = &H1
+                    Case 2
+                        callib(2) = &H2
+                    Case 3
+                        callib(2) = &H4
+                    Case 4
+                        callib(2) = &H8
+                End Select
+
+                If SerialPort1.IsOpen Then
+                    SerialPort1.Write(callib, 1, 4)
+                    ret = String.Join(",", Array.ConvertAll(callib, Function(byteValue) byteValue.ToString("X2")))
+                    TextBox26.Text &= "Calibrate " & ret & vbCrLf
+                Else
+                    MessageBox.Show("Cannot get ID Port is closed")
+                End If
+            End If
+        End If
+        Timer1.Start()
+    End Sub
+
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
     End Sub

@@ -23,12 +23,12 @@ Partial Class Form1
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series3 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
-        Dim ChartArea4 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend4 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series4 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea5 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend5 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series5 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea6 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend6 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series6 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage2 = New System.Windows.Forms.TabPage()
@@ -265,6 +265,8 @@ Partial Class Form1
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.FileSystemWatcher1 = New System.IO.FileSystemWatcher()
         Me.SerialPort2 = New System.IO.Ports.SerialPort(Me.components)
+        Me.Button10 = New System.Windows.Forms.Button()
+        Me.NumericUpDown35 = New System.Windows.Forms.NumericUpDown()
         Me.TabControl1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
         Me.GroupBox15.SuspendLayout()
@@ -330,6 +332,7 @@ Partial Class Form1
         CType(Me.NumericUpDown9, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.NumericUpDown8, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.FileSystemWatcher1, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.NumericUpDown35, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'TabControl1
@@ -378,7 +381,7 @@ Partial Class Form1
         Me.GroupBox15.Controls.Add(Me.GroupBox16)
         Me.GroupBox15.Location = New System.Drawing.Point(580, 205)
         Me.GroupBox15.Name = "GroupBox15"
-        Me.GroupBox15.Size = New System.Drawing.Size(403, 134)
+        Me.GroupBox15.Size = New System.Drawing.Size(403, 139)
         Me.GroupBox15.TabIndex = 17
         Me.GroupBox15.TabStop = False
         Me.GroupBox15.Text = "Hardware setup"
@@ -387,9 +390,9 @@ Partial Class Form1
         '
         Me.GroupBox17.Controls.Add(Me.RadioButton7)
         Me.GroupBox17.Controls.Add(Me.RadioButton8)
-        Me.GroupBox17.Location = New System.Drawing.Point(12, 70)
+        Me.GroupBox17.Location = New System.Drawing.Point(12, 77)
         Me.GroupBox17.Name = "GroupBox17"
-        Me.GroupBox17.Size = New System.Drawing.Size(198, 45)
+        Me.GroupBox17.Size = New System.Drawing.Size(371, 45)
         Me.GroupBox17.TabIndex = 20
         Me.GroupBox17.TabStop = False
         Me.GroupBox17.Text = "Port_2 Lucidcontrol output"
@@ -418,11 +421,13 @@ Partial Class Form1
         '
         'GroupBox16
         '
+        Me.GroupBox16.Controls.Add(Me.NumericUpDown35)
+        Me.GroupBox16.Controls.Add(Me.Button10)
         Me.GroupBox16.Controls.Add(Me.RadioButton6)
         Me.GroupBox16.Controls.Add(Me.RadioButton5)
         Me.GroupBox16.Location = New System.Drawing.Point(12, 19)
         Me.GroupBox16.Name = "GroupBox16"
-        Me.GroupBox16.Size = New System.Drawing.Size(198, 45)
+        Me.GroupBox16.Size = New System.Drawing.Size(371, 52)
         Me.GroupBox16.TabIndex = 19
         Me.GroupBox16.TabStop = False
         Me.GroupBox16.Text = "Port_1 Lucidcontrol input"
@@ -902,7 +907,7 @@ Partial Class Form1
         'Button9
         '
         Me.Button9.BackColor = System.Drawing.Color.Transparent
-        Me.Button9.Location = New System.Drawing.Point(330, 20)
+        Me.Button9.Location = New System.Drawing.Point(225, 22)
         Me.Button9.Name = "Button9"
         Me.Button9.Size = New System.Drawing.Size(87, 77)
         Me.Button9.TabIndex = 8
@@ -922,7 +927,7 @@ Partial Class Form1
         '
         Me.combo_Port2.BackColor = System.Drawing.Color.Red
         Me.combo_Port2.FormattingEnabled = True
-        Me.combo_Port2.Location = New System.Drawing.Point(226, 75)
+        Me.combo_Port2.Location = New System.Drawing.Point(327, 78)
         Me.combo_Port2.Name = "combo_Port2"
         Me.combo_Port2.Size = New System.Drawing.Size(98, 21)
         Me.combo_Port2.TabIndex = 6
@@ -958,7 +963,7 @@ Partial Class Form1
         'combo_Baud
         '
         Me.combo_Baud.FormattingEnabled = True
-        Me.combo_Baud.Location = New System.Drawing.Point(226, 19)
+        Me.combo_Baud.Location = New System.Drawing.Point(327, 22)
         Me.combo_Baud.Name = "combo_Baud"
         Me.combo_Baud.Size = New System.Drawing.Size(98, 21)
         Me.combo_Baud.TabIndex = 3
@@ -976,7 +981,7 @@ Partial Class Form1
         '
         Me.combo_Port1.BackColor = System.Drawing.Color.Red
         Me.combo_Port1.FormattingEnabled = True
-        Me.combo_Port1.Location = New System.Drawing.Point(226, 48)
+        Me.combo_Port1.Location = New System.Drawing.Point(327, 51)
         Me.combo_Port1.Name = "combo_Port1"
         Me.combo_Port1.Size = New System.Drawing.Size(98, 21)
         Me.combo_Port1.TabIndex = 2
@@ -1205,16 +1210,16 @@ Partial Class Form1
         '
         'Chart1
         '
-        ChartArea3.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea3)
-        Legend3.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend3)
+        ChartArea5.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea5)
+        Legend5.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend5)
         Me.Chart1.Location = New System.Drawing.Point(456, 369)
         Me.Chart1.Name = "Chart1"
-        Series3.ChartArea = "ChartArea1"
-        Series3.Legend = "Legend1"
-        Series3.Name = "Series1"
-        Me.Chart1.Series.Add(Series3)
+        Series5.ChartArea = "ChartArea1"
+        Series5.Legend = "Legend1"
+        Series5.Name = "Series1"
+        Me.Chart1.Series.Add(Series5)
         Me.Chart1.Size = New System.Drawing.Size(535, 297)
         Me.Chart1.TabIndex = 16
         Me.Chart1.Text = "Chart1"
@@ -2375,17 +2380,17 @@ Partial Class Form1
         '
         'Chart2
         '
-        ChartArea4.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea4)
+        ChartArea6.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea6)
         Me.Chart2.Dock = System.Windows.Forms.DockStyle.Fill
-        Legend4.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend4)
+        Legend6.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend6)
         Me.Chart2.Location = New System.Drawing.Point(0, 0)
         Me.Chart2.Name = "Chart2"
-        Series4.ChartArea = "ChartArea1"
-        Series4.Legend = "Legend1"
-        Series4.Name = "Series1"
-        Me.Chart2.Series.Add(Series4)
+        Series6.ChartArea = "ChartArea1"
+        Series6.Legend = "Legend1"
+        Series6.Name = "Series1"
+        Me.Chart2.Series.Add(Series6)
         Me.Chart2.Size = New System.Drawing.Size(823, 668)
         Me.Chart2.TabIndex = 17
         Me.Chart2.Text = "Chart2"
@@ -2974,6 +2979,25 @@ Partial Class Form1
         'SerialPort2
         '
         '
+        'Button10
+        '
+        Me.Button10.Location = New System.Drawing.Point(141, 14)
+        Me.Button10.Name = "Button10"
+        Me.Button10.Size = New System.Drawing.Size(145, 26)
+        Me.Button10.TabIndex = 11
+        Me.Button10.Text = "Calibrate input"
+        Me.Button10.UseVisualStyleBackColor = True
+        '
+        'NumericUpDown35
+        '
+        Me.NumericUpDown35.Location = New System.Drawing.Point(292, 16)
+        Me.NumericUpDown35.Maximum = New Decimal(New Integer() {4, 0, 0, 0})
+        Me.NumericUpDown35.Minimum = New Decimal(New Integer() {1, 0, 0, 0})
+        Me.NumericUpDown35.Name = "NumericUpDown35"
+        Me.NumericUpDown35.Size = New System.Drawing.Size(41, 20)
+        Me.NumericUpDown35.TabIndex = 12
+        Me.NumericUpDown35.Value = New Decimal(New Integer() {1, 0, 0, 0})
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -3066,6 +3090,7 @@ Partial Class Form1
         CType(Me.NumericUpDown9, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.NumericUpDown8, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.FileSystemWatcher1, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.NumericUpDown35, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -3305,4 +3330,6 @@ Partial Class Form1
     Friend WithEvents RadioButton6 As RadioButton
     Friend WithEvents RadioButton5 As RadioButton
     Friend WithEvents CheckBox3 As CheckBox
+    Friend WithEvents NumericUpDown35 As NumericUpDown
+    Friend WithEvents Button10 As Button
 End Class
