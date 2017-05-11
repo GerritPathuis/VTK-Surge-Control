@@ -795,6 +795,40 @@ Public Class Form1
         NumericUpDown15.Minimum = 4
         NumericUpDown15.Maximum = 20
     End Sub
+
+    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
+        Dim result As Integer
+        Dim Calli(4) As Byte       'Calibrate 
+
+        Calli(1) = &H52     'OPC= Callibrate
+        Select Case NumericUpDown35.Value
+            Case Is = 1
+                Calli(2) = &H1      'Channel 1
+            Case Is = 2
+                Calli(2) = &H2      'Channel 1
+            Case Is = 3
+                Calli(2) = &H4      'Channel 1
+            Case Is = 4
+                Calli(2) = &H8      'Channel 1
+        End Select
+        Calli(3) = &H0
+        Calli(4) = &H0
+        MessageBox.Show("For analog Input Modules only" & vbCrLf & "BRIDGE on Channel 1 must be installed !!")
+
+
+        result = MessageBox.Show("Continue with calibrate", "Calibration", MessageBoxButtons.OKCancel)
+        If result = DialogResult.OK Then
+            result = MessageBox.Show("Are you Sure", "Calibration", MessageBoxButtons.OKCancel)
+            If result = DialogResult.OK Then
+                If SerialPort1.IsOpen Then
+                    SerialPort1.Write(Calli, 1, 4)
+                Else
+                    MessageBox.Show("Cannot get ID Port is closed")
+                End If
+            End If
+        End If
+    End Sub
+
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
     End Sub
