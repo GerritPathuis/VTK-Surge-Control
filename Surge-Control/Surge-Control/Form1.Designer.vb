@@ -1516,7 +1516,7 @@ Partial Class Form1
         Me.GroupBox7.Size = New System.Drawing.Size(538, 273)
         Me.GroupBox7.TabIndex = 2
         Me.GroupBox7.TabStop = False
-        Me.GroupBox7.Text = "Data to ACS (calculated values) "
+        Me.GroupBox7.Text = "Data to ASC (calculated values) "
         '
         'TextBox25
         '
@@ -3076,7 +3076,7 @@ Partial Class Form1
         Me.ClientSize = New System.Drawing.Size(1010, 700)
         Me.Controls.Add(Me.TabControl1)
         Me.Name = "Form1"
-        Me.Text = "Surge Control Simulation P16.0078, Tecnimont Rev 20-5-2017 "
+        Me.Text = "Anti Surge Control simulation P16.0078, Tecnimont Rev 20-5-2017 "
         Me.TabControl1.ResumeLayout(False)
         Me.TabPage2.ResumeLayout(False)
         Me.TabPage2.PerformLayout()

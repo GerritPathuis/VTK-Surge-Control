@@ -473,7 +473,7 @@ Public Class Form1
         Dim Volt_channel_0 As Double    'Lucid-Control AI4, 10V module
         Dim bigE As String = String.Empty
         Dim bypass_pos As Integer = 0
-        'Beep()
+
         intext_hex = SerialPort1.ReadExisting       'Read the data
         intext = String_ascii_to_Hex_ascii(intext_hex)              'Convert data to hex
         '--------- Status Communication-------
@@ -487,7 +487,6 @@ Public Class Form1
             'intext = "0004" & "404b4c00"                   'Test value +5.000 Volt
             'intext = "0004" & "C0B4B3FF"                   'Test value -5.000 Volt
             'intext = "0004" & "39FFFFFF"                   'Test value 0.000199 Volt
-            'intext = "0004" & "3F3F3F3F"
 
             Value_channel_0_hex = intext.Substring(4, 8)    'Hex
 
