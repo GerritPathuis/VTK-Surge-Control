@@ -340,12 +340,15 @@ Public Class Form1
         Label1.Text = time.ToString("000.0")
 
         '--------- prepare request to Lucid Control------
-        GetIo(1) = &H46   'OPC= GetIoGroup
+        GetIo(1) = &H48   'OPC= GetIoGroup
         GetIo(2) = &H1    'Channel 1
         If RadioButton5.Checked Then
             GetIo(3) = &H1D   'Voltage range 0-100,000,000 mV (4Bytes)
+            Label102.Text = "[Volt]"
         Else
-            GetIo(3) = &H23   'Amp range 0-1,000,000 mAmp (4Bytes)
+            'GetIo(3) = &H23   'Amp range 0-1,000,000 mAmp (4Bytes)
+            GetIo(3) = &H1D   'Amp range 0-1,000,000 mAmp (4Bytes)
+            Label102.Text = "[mAmp]"
         End If
         GetIo(4) = &H0    'LEN
 
@@ -465,10 +468,11 @@ Public Class Form1
         Dim status_code As String = String.Empty
         Dim status_OK As String = "00"
         Dim Value_channel_0_hex As String  'Lucid-Control AI4, 10V module
-        Dim Value_channel_0_dec As Int32  'Lucid-Control AI4, 10V module
+        Dim Value_channel_0_dec As Double  'Lucid-Control AI4, 10V module
+
         Dim Volt_channel_0 As Double    'Lucid-Control AI4, 10V module
         Dim bigE As String = String.Empty
-
+        Dim bypass_pos As Integer = 0
         'Beep()
         intext_hex = SerialPort1.ReadExisting       'Read the data
         intext = String_ascii_to_Hex_ascii(intext_hex)              'Convert data to hex
@@ -477,11 +481,13 @@ Public Class Form1
 
         If String.Equals(status_code, status_OK) And (intext.Length = 12) Then
 
-            '---------- Get the value -----------
+            '---------- Test value -----------
             'intext = "0004" & "D0121300"                   'Test value +1.2500 Volt
             'intext = "0004" & "A0252600"                   'Test value +2.5000 Volt
             'intext = "0004" & "404b4c00"                   'Test value +5.000 Volt
             'intext = "0004" & "C0B4B3FF"                   'Test value -5.000 Volt
+            'intext = "0004" & "39FFFFFF"                   'Test value 0.000199 Volt
+            'intext = "0004" & "3F3F3F3F"
 
             Value_channel_0_hex = intext.Substring(4, 8)    'Hex
 
@@ -491,16 +497,31 @@ Public Class Form1
             bigE &= Value_channel_0_hex.Substring(2, 2)
             bigE &= Value_channel_0_hex.Substring(0, 2)
 
-            Value_channel_0_dec = Convert.ToInt32(bigE, 16)         '[microVolt] Channel 0
-            Volt_channel_0 = CDbl(Value_channel_0_dec) / 10 ^ 6     '[microV-->Volt] 
+            '---------- calc the value---------
+            Value_channel_0_dec = Convert.ToInt32(bigE, 16)          '[microVolt] Channel 0
+            'If Value_channel_0_dec > Integer.MaxValue Then 'negative number
+            '    Label111.Text = "neg value"
+            '    Value_channel_0_dec = (2 ^ 32 - Value_channel_0_dec) * -1
+            'End If
+            Value_channel_0_dec /= 10 ^ 6     '[microV-->Volt] 
 
             '--------- Present data--------------
             Try
-                Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))           'Hex 4 Bytes value
+                'Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))           'Hex 4 Bytes value
+                Invoke(Sub() TextBox38.Text = bigE)     'Hex 4 Bytes value
                 Invoke(Sub() TextBox39.Text = Value_channel_0_dec.ToString)     'Decimal
-                Invoke(Sub() TextBox37.Text = Round(Volt_channel_0, 2).ToString("0.00"))    'Volt
+                Invoke(Sub() TextBox37.Text = Round(Value_channel_0_dec, 2).ToString("0.00"))    'Volt
                 Invoke(Sub() TextBox26.Text &= intext & " ")
-                Invoke(Sub() TextBox36.Text = Round(Volt_channel_0 * 10, 0).ToString)       'bypass % open
+
+                '----------- bypass valve position-----------
+                If RadioButton5.Checked Then
+                    bypass_pos = CInt(Value_channel_0_dec / 10 * 100)  'Volt input
+                Else
+                    bypass_pos = CInt((Value_channel_0_dec - 4) / 16 * 100)  'Amp input
+                End If
+                If bypass_pos > 100 Then bypass_pos = 100   'max 100% open
+                If bypass_pos < 0 Then bypass_pos = 0       'min 0% open
+                Invoke(Sub() TextBox36.Text = bypass_pos.ToString)       'bypass % open
             Catch ex As Exception
             End Try
             '------- Feedback ON/OFF----------
@@ -513,7 +534,6 @@ Public Class Form1
             'MessageBox.Show("Lucid Communication problem Status Code= " & status_code)
             SerialPort1.DiscardInBuffer()        'empty inbuffer
         End If
-
     End Sub
 
     Private Sub SerialPort2_DataReceived(sender As Object, e As SerialDataReceivedEventArgs) Handles SerialPort2.DataReceived
@@ -776,6 +796,11 @@ Public Class Form1
         NumericUpDown10.Value = 0
         NumericUpDown14.Value = 0
         NumericUpDown15.Value = 0
+
+        Label19.Text = "[V]"
+        Label23.Text = "[V]"
+        Label109.Text = "[V]"
+        Label110.Text = "[V]"
     End Sub
 
     Private Sub RadioButton7_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton7.CheckedChanged
@@ -794,6 +819,11 @@ Public Class Form1
         NumericUpDown14.Maximum = 20
         NumericUpDown15.Minimum = 4
         NumericUpDown15.Maximum = 20
+
+        Label19.Text = "[mA]"
+        Label23.Text = "[mA]"
+        Label109.Text = "[mA]"
+        Label110.Text = "[mA]"
     End Sub
 
     Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
@@ -832,6 +862,10 @@ Public Class Form1
             End If
         End If
         Timer1.Start()
+    End Sub
+
+    Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
+        Timer1.Stop()       'Freeze
     End Sub
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
