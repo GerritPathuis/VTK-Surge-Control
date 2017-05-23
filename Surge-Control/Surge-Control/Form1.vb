@@ -9,6 +9,7 @@ Public Class Form1
 
     Dim pv(4) As Double             'Process values 0,1,2,3,4
     Dim Cout(4) As Double           'Current Outputs
+    Dim Vout(4) As Double           'Voltage Outputs
     Dim last_deviation As Double    'PID control
     Dim Pterm, Iterm, Dterm As Double
     Dim counter As Integer = 0
@@ -63,7 +64,6 @@ Public Class Form1
         "opening the bybass valve and returning to a save spot on the" & vbCrLf &
         "fan-Curve."
 
-        TextBox24.Text = "6.8"  'Test value [c]
         Label108.Text = ""      'Communication Error codes
 
         For i = 0 To 3
@@ -303,6 +303,9 @@ Public Class Form1
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         Dim t1, t2, t3, t4 As Double
 
+        Label64.Text = "Feedback from " & CType(IIf(RadioButton9.Checked, "ASC controller", "Built-in PID controller"), String)
+
+
         'Send result calculations to the outputs 
         If CheckBox3.Checked Then
             Double.TryParse(TextBox1.Text, t1)     'Flow
@@ -524,8 +527,11 @@ Public Class Form1
             Catch ex As Exception
             End Try
             '------- Feedback ON/OFF----------
-            If CheckBox2.Checked Then 'Feedback from SCS controller ON/OFF
+            If RadioButton9.Checked Then 'Feedback from ASC controller (Lucid controller)
+                Label66.Text = "Feedback from the ASC unit"
                 Invoke(Sub() NumericUpDown33.Value = CDec(Round(Volt_channel_0 * 10, 0)))   'bypass % open
+            Else
+                Label66.Text = "Feedback from built-in PED Controller"
             End If
         Else
             counter += 1
@@ -680,16 +686,31 @@ Public Class Form1
         '-------- Surge Alarm-----------
         TextBox15.BackColor = CType(IIf(NumericUpDown1.Value < Qv_in, Color.White, Color.Red), Color)
 
-        '---------- calc output currents
+        '---------- calc output currents--------------
         Cout(1) = Convert_Units_to_mAmp("Flow", Qv_in)
         Cout(2) = Convert_Units_to_mAmp("Pressure", Pin)
         Cout(3) = Convert_Units_to_mAmp("Pressure", dp)
         Cout(4) = Convert_Units_to_mAmp("Temperature", Tin)
 
+        '--------present [4-20 mAmp]-------------
         TextBox1.Text = Round(Cout(1), 1).ToString  'Flow inlet/out Actual [Am3/hr]
         TextBox2.Text = Round(Cout(2), 1).ToString  'Pressure in [Pa]
         TextBox3.Text = Round(Cout(3), 1).ToString  'Delta P [Pa]
         TextBox23.Text = Round(Cout(4), 1).ToString 'Temp fan in [c]
+
+
+        '------------[0-10V]----------------
+        Vout(1) = Convert_mAmp_to_V(Cout(1))
+        Vout(2) = Convert_mAmp_to_V(Cout(2))
+        Vout(3) = Convert_mAmp_to_V(Cout(3))
+        Vout(4) = Convert_mAmp_to_V(Cout(4))
+
+        '--------present [0-10 Volt]-------------
+        TextBox40.Text = Round(Vout(1), 1).ToString  'Flow inlet/out Actual [Am3/hr]
+        TextBox41.Text = Round(Vout(2), 1).ToString  'Pressure in [Pa]
+        TextBox42.Text = Round(Vout(3), 1).ToString  'Delta P [Pa]
+        TextBox43.Text = Round(Vout(4), 1).ToString 'Temp fan in [c]
+
     End Sub
 
     '------- Convert fysical units ----> mAmp's  
@@ -716,8 +737,16 @@ Public Class Form1
             Case Else
                 MessageBox.Show("Oops error in Convert_Units_to_mAmp function")
         End Select
-        Return (results)
+        Return (Round(results, 1))
     End Function
+    '------- Convert [4-20 mA] ----> [0-10 V]  
+    Private Function Convert_mAmp_to_V(ma_value As Double) As Double
+        Dim result As Double
+        result = (ma_value - 4) / 16 * 10
+        Return (Round(result, 1))
+    End Function
+
+
     '------- Convert from mAmp's ----> fysical units
     Private Function Convert_mAmp_to_Units(outType As String, value As Double) As Double
         Dim results, range, value_4ma As Double
@@ -893,39 +922,54 @@ Public Class Form1
         Double.TryParse(TextBox11.Text, range)
         setpoint = NumericUpDown8.Value
         deviation = (pv - setpoint) / range * 100       '[%]
+        If CheckBox1.Checked Then deviation *= -1
+
         If deviation > 10000 Then deviation = 1          'for startup
         If deviation < -10000 Then deviation = 1         'for startup
 
+        If RadioButton9.Checked Then
+            Label66.Text = "Feedback from the ASC unit"
+        Else
+            Label66.Text = "Feedback from built-in PED Controller"
+        End If
 
-        If CheckBox1.Checked And pv > 0 Then
+        If pv > 0 Then
             ddev = deviation - last_deviation               'change in deviation
             last_deviation = deviation
 
             '=========== Calculate PID controller==========
             Double.TryParse(TextBox31.Text, PID_output)
-            Pterm = Kp * deviation                          'P action
-            Iterm = Iterm + Ki * deviation * dt             'I action
-            If Iterm > 100 Then Iterm = 100                 'anti-Windup
-            If Iterm < 0 Then Iterm = 0                     'anti-Windup
+                Pterm = Kp * deviation                          'P action
+                Iterm = Iterm + Ki * deviation * dt             'I action
+                If Iterm > 100 Then Iterm = 100                 'anti-Windup
+                If Iterm < 0 Then Iterm = 0                     'anti-Windup
 
-            ' TextBox26.Text &= ddev.ToString & vbCrLf
-            Dterm = Kd * ddev / dt  'D action
-            PID_output = Pterm + Iterm + Dterm
-            '=============================================
-            output_ma = Convert_Units_to_mAmp("Valve-positioner", PID_output)
+                ' TextBox26.Text &= ddev.ToString & vbCrLf
+                Dterm = Kd * ddev / dt  'D action
+                PID_output = Pterm + Iterm + Dterm
 
-            '---------- present results ------------
-            TextBox28.Text = Round(deviation, 2).ToString("0.00")
-            TextBox29.Text = Round(input_ma, 2).ToString("0.00")    'input [mAmp]
-            TextBox30.Text = Round(output_ma, 2).ToString("0.00")   'output [mAmp]
-            TextBox31.Text = Round(PID_output, 2).ToString("0.00")  'output [m3/hr]
+                '--------- limit the output----------
+                If PID_output > 100 Then PID_output = 100
+                If PID_output < 0 Then PID_output = 0
 
-            TextBox33.Text = Round(Pterm, 2).ToString("0.00")
-            TextBox34.Text = Round(Iterm, 2).ToString("0.00")
-            TextBox35.Text = Round(Dterm, 2).ToString("0.00")
-        End If
+                '=============================================
+                output_ma = Convert_Units_to_mAmp("Valve-positioner", PID_output)
+
+                If RadioButton10.Checked Then
+                    NumericUpDown33.Value = CDec(PID_output)
+                End If
+
+                '---------- present results ------------
+                TextBox28.Text = Round(deviation, 2).ToString("0.00")
+                TextBox31.Text = Round(PID_output, 2).ToString("0.00")  'output [m3/hr]
+                TextBox22.Text = Round(output_ma, 2).ToString("0.00")   'output [mAmp]
+
+                TextBox33.Text = Round(Pterm, 2).ToString("0.00")
+                TextBox34.Text = Round(Iterm, 2).ToString("0.00")
+                TextBox35.Text = Round(Dterm, 2).ToString("0.00")
+            End If
     End Sub
-    Private Sub TextBox24_TextChanged(sender As Object, e As EventArgs) Handles TextBox24.TextChanged
+    Private Sub TextBox24_TextChanged(sender As Object, e As EventArgs)
         Convert_bypass_valve_mAmp_to_position()
     End Sub
     Private Sub Safe_to_file()
@@ -941,9 +985,14 @@ Public Class Form1
         End If
     End Sub
     Private Sub Convert_bypass_valve_mAmp_to_position()
-        Dim bypass_valve_position, tmp As Double
-        Double.TryParse(TextBox24.Text, tmp)
-        bypass_valve_position = (tmp - 4) / 16 * 100    '[%]
-        TextBox22.Text = Round(bypass_valve_position, 0).ToString
+        Dim bypass_valve_position, mA, Volt As Double
+
+        ' Double.TryParse(TextBox24.Text, mA)
+
+        bypass_valve_position = (mA - 4) / 16 * 100    'mAmp-->[%]
+        ' TextBox22.Text = Round(bypass_valve_position, 1).ToString   '4-20 [mAmp]
+
+        Volt = Convert_mAmp_to_V(mA)
+        ' TextBox44.Text = Volt.ToString("0.0")            '0-10 [V]
     End Sub
 End Class
