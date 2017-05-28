@@ -203,7 +203,7 @@ Public Class Form1
         SetIoG = System.Text.Encoding.Default.GetString(SetIoGroup)
 
         '---------- now convert to hex-------
-        SetIoG = String_ascii_to_Hex_ascii(SetIoG) '& "-"
+        SetIoG = String_ascii_to_Hex_ascii(SetIoG)
 
         If RadioButton8.Checked Then
             'Voltage output, channel #1...4 
@@ -212,13 +212,14 @@ Public Class Form1
             str_hex3 = Hex(CDec(NumericUpDown14.Value * 10 ^ 6))
             str_hex4 = Hex(CDec(NumericUpDown15.Value * 10 ^ 6))
         Else
-            '----------- current output, channel #1...4 -------------
-            str_hex1 = Hex(CDec(NumericUpDown5.Value - 4) / 16 * 10 ^ 6)
-            str_hex2 = Hex(CDec(NumericUpDown10.Value - 4) / 16 * 10 ^ 6)
-            str_hex3 = Hex(CDec(NumericUpDown14.Value - 4) / 16 * 10 ^ 6)
-            str_hex4 = Hex(CDec(NumericUpDown15.Value - 4) / 16 * 10 ^ 6)
-
+            'Current output, channel #1...4 -------------
+            str_hex1 = Hex(CDec(NumericUpDown5.Value * 10 ^ 3))
+            str_hex2 = Hex(CDec(NumericUpDown10.Value * 10 ^ 3))
+            str_hex3 = Hex(CDec(NumericUpDown14.Value * 10 ^ 3))
+            str_hex4 = Hex(CDec(NumericUpDown15.Value * 10 ^ 3))
         End If
+
+
         '------ convert to Big endian and ------
         '------ adding all string-sections to one string
         SetIoG &= To_big_endian(str_hex1)
@@ -233,7 +234,7 @@ Public Class Form1
         If SerialPort2.IsOpen Then
             SerialPort2.Write(bb, 1, 20)
             ret = String.Join(",", Array.ConvertAll(bb, Function(byteValue) byteValue.ToString))
-            TextBox26.Text &= "=" & ret & "=" & vbCrLf
+            'TextBox26.Text &= "=" & ret & "=" & vbCrLf
         Else
             TextBox26.Text &= "SerialPort2 is closed" & vbCrLf
         End If
@@ -437,8 +438,8 @@ Public Class Form1
                 MsgBox("Error 654 Open: " & ex.Message)
             End Try
 
-            combo_Port1.BackColor = CType(IIf(SerialPort1.IsOpen, Color.Yellow, Color.Red), Color)
-            combo_Port2.BackColor = CType(IIf(SerialPort2.IsOpen, Color.Yellow, Color.Red), Color)
+            Label94.BackColor = CType(IIf(SerialPort1.IsOpen, Color.Yellow, Color.Red), Color)  'Port1
+            Label95.BackColor = CType(IIf(SerialPort2.IsOpen, Color.Yellow, Color.Red), Color)  'Port2
         End If
     End Sub
 
@@ -454,8 +455,8 @@ Public Class Form1
 
             btnConnect.Enabled = True
             btnConnect.BackColor = Color.Red
-            combo_Port1.BackColor = Color.White
-            combo_Port2.BackColor = Color.White
+            Label94.BackColor = Color.White 'Port 1
+            Label95.BackColor = Color.White 'Port 2
             btnConnect.Text = "Connect"
             btnDisconnect.Enabled = False
         Catch ex As Exception
@@ -807,8 +808,22 @@ Public Class Form1
     Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
         TextBox26.Clear()
     End Sub
-
     Private Sub RadioButton8_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton8.CheckedChanged
+        Check_out_V_mA()
+    End Sub
+
+    Private Sub TabPage2_Enter(sender As Object, e As EventArgs) Handles TabPage2.Enter
+        Check_out_V_mA()
+    End Sub
+    Private Sub Check_out_V_mA()
+        If RadioButton8.Checked Then
+            output_set_to_V()
+        Else
+            output_set_to_mA()
+        End If
+    End Sub
+
+    Private Sub output_set_to_V()
         GroupBox5.Text = "Outputs test values 0-5 Volt"
         '---- max and min
         NumericUpDown5.Minimum = 0
@@ -831,7 +846,7 @@ Public Class Form1
         Label110.Text = "[V]"
     End Sub
 
-    Private Sub RadioButton7_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton7.CheckedChanged
+    Private Sub output_set_to_mA()
         GroupBox5.Text = "Outputs test values 4-20 mAmp"
         '---- value ----
         NumericUpDown5.Value = 4
