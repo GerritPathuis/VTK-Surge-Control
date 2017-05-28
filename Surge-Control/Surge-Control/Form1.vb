@@ -205,20 +205,12 @@ Public Class Form1
         '---------- now convert to hex-------
         SetIoG = String_ascii_to_Hex_ascii(SetIoG)
 
-        If RadioButton8.Checked Then
-            'Voltage output, channel #1...4 
-            str_hex1 = Hex(CDec(NumericUpDown5.Value * 10 ^ 6))
-            str_hex2 = Hex(CDec(NumericUpDown10.Value * 10 ^ 6))
-            str_hex3 = Hex(CDec(NumericUpDown14.Value * 10 ^ 6))
-            str_hex4 = Hex(CDec(NumericUpDown15.Value * 10 ^ 6))
-        Else
-            'Current output, channel #1...4 -------------
-            str_hex1 = Hex(CDec(NumericUpDown5.Value * 10 ^ 3))
-            str_hex2 = Hex(CDec(NumericUpDown10.Value * 10 ^ 3))
-            str_hex3 = Hex(CDec(NumericUpDown14.Value * 10 ^ 3))
-            str_hex4 = Hex(CDec(NumericUpDown15.Value * 10 ^ 3))
-        End If
-
+        '    'Voltage output, channel #1...4 
+        '    'Current output, channel #1...4 -------------
+        str_hex1 = Hex(CDec(NumericUpDown5.Value * 10 ^ 6))
+        str_hex2 = Hex(CDec(NumericUpDown10.Value * 10 ^ 6))
+        str_hex3 = Hex(CDec(NumericUpDown14.Value * 10 ^ 6))
+        str_hex4 = Hex(CDec(NumericUpDown15.Value * 10 ^ 6))
 
         '------ convert to Big endian and ------
         '------ adding all string-sections to one string
