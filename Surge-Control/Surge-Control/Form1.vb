@@ -205,12 +205,13 @@ Public Class Form1
         '---------- now convert to hex-------
         SetIoG = String_ascii_to_Hex_ascii(SetIoG)
 
-        '    'Voltage output, channel #1...4 
-        '    'Current output, channel #1...4 -------------
+        '-----Voltage/Current output, channel #1...4 
         str_hex1 = Hex(CDec(NumericUpDown5.Value * 10 ^ 6))
         str_hex2 = Hex(CDec(NumericUpDown10.Value * 10 ^ 6))
         str_hex3 = Hex(CDec(NumericUpDown14.Value * 10 ^ 6))
         str_hex4 = Hex(CDec(NumericUpDown15.Value * 10 ^ 6))
+
+        Label96.Text = str_hex1
 
         '------ convert to Big endian and ------
         '------ adding all string-sections to one string
@@ -258,6 +259,7 @@ Public Class Form1
                 no_bytes = 1
         End Select
 
+        '---------- just for testing----------------
         'MessageBox.Show("str_num=" & str_num & " No_bytes= " & no_bytes.ToString)
         'MessageBox.Show(" bytes(0)= " & Conversion.Hex(bytes(0)))
         'MessageBox.Show(" bytes(1)= " & Conversion.Hex(bytes(1)))
@@ -281,7 +283,10 @@ Public Class Form1
                 bytes_big(2) = bytes(1)
                 bytes_big(3) = bytes(0)
             Case 4
-                'Do nothing
+                bytes_big(0) = bytes(3)
+                bytes_big(1) = bytes(2)
+                bytes_big(2) = bytes(1)
+                bytes_big(3) = bytes(0)
         End Select
         Array.Reverse(bytes_big)    'Now reverse order
 
@@ -308,12 +313,12 @@ Public Class Form1
 
             'keeps things with the selected output range-----
             If t1 > NumericUpDown5.Maximum Then t1 = NumericUpDown5.Maximum
-            If t2 > NumericUpDown10.Maximum Then t2 = NumericUpDown10.Maximum
-            If t3 > NumericUpDown14.Maximum Then t3 = NumericUpDown14.Maximum
-            If t4 > NumericUpDown15.Maximum Then t4 = NumericUpDown15.Maximum
             If t1 < NumericUpDown5.Minimum Then t1 = NumericUpDown5.Minimum
+            If t2 > NumericUpDown10.Maximum Then t2 = NumericUpDown10.Maximum
             If t2 < NumericUpDown10.Minimum Then t2 = NumericUpDown10.Minimum
+            If t3 > NumericUpDown14.Maximum Then t3 = NumericUpDown14.Maximum
             If t3 < NumericUpDown14.Minimum Then t3 = NumericUpDown14.Minimum
+            If t4 > NumericUpDown15.Maximum Then t4 = NumericUpDown15.Maximum
             If t4 < NumericUpDown15.Minimum Then t4 = NumericUpDown15.Minimum
 
             NumericUpDown5.Value = CDec(t1)     'Flow
@@ -809,13 +814,13 @@ Public Class Form1
     End Sub
     Private Sub Check_out_V_mA()
         If RadioButton8.Checked Then
-            output_set_to_V()
+            Output_set_to_V()
         Else
-            output_set_to_mA()
+            Output_set_to_mA()
         End If
     End Sub
 
-    Private Sub output_set_to_V()
+    Private Sub Output_set_to_V()
         GroupBox5.Text = "Outputs test values 0-5 Volt"
         '---- max and min
         NumericUpDown5.Minimum = 0
@@ -838,7 +843,7 @@ Public Class Form1
         Label110.Text = "[V]"
     End Sub
 
-    Private Sub output_set_to_mA()
+    Private Sub Output_set_to_mA()
         GroupBox5.Text = "Outputs test values 4-20 mAmp"
         '---- value ----
         NumericUpDown5.Value = 4
