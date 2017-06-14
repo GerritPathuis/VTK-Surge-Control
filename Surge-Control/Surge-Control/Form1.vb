@@ -307,8 +307,8 @@ Public Class Form1
         'Send result calculations to the outputs 
         If CheckBox3.Checked Then
             Double.TryParse(TextBox1.Text, t1)     'Flow
-            Double.TryParse(TextBox2.Text, t2)     'Pinlet
-            Double.TryParse(TextBox3.Text, t3)     'delta Pressure
+            Double.TryParse(TextBox2.Text, t2)     'P inlet
+            Double.TryParse(TextBox3.Text, t3)     'P outlet
             Double.TryParse(TextBox23.Text, t4)    'Tinlet
 
             'keeps things with the selected output range-----
@@ -596,11 +596,11 @@ Public Class Form1
     End Function
 
     Private Sub Update_calc_screen()
-        Dim Range(3) As String
+        Dim Range(4) As String
         Dim K_sys, K_bypass, k_sum, K100, valve_open, dp, ro As Double
         Dim A, B, C, Qv_in, Qv_out, A1 As Double
-        Dim Pin, Pout As Double
-        Dim Tin, Tout As Double
+        Dim Pin, Pout As Double     'fan inlet and outlet
+        Dim Tin, Tout As Double     'fan inlet and outlet
         Dim γ As Double
         Dim p_time, period, amplitude As Double
         Dim Qv_a, Qv_b As Double
@@ -608,8 +608,9 @@ Public Class Form1
         'Range is required for converting the signal to and from 4-20 mAmp
         Range(0) = CType(NumericUpDown28.Value - NumericUpDown27.Value, String)    'Flow
         Range(1) = CType(NumericUpDown29.Value - NumericUpDown30.Value, String)    'Temp
-        Range(2) = CType(NumericUpDown31.Value - NumericUpDown32.Value, String)    'Pressure
-        Range(3) = CType(NumericUpDown13.Value - NumericUpDown34.Value, String)    'Pressure
+        Range(2) = CType(NumericUpDown31.Value - NumericUpDown32.Value, String)    'Pressure in
+        Range(3) = CType(NumericUpDown36.Value - NumericUpDown37.Value, String)    'Pressure out
+        Range(4) = CType(NumericUpDown13.Value - NumericUpDown34.Value, String)    'Valve position
 
         ro = NumericUpDown19.Value                  'Density [kg/Am3]
         A = NumericUpDown17.Value                   'Fan Curve [-]
@@ -668,15 +669,19 @@ Public Class Form1
             '----- present the data ----
             TextBox7.Text = Round(K_bypass, 2).ToString   'Resistance Bypass valve 
             TextBox8.Text = Round(Qv_out, 0).ToString
-            TextBox9.Text = Round(dp, 0).ToString
+
             TextBox10.Text = Round(Tin, 1).ToString
-            TextBox11.Text = Range(0).ToString
-            TextBox12.Text = Range(1).ToString
-            TextBox13.Text = Range(2).ToString
-            TextBox32.Text = Range(3).ToString
+            TextBox11.Text = Range(0).ToString          'Range
+            TextBox12.Text = Range(1).ToString          'Range
+            TextBox13.Text = Range(2).ToString          'Range press inlet flange
+            TextBox24.Text = Range(3).ToString          'Range Press outlet flange
+            TextBox32.Text = Range(4).ToString          'Range Valve
             TextBox14.Text = Round(K_sys, 2).ToString   'Resistance Total system
             TextBox15.Text = Round(Qv_in, 0).ToString
-            TextBox21.Text = Round(Pin, 0).ToString     'Pressure inlet
+            TextBox21.Text = Round(Pin, 0).ToString     'Pressure inlet flange
+            TextBox9.Text = Round(Pout, 0).ToString    'Pressure outlet flange
+            TextBox29.Text = Round(dp, 0).ToString
+
             'TextBox21.Text = Round(valve_open, 0).ToString  'Bypass valve
             TextBox25.Text = Round(Tout, 1).ToString
         End If
@@ -686,15 +691,16 @@ Public Class Form1
 
         '---------- calc output currents--------------
         Cout(1) = Convert_Units_to_mAmp("Flow", Qv_in)
-        Cout(2) = Convert_Units_to_mAmp("Pressure", Pin)
-        Cout(3) = Convert_Units_to_mAmp("Pressure", dp)
+        Cout(2) = Convert_Units_to_mAmp("Pressure_in", Pin)
+        'Cout(3) = Convert_Units_to_mAmp("Pressure_out", dp)
+        Cout(3) = Convert_Units_to_mAmp("Pressure_out", Pout)
         Cout(4) = Convert_Units_to_mAmp("Temperature", Tin)
 
         '--------present [4-20 mAmp]-------------
-        TextBox1.Text = Round(Cout(1), 1).ToString  'Flow inlet/out Actual [Am3/hr]
-        TextBox2.Text = Round(Cout(2), 1).ToString  'Pressure in [Pa]
-        TextBox3.Text = Round(Cout(3), 1).ToString  'Delta P [Pa]
-        TextBox23.Text = Round(Cout(4), 1).ToString 'Temp fan in [c]
+        TextBox1.Text = Round(Cout(1), 1).ToString("0")     'Flow inlet/out Actual [Am3/hr]
+        TextBox2.Text = Round(Cout(2), 1).ToString("0.0")   'Pressure in [Pa]
+        TextBox3.Text = Round(Cout(3), 1).ToString("0.0")   'Pressure out [Pa]
+        TextBox23.Text = Round(Cout(4), 1).ToString("0.0")  'Temp fan in [c]
 
 
         '------------[0-10V]----------------
@@ -707,7 +713,7 @@ Public Class Form1
         TextBox40.Text = Round(Vout(1), 1).ToString  'Flow inlet/out Actual [Am3/hr]
         TextBox41.Text = Round(Vout(2), 1).ToString  'Pressure in [Pa]
         TextBox42.Text = Round(Vout(3), 1).ToString  'Delta P [Pa]
-        TextBox43.Text = Round(Vout(4), 1).ToString 'Temp fan in [c]
+        TextBox43.Text = Round(Vout(4), 1).ToString  'Temp fan in [c]
 
     End Sub
 
@@ -723,8 +729,12 @@ Public Class Form1
                 value_4ma = NumericUpDown30.Value
                 Double.TryParse(TextBox12.Text, range)
                 results = (value - value_4ma) / range * 16.0 + 4.0
-            Case "Pressure"
+            Case "Pressure_in"
                 value_4ma = NumericUpDown32.Value
+                Double.TryParse(TextBox13.Text, range)
+                results = (value - value_4ma) / range * 16.0 + 4.0
+            Case "Pressure_out"
+                value_4ma = NumericUpDown37.Value
                 Double.TryParse(TextBox13.Text, range)
                 results = (value - value_4ma) / range * 16.0 + 4.0
             Case "Valve-positioner"
@@ -757,9 +767,13 @@ Public Class Form1
                 value_4ma = NumericUpDown30.Value
                 Double.TryParse(TextBox12.Text, range)
                 results = (value - 4) / 16 * range + value_4ma
-            Case "Pressure"
+            Case "Pressure_in"
                 value_4ma = NumericUpDown32.Value
                 Double.TryParse(TextBox13.Text, range)
+                results = (value - 4) / 16 * range + value_4ma
+            Case "Pressure_out"
+                value_4ma = NumericUpDown37.Value
+                Double.TryParse(TextBox24.Text, range)
                 results = (value - 4) / 16 * range + value_4ma
             Case "Valve-positioner"
                 value_4ma = NumericUpDown34.Value
