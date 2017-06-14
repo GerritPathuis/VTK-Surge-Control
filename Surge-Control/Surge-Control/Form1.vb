@@ -425,8 +425,8 @@ Public Class Form1
             SerialPort2.DiscardNull = False                 'important otherwise it will not work
 
             Try
-                SerialPort1.Open()
-                SerialPort2.Open()
+                If CheckBox2.Checked Then SerialPort1.Open()
+                If CheckBox4.Checked Then SerialPort2.Open()
                 btnConnect.Enabled = False              'Disable Connect button
                 btnConnect.BackColor = Color.Yellow
                 btnConnect.Text = "OK connected"
@@ -920,6 +920,10 @@ Public Class Form1
 
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
         Timer1.Stop()       'Freeze
+    End Sub
+
+    Private Sub GroupBox9_Enter(sender As Object, e As EventArgs) Handles GroupBox9.Enter
+
     End Sub
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
