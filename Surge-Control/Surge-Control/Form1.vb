@@ -347,8 +347,7 @@ Public Class Form1
             GetIo(3) = &H1D   'Voltage range 0-100,000,000 mV (4Bytes)
             Label102.Text = "[Volt]"
         Else
-            'GetIo(3) = &H23   'Amp range 0-1,000,000 mAmp (4Bytes)
-            GetIo(3) = &H1D   'Amp range 0-1,000,000 mAmp (4Bytes)
+            GetIo(3) = &H23   'Amp range 0-1,000,000 mAmp (4Bytes)
             Label102.Text = "[mAmp]"
         End If
         GetIo(4) = &H0    'LEN
