@@ -10,6 +10,8 @@ Public Class Form1
     Dim pv(4) As Double             'Process values 0,1,2,3,4
     Dim Cout(4) As Double           'Current Outputs
     Dim Vout(4) As Double           'Voltage Outputs
+    Dim bypass_pos As Double = 0    'Bypass valve position (0-100%)
+    Dim bypass_ma As Double = 0     'Bypass valve position (mAmp)
     Dim last_deviation As Double    'PID control
     Dim Pterm, Iterm, Dterm As Double
     Dim counter As Integer = 0
@@ -24,7 +26,6 @@ Public Class Form1
         Dim i As Integer
         Thread.CurrentThread.CurrentCulture = New CultureInfo("en-US")
         Thread.CurrentThread.CurrentUICulture = New CultureInfo("en-US")
-
 
         TextBox16.Text =
         "Based on " & vbCrLf &
@@ -77,7 +78,7 @@ Public Class Form1
     Private Sub Reset()
         Init_Chart1()
         Init_Chart2()
-        Timer1.Interval = 2000   'Berekeningsinterval 2000 msec
+        Timer1.Interval = 3000   'Berekeningsinterval 3000 msec
         time = 0
 
         Timer1.Enabled = True
@@ -95,7 +96,7 @@ Public Class Form1
                 Chart1.Series.Add(i.ToString)
                 Chart1.Series(i.ToString).ChartArea = "ChartArea0"
                 Chart1.Series(i.ToString).ChartType = DataVisualization.Charting.SeriesChartType.Line
-                Chart1.Series(i.ToString).BorderWidth = 1
+                Chart1.Series(i.ToString).BorderWidth = 2
             Next
 
             Chart1.Titles.Add("ASC testing")
@@ -107,8 +108,6 @@ Public Class Form1
             Chart1.Series(3).Name = "Temp in"
             Chart1.Series(4).Name = "Bypass valve"
             Chart1.Series(0).Color = Color.Black
-            Chart1.Series(0).BorderWidth = 2
-            Chart1.Series(2).BorderWidth = 2
 
             Chart1.ChartAreas("ChartArea0").AxisX.Title = "[sec]"
             Chart1.ChartAreas("ChartArea0").AxisY.Title = "mAmp"
@@ -134,7 +133,7 @@ Public Class Form1
                 Chart2.Series.Add(i.ToString)
                 Chart2.Series(i.ToString).ChartArea = "ChartArea1"
                 Chart2.Series(i.ToString).ChartType = DataVisualization.Charting.SeriesChartType.Line
-                Chart2.Series(i.ToString).BorderWidth = 1
+                Chart2.Series(i.ToString).BorderWidth = 2
             Next
 
             Chart2.Titles.Add("ASC testing")
@@ -146,8 +145,6 @@ Public Class Form1
             Chart2.Series(3).Name = "Temp in"
             Chart2.Series(4).Name = "Bypass valve"
             Chart2.Series(0).Color = Color.Black
-            Chart2.Series(0).BorderWidth = 2
-            Chart2.Series(2).BorderWidth = 2
 
             Chart2.ChartAreas("ChartArea1").AxisX.Title = "[sec]"
             Chart2.ChartAreas("ChartArea1").AxisY.Title = "mAmp"
@@ -167,11 +164,14 @@ Public Class Form1
             Chart1.Series(1).Points.AddXY(time, Cout(2))    'Pressure in
             Chart1.Series(2).Points.AddXY(time, Cout(3))    'dP
             Chart1.Series(3).Points.AddXY(time, Cout(4))    'Temp in
+            Chart1.Series(4).Points.AddXY(time, bypass_ma)  'Bypass valve
 
             Chart2.Series(0).Points.AddXY(time, Cout(1))    'Flow in
             Chart2.Series(1).Points.AddXY(time, Cout(2))    'Pressure in
             Chart2.Series(2).Points.AddXY(time, Cout(3))    'dP
             Chart2.Series(3).Points.AddXY(time, Cout(4))    'Temp in
+            Chart2.Series(4).Points.AddXY(time, bypass_ma)  'Bypass valve
+
         Catch ex As Exception
             MessageBox.Show("AddXY failed")
         End Try
@@ -299,32 +299,32 @@ Public Class Form1
         Return return_val
     End Function
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        Dim t1, t2, t3, t4 As Double
+        Dim flow1, Press_in, p2, t1 As Double
 
         Label64.Text = "Feedback from " & CType(IIf(RadioButton9.Checked, "ASC controller", "Built-in PID controller"), String)
-
+        TextBox36.Text = bypass_pos.ToString       'bypass % open
 
         'Send result calculations to the outputs 
         If CheckBox3.Checked Then
-            Double.TryParse(TextBox1.Text, t1)     'Flow
-            Double.TryParse(TextBox2.Text, t2)     'P inlet
-            Double.TryParse(TextBox3.Text, t3)     'P outlet
-            Double.TryParse(TextBox23.Text, t4)    'Tinlet
+            Double.TryParse(TextBox1.Text, flow1)       'Flow
+            Double.TryParse(TextBox2.Text, Press_in)    'P_inlet
+            Double.TryParse(TextBox3.Text, p2)          'P_outlet
+            Double.TryParse(TextBox23.Text, t1)         'Tinlet
 
             'keeps things with the selected output range-----
-            If t1 > NumericUpDown5.Maximum Then t1 = NumericUpDown5.Maximum
-            If t1 < NumericUpDown5.Minimum Then t1 = NumericUpDown5.Minimum
-            If t2 > NumericUpDown10.Maximum Then t2 = NumericUpDown10.Maximum
-            If t2 < NumericUpDown10.Minimum Then t2 = NumericUpDown10.Minimum
-            If t3 > NumericUpDown14.Maximum Then t3 = NumericUpDown14.Maximum
-            If t3 < NumericUpDown14.Minimum Then t3 = NumericUpDown14.Minimum
-            If t4 > NumericUpDown15.Maximum Then t4 = NumericUpDown15.Maximum
-            If t4 < NumericUpDown15.Minimum Then t4 = NumericUpDown15.Minimum
+            If flow1 > NumericUpDown5.Maximum Then flow1 = NumericUpDown5.Maximum
+            If flow1 < NumericUpDown5.Minimum Then flow1 = NumericUpDown5.Minimum
+            If Press_in > NumericUpDown10.Maximum Then Press_in = NumericUpDown10.Maximum
+            If Press_in < NumericUpDown10.Minimum Then Press_in = NumericUpDown10.Minimum
+            If p2 > NumericUpDown14.Maximum Then p2 = NumericUpDown14.Maximum
+            If p2 < NumericUpDown14.Minimum Then p2 = NumericUpDown14.Minimum
+            If t1 > NumericUpDown15.Maximum Then t1 = NumericUpDown15.Maximum
+            If t1 < NumericUpDown15.Minimum Then t1 = NumericUpDown15.Minimum
 
-            NumericUpDown5.Value = CDec(t1)     'Flow
-            NumericUpDown10.Value = CDec(t2)    'Pinlet
-            NumericUpDown14.Value = CDec(t3)    'delta Pressure
-            NumericUpDown15.Value = CDec(t4)    'Tinlet
+            NumericUpDown5.Value = CDec(flow1)      'Flow
+            NumericUpDown14.Value = CDec(Press_in)  'P_inlet
+            NumericUpDown15.Value = CDec(p2)        'P_outlet
+            NumericUpDown10.Value = CDec(t1)        'Tinlet
         End If
 
         GetIO()                                 'Get the feedback value
@@ -395,7 +395,7 @@ Public Class Form1
         combo_Baud.Items.Add(19200)
         combo_Baud.Items.Add(38400)
         combo_Baud.Items.Add(57600)
-        combo_Baud.SelectedIndex = 0     'Set cmbBaud text to 9600 Baud 
+        combo_Baud.SelectedIndex = 1     'Set cmbBaud text to 9600 Baud 
     End Sub
 
     Private Sub BtnConnect_Click(sender As System.Object, e As System.EventArgs) Handles btnConnect.Click
@@ -409,7 +409,7 @@ Public Class Form1
             SerialPort1.StopBits = StopBits.One
             SerialPort1.Handshake = Handshake.None
             SerialPort1.DataBits = 8                        'Open our serial port
-            SerialPort1.ReadBufferSize = 4096
+            SerialPort1.ReadBufferSize = 8192               '4096
             SerialPort1.ReceivedBytesThreshold = 4
             SerialPort1.DiscardNull = False                 'important otherwise it will not work
 
@@ -419,7 +419,7 @@ Public Class Form1
             SerialPort2.StopBits = StopBits.One
             SerialPort2.Handshake = Handshake.None
             SerialPort2.DataBits = 8                        'Open our serial port
-            SerialPort2.ReadBufferSize = 4096
+            SerialPort2.ReadBufferSize = 8192               '4096
             SerialPort2.ReceivedBytesThreshold = 4
             SerialPort2.DiscardNull = False                 'important otherwise it will not work
 
@@ -469,10 +469,7 @@ Public Class Form1
         Dim status_OK As String = "00"
         Dim Value_channel_0_hex As String  'Lucid-Control AI4, 10V module
         Dim Value_channel_0_dec As Double  'Lucid-Control AI4, 10V module
-
-        Dim Volt_channel_0 As Double    'Lucid-Control AI4, 10V module
         Dim bigE As String = String.Empty
-        Dim bypass_pos As Integer = 0
 
         intext_hex = SerialPort1.ReadExisting       'Read the data
         intext = String_ascii_to_Hex_ascii(intext_hex)              'Convert data to hex
@@ -498,16 +495,12 @@ Public Class Form1
 
             '---------- calc the value---------
             Value_channel_0_dec = Convert.ToInt32(bigE, 16)          '[microVolt] Channel 0
-            'If Value_channel_0_dec > Integer.MaxValue Then 'negative number
-            '    Label111.Text = "neg value"
-            '    Value_channel_0_dec = (2 ^ 32 - Value_channel_0_dec) * -1
-            'End If
             Value_channel_0_dec /= 10 ^ 6     '[microV-->Volt] 
 
             '--------- Present data--------------
             Try
                 'Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))           'Hex 4 Bytes value
-                Invoke(Sub() TextBox38.Text = bigE)     'Hex 4 Bytes value
+                Invoke(Sub() TextBox38.Text = bigE)     'Hex 4 Bytes valueTextBox36
                 Invoke(Sub() TextBox39.Text = Value_channel_0_dec.ToString)     'Decimal
                 Invoke(Sub() TextBox37.Text = Round(Value_channel_0_dec, 2).ToString("0.00"))    'Volt
                 Invoke(Sub() TextBox26.Text &= intext & " ")
@@ -518,22 +511,23 @@ Public Class Form1
                 Else
                     bypass_pos = CInt((Value_channel_0_dec - 4) / 16 * 100)  'Amp input
                 End If
+                bypass_ma = Value_channel_0_dec
                 If bypass_pos > 100 Then bypass_pos = 100   'max 100% open
                 If bypass_pos < 0 Then bypass_pos = 0       'min 0% open
-                Invoke(Sub() TextBox36.Text = bypass_pos.ToString)       'bypass % open
+
+                'Invoke(Sub() TextBox36.Text = bypass_pos.ToString)       'bypass % open
             Catch ex As Exception
             End Try
             '------- Feedback ON/OFF----------
             If RadioButton9.Checked Then 'Feedback from ASC controller (Lucid controller)
                 Label66.Text = "Feedback from the ASC unit"
-                Invoke(Sub() NumericUpDown33.Value = CDec(Round(Volt_channel_0 * 10, 0)))   'bypass % open
+                NumericUpDown33.Value = CDec(bypass_pos)
             Else
                 Label66.Text = "Feedback from built-in PED Controller"
             End If
         Else
             counter += 1
             Invoke(Sub() Label108.Text = counter.ToString & " statuscode=" & String_ascii_to_Hex_ascii(status_code))
-            'MessageBox.Show("Lucid Communication problem Status Code= " & status_code)
             SerialPort1.DiscardInBuffer()        'empty inbuffer
         End If
     End Sub
@@ -663,7 +657,7 @@ Public Class Form1
             Pout = Pin + dp
 
             '----- step 6 determine Discharge flow fan ---
-            Qv_out = Qv_in * (Pin / Pout) ^ γ
+            Qv_out = Qv_in * (Pin / Pout) ^ (1 / γ)
 
             '----- present the data ----
             TextBox7.Text = Round(K_bypass, 2).ToString   'Resistance Bypass valve 
@@ -691,7 +685,6 @@ Public Class Form1
         '---------- calc output currents--------------
         Cout(1) = Convert_Units_to_mAmp("Flow", Qv_in)
         Cout(2) = Convert_Units_to_mAmp("Pressure_in", Pin)
-        'Cout(3) = Convert_Units_to_mAmp("Pressure_out", dp)
         Cout(3) = Convert_Units_to_mAmp("Pressure_out", Pout)
         Cout(4) = Convert_Units_to_mAmp("Temperature", Tin)
 
