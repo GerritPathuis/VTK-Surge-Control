@@ -10,18 +10,16 @@ Public Class Form1
     Dim pv(4) As Double             'Process values 0,1,2,3,4
     Dim Cout(4) As Double           'Current Outputs
     Dim Vout(4) As Double           'Voltage Outputs
-    Dim bypass_pos As Double = 0    'Bypass valve position (0-100%)
-    Dim bypass_ma As Double = 0     'Bypass valve position (mAmp)
-    Dim last_deviation As Double    'PID control
-    Dim Pterm, Iterm, Dterm As Double
-    Dim counter As Integer = 0
+    Dim _bypass_pos As Double = 0    'Bypass valve position (0-100%)
+    Dim _bypass_ma As Double = 0     'Bypass valve position (mAmp)
+    Dim _last_deviation As Double    'PID control
+    Dim _Pterm, _Iterm, _Dterm As Double
+    Dim _counter As Integer = 0
     Dim myPort As Array  'COM Ports detected on the system will be stored here
     Dim comOpen As Boolean
-    Private Property ConnectionOK As Boolean
+    Dim _PID_output_ma As Double         'Interne PID controller mAmp output
+    ' Private Property ConnectionOK As Boolean
 
-    Dim Flow_in, Flow_out As Double     '[m3/hr]
-    Dim Temp_in, Temp_out As Double     '[Celsius]
-    Dim Press_in, Press_out As Double   '[Pa]
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Dim i As Integer
         Thread.CurrentThread.CurrentCulture = New CultureInfo("en-US")
@@ -65,7 +63,7 @@ Public Class Form1
         "opening the bybass valve and returning to a save spot on the" & vbCrLf &
         "fan-Curve."
 
-        Label108.Text = ""      'Communication Error codes
+        'Label108.Text = ""      'Communication Error codes
 
         For i = 0 To 3
             pv(i) = 1       'Initial value
@@ -92,11 +90,11 @@ Public Class Form1
             Chart1.Titles.Clear()
             Chart1.ChartAreas.Add("ChartArea0")
 
-            For i = 0 To 4
+            For i = 0 To 5
                 Chart1.Series.Add(i.ToString)
                 Chart1.Series(i.ToString).ChartArea = "ChartArea0"
                 Chart1.Series(i.ToString).ChartType = DataVisualization.Charting.SeriesChartType.Line
-                Chart1.Series(i.ToString).BorderWidth = 2
+                Chart1.Series(i.ToString).BorderWidth = 3
             Next
 
             Chart1.Titles.Add("ASC testing")
@@ -106,7 +104,8 @@ Public Class Form1
             Chart1.Series(1).Name = "Pressure in"
             Chart1.Series(2).Name = "delta P"
             Chart1.Series(3).Name = "Temp in"
-            Chart1.Series(4).Name = "Bypass valve"
+            Chart1.Series(4).Name = "Extern Bypass valve"
+            Chart1.Series(5).Name = "Intern Bypass valve"
             Chart1.Series(0).Color = Color.Black
 
             Chart1.ChartAreas("ChartArea0").AxisX.Title = "[sec]"
@@ -129,11 +128,11 @@ Public Class Form1
             Chart2.Titles.Clear()
             Chart2.ChartAreas.Add("ChartArea1")
 
-            For i = 0 To 4
+            For i = 0 To 5
                 Chart2.Series.Add(i.ToString)
                 Chart2.Series(i.ToString).ChartArea = "ChartArea1"
                 Chart2.Series(i.ToString).ChartType = DataVisualization.Charting.SeriesChartType.Line
-                Chart2.Series(i.ToString).BorderWidth = 2
+                Chart2.Series(i.ToString).BorderWidth = 3
             Next
 
             Chart2.Titles.Add("ASC testing")
@@ -143,7 +142,8 @@ Public Class Form1
             Chart2.Series(1).Name = "Pressure in"
             Chart2.Series(2).Name = "delta P"
             Chart2.Series(3).Name = "Temp in"
-            Chart2.Series(4).Name = "Bypass valve"
+            Chart2.Series(4).Name = "Extern Bypass valve"
+            Chart2.Series(5).Name = "Intern Bypass valve"
             Chart2.Series(0).Color = Color.Black
 
             Chart2.ChartAreas("ChartArea1").AxisX.Title = "[sec]"
@@ -164,13 +164,15 @@ Public Class Form1
             Chart1.Series(1).Points.AddXY(time, Cout(2))    'Pressure in
             Chart1.Series(2).Points.AddXY(time, Cout(3))    'dP
             Chart1.Series(3).Points.AddXY(time, Cout(4))    'Temp in
-            Chart1.Series(4).Points.AddXY(time, bypass_ma)  'Bypass valve
+            Chart1.Series(4).Points.AddXY(time, _bypass_ma)  'Bypass valve Extern
+            Chart1.Series(5).Points.AddXY(time, _PID_output_ma)  'Bypass valve Intern
 
             Chart2.Series(0).Points.AddXY(time, Cout(1))    'Flow in
             Chart2.Series(1).Points.AddXY(time, Cout(2))    'Pressure in
             Chart2.Series(2).Points.AddXY(time, Cout(3))    'dP
             Chart2.Series(3).Points.AddXY(time, Cout(4))    'Temp in
-            Chart2.Series(4).Points.AddXY(time, bypass_ma)  'Bypass valve
+            Chart2.Series(4).Points.AddXY(time, _bypass_ma)  'Bypass valve Extern
+            Chart2.Series(5).Points.AddXY(time, _PID_output_ma)  'Bypass valve Intern
 
         Catch ex As Exception
             MessageBox.Show("AddXY failed")
@@ -300,8 +302,7 @@ Public Class Form1
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         Dim flow1, Press_in, p2, t1 As Double
 
-        Label64.Text = "Feedback always from Built-in PID controller"
-        TextBox36.Text = bypass_pos.ToString       'bypass % open
+        TextBox36.Text = _bypass_pos.ToString       'bypass % open
 
         'Send result calculations to the outputs 
         If CheckBox3.Checked Then
@@ -397,7 +398,7 @@ Public Class Form1
         combo_Baud.SelectedIndex = 1     'Set cmbBaud text to 9600 Baud 
     End Sub
 
-    Private Sub BtnConnect_Click(sender As System.Object, e As System.EventArgs) Handles btnConnect.Click
+    Private Sub BtnConnect_Click(sender As System.Object, e As System.EventArgs) Handles Button12.Click
         'Connect
         If combo_Port1.Text.Length = 0 Then
             MsgBox("Sorry, did not find any connected Lucid Controllers")
@@ -425,9 +426,9 @@ Public Class Form1
             Try
                 If CheckBox2.Checked Then SerialPort1.Open()
                 If CheckBox4.Checked Then SerialPort2.Open()
-                btnConnect.Enabled = False              'Disable Connect button
-                btnConnect.BackColor = Color.Yellow
-                btnConnect.Text = "OK connected"
+                Button12.Enabled = False              'Disable Connect button
+                Button12.BackColor = Color.Yellow
+                Button12.Text = "OK connected"
                 btnDisconnect.Enabled = True            'and Enable Disconnect button
             Catch ex As Exception
                 MsgBox("Error 654 Open: " & ex.Message)
@@ -448,11 +449,11 @@ Public Class Form1
             SerialPort2.Close()             'Close our Serial Port
             SerialPort2.Dispose()
 
-            btnConnect.Enabled = True
-            btnConnect.BackColor = Color.Red
+            Button12.Enabled = True
+            Button12.BackColor = Color.Red
             Label94.BackColor = Color.White 'Port 1
             Label95.BackColor = Color.White 'Port 2
-            btnConnect.Text = "Connect"
+            Button12.Text = "Connect"
             btnDisconnect.Enabled = False
         Catch ex As Exception
             MsgBox("Error 104 Open: " & ex.Message)
@@ -501,25 +502,25 @@ Public Class Form1
                 'Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))           'Hex 4 Bytes value
                 'Invoke(Sub() TextBox38.Text = bigE)     'Hex 4 Bytes valueTextBox36
                 'Invoke(Sub() TextBox39.Text = Value_channel_0_dec.ToString)     'Decimal
-                Invoke(Sub() TextBox37.Text = Round(Value_channel_0_dec, 2).ToString("0.00"))    'Volt
+                ''Invoke(Sub() TextBox37.Text = Round(Value_channel_0_dec, 2).ToString("0.00"))    'Volt
                 'Invoke(Sub() TextBox26.Text &= intext & " ")
 
                 '----------- bypass valve position-----------
                 If RadioButton5.Checked Then
-                    bypass_pos = CInt(Value_channel_0_dec / 10 * 100)  'Volt input
+                    _bypass_pos = CInt(Value_channel_0_dec / 10 * 100)  'Volt input
                 Else
-                    bypass_pos = CInt((Value_channel_0_dec - 4) / 16 * 100)  'Amp input
+                    _bypass_pos = CInt((Value_channel_0_dec - 4) / 16 * 100)  'Amp input
                 End If
-                bypass_ma = Value_channel_0_dec
-                If bypass_pos > 100 Then bypass_pos = 100   'max 100% open
-                If bypass_pos < 0 Then bypass_pos = 0       'min 0% open
+                _bypass_ma = Value_channel_0_dec
+                If _bypass_pos > 100 Then _bypass_pos = 100   'max 100% open
+                If _bypass_pos < 0 Then _bypass_pos = 0       'min 0% open
             Catch ex As Exception
             End Try
             '------- Feedback ----------
-            NumericUpDown33.Value = CDec(bypass_pos)
+            'NumericUpDown33.Value = CDec(_bypass_pos)
         Else
-            counter += 1
-            Invoke(Sub() Label108.Text = counter.ToString & " statuscode=" & String_ascii_to_Hex_ascii(status_code))
+            _counter += 1
+            'Invoke(Sub() Label108.Text = _counter.ToString & " statuscode=" & String_ascii_to_Hex_ascii(status_code))
             SerialPort1.DiscardInBuffer()        'empty inbuffer
         End If
     End Sub
@@ -597,6 +598,8 @@ Public Class Form1
         Range(2) = CType(NumericUpDown31.Value - NumericUpDown32.Value, String)    'Pressure in
         Range(3) = CType(NumericUpDown36.Value - NumericUpDown37.Value, String)    'Pressure out
         Range(4) = CType(NumericUpDown13.Value - NumericUpDown34.Value, String)    'Valve position
+
+        NumericUpDown33.Value = CDec(_bypass_pos)    'Valve postion from extern Control panel
 
         ro = NumericUpDown19.Value                  'Density [kg/Am3]
         A = NumericUpDown17.Value                   'Fan Curve [-]
@@ -852,57 +855,16 @@ Public Class Form1
         Label109.Text = "[mA]"
         Label110.Text = "[mA]"
     End Sub
-
-    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
-        Dim callib(4) As Byte       'callib 
-        Dim result As DialogResult
-        Dim ret As String
-
-        callib(1) = &H52     'OPC= Calibrate 30
-        callib(2) = &H1      'Channel 1
-        callib(3) = &H0
-        callib(4) = &H0
-        Timer1.Stop()
-        MessageBox.Show("For Calibration" & vbCrLf & "Bridge the channel inputs !!")
-        result = MessageBox.Show("Are you sure", " ", MessageBoxButtons.OKCancel)
-        If result = DialogResult.OK Then
-            result = MessageBox.Show("Realy sure ???", " ", MessageBoxButtons.OKCancel)
-            If result = DialogResult.OK Then
-                Select Case NumericUpDown35.Value
-                    Case 1
-                        callib(2) = &H1
-                    Case 2
-                        callib(2) = &H2
-                    Case 3
-                        callib(2) = &H4
-                    Case 4
-                        callib(2) = &H8
-                End Select
-
-                If SerialPort1.IsOpen Then
-                    SerialPort1.Write(callib, 1, 4)
-                    ret = String.Join(",", Array.ConvertAll(callib, Function(byteValue) byteValue.ToString("X2")))
-                    TextBox26.Text &= "Calibrate " & ret & vbCrLf
-                Else
-                    MessageBox.Show("Cannot get ID Port is closed")
-                End If
-            End If
-        End If
-        Timer1.Start()
-    End Sub
-
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
         Timer1.Stop()       'Freeze
     End Sub
-
-
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
     End Sub
     Private Sub PID_controller()
-        Dim setpoint, deviation, PID_output, dt As Double
+        Dim setpoint, deviation, PID_output_pro, dt As Double
         Dim Kp, Ki, Kd As Double    'Setting PID controller 
-        Dim pv, input_ma, output_ma, range, ddev As Double
+        Dim pv, input_ma, range, ddev As Double
 
         '----- input PID controller R value----
         TextBox27.Text = TextBox30.Text
@@ -927,42 +889,40 @@ Public Class Form1
         If deviation > 10000 Then deviation = 1          'for startup
         If deviation < -10000 Then deviation = 1         'for startup
 
-        If pv > 0 Then
-            ddev = deviation - last_deviation               'change in deviation
-            last_deviation = deviation
+        If pv > 0 And CheckBox5.Checked Then
+            ddev = deviation - _last_deviation               'change in deviation
+            _last_deviation = deviation
 
             '=========== Calculate PID controller==========
-            Double.TryParse(TextBox31.Text, PID_output)
-            Pterm = Kp * deviation                          'P action
-            Iterm = Iterm + Ki * deviation * dt             'I action
-            If Iterm > 100 Then Iterm = 100                 'anti-Windup
-            If Iterm < 0 Then Iterm = 0                     'anti-Windup
+            Double.TryParse(TextBox31.Text, PID_output_pro)
+            _Pterm = Kp * deviation                          'P action
+            _Iterm = _Iterm + Ki * deviation * dt            'I action
+            If _Iterm > 100 Then _Iterm = 100                'anti-Windup
+            If _Iterm < 0 Then _Iterm = 0                    'anti-Windup
 
             ' TextBox26.Text &= ddev.ToString & vbCrLf
-            Dterm = Kd * ddev / dt  'D action
-            PID_output = Pterm + Iterm + Dterm
+            _Dterm = Kd * ddev / dt  'D action
+            PID_output_pro = _Pterm + _Iterm + _Dterm
 
             '--------- limit the output----------
-            If PID_output > 100 Then PID_output = 100
-            If PID_output < 0 Then PID_output = 0
+            If PID_output_pro > 100 Then PID_output_pro = 100
+            If PID_output_pro < 0 Then PID_output_pro = 0
 
             '=============================================
-            output_ma = Convert_Units_to_mAmp("Valve-positioner", PID_output)
-            NumericUpDown38.Value = CDec(PID_output)
+            _PID_output_ma = Convert_Units_to_mAmp("Valve-positioner", PID_output_pro)
+            NumericUpDown38.Value = CDec(PID_output_pro)
 
             '---------- present results ------------
             TextBox28.Text = Round(deviation, 2).ToString("0.00")
-            TextBox31.Text = Round(PID_output, 2).ToString("0.00")  'output [m3/hr]
-            TextBox22.Text = Round(output_ma, 2).ToString("0.00")   'output [mAmp]
+            TextBox31.Text = Round(PID_output_pro, 2).ToString("0.00")  'output [%]
+            TextBox22.Text = Round(_PID_output_ma, 2).ToString("0.00")   'output [mAmp]
 
-            TextBox33.Text = Round(Pterm, 2).ToString("0.00")
-            TextBox34.Text = Round(Iterm, 2).ToString("0.00")
-            TextBox35.Text = Round(Dterm, 2).ToString("0.00")
+            TextBox33.Text = Round(_Pterm, 2).ToString("0.00")
+            TextBox34.Text = Round(_Iterm, 2).ToString("0.00")
+            TextBox35.Text = Round(_Dterm, 2).ToString("0.00")
         End If
     End Sub
-    Private Sub TextBox24_TextChanged(sender As Object, e As EventArgs)
-        Convert_bypass_valve_mAmp_to_position()
-    End Sub
+
     Private Sub Safe_to_file()
         Dim file_name As String
         Dim dirpath_Home As String = "C:\Temp\"
@@ -975,15 +935,5 @@ Public Class Form1
             MessageBox.Show("File is NOT saved" & vbCrLf & "Directory doen not exist" & vbCrLf & "Please create " & dirpath_Home)
         End If
     End Sub
-    Private Sub Convert_bypass_valve_mAmp_to_position()
-        Dim bypass_valve_position, mA, Volt As Double
 
-        ' Double.TryParse(TextBox24.Text, mA)
-
-        bypass_valve_position = (mA - 4) / 16 * 100    'mAmp-->[%]
-        ' TextBox22.Text = Round(bypass_valve_position, 1).ToString   '4-20 [mAmp]
-
-        Volt = Convert_mAmp_to_V(mA)
-        ' TextBox44.Text = Volt.ToString("0.0")            '0-10 [V]
-    End Sub
 End Class
