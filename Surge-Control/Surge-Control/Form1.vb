@@ -76,7 +76,7 @@ Public Class Form1
     Private Sub Reset()
         Init_Chart1()
         Init_Chart2()
-        Timer1.Interval = 3000   'Berekeningsinterval 3000 msec
+        Timer1.Interval = 100   'Berekeningsinterval 3000 msec
         time = 0
 
         Timer1.Enabled = True
@@ -226,7 +226,10 @@ Public Class Form1
         bb = HexStringToByteArray(SetIoG)
 
         If SerialPort2.IsOpen Then
-            SerialPort2.Write(bb, 1, 20)
+            Try
+                SerialPort2.Write(bb, 1, 20)
+            Catch generatedExceptionName As TimeoutException
+            End Try
             ret = String.Join(",", Array.ConvertAll(bb, Function(byteValue) byteValue.ToString))
             'TextBox26.Text &= "=" & ret & "=" & vbCrLf
         Else
@@ -353,8 +356,11 @@ Public Class Form1
         GetIo(4) = &H0    'LEN
 
         If SerialPort1.IsOpen Then
-            '-------LucidControl AI4, 10Volt Input module -------------
-            SerialPort1.Write(GetIo, 1, 4)
+            '-------LucidControl AI4, Input module -------------
+            Try
+                SerialPort1.Write(GetIo, 1, 4)
+            Catch generatedExceptionName As TimeoutException
+            End Try
         End If
     End Sub
 
@@ -395,7 +401,8 @@ Public Class Form1
         combo_Baud.Items.Add(19200)
         combo_Baud.Items.Add(38400)
         combo_Baud.Items.Add(57600)
-        combo_Baud.SelectedIndex = 1     'Set cmbBaud text to 9600 Baud 
+        combo_Baud.Items.Add(115200)
+        combo_Baud.SelectedIndex = 4     'Set cmbBaud text to 9600 Baud 
     End Sub
 
     Private Sub BtnConnect_Click(sender As System.Object, e As System.EventArgs) Handles Button12.Click
@@ -412,6 +419,8 @@ Public Class Form1
             SerialPort1.ReadBufferSize = 8192               '4096
             SerialPort1.ReceivedBytesThreshold = 4
             SerialPort1.DiscardNull = False                 'important otherwise it will not work
+            SerialPort1.ReadTimeout = 500
+            SerialPort1.WriteTimeout = 500
 
             SerialPort2.PortName = combo_Port2.Text         'Set SerialPort2 to the selected COM port at startup
             SerialPort2.BaudRate = CInt(combo_Baud.Text)    'Set Baud rate to the selected value on
@@ -422,7 +431,8 @@ Public Class Form1
             SerialPort2.ReadBufferSize = 8192               '4096
             SerialPort2.ReceivedBytesThreshold = 4
             SerialPort2.DiscardNull = False                 'important otherwise it will not work
-
+            SerialPort2.ReadTimeout = 500
+            SerialPort2.WriteTimeout = 500
             Try
                 If CheckBox2.Checked Then SerialPort1.Open()
                 If CheckBox4.Checked Then SerialPort2.Open()
@@ -471,8 +481,11 @@ Public Class Form1
         Dim Value_channel_0_dec As Double  'Lucid-Control AI4, 10V module
         Dim bigE As String = String.Empty
 
-        intext_hex = SerialPort1.ReadExisting               'Read the data
-        intext = String_ascii_to_Hex_ascii(intext_hex)      'Convert data to hex
+        Try
+            intext_hex = SerialPort1.ReadExisting               'Read the data
+            intext = String_ascii_to_Hex_ascii(intext_hex)      'Convert data to hex
+        Catch generatedExceptionName As TimeoutException
+        End Try
         '--------- Status Communication-------
         status_code = intext.Substring(0, 2)
 
@@ -528,8 +541,10 @@ Public Class Form1
     Private Sub SerialPort2_DataReceived(sender As Object, e As SerialDataReceivedEventArgs) Handles SerialPort2.DataReceived
         '-------- Keep the buffer empty----------
         Dim intext_hex2 As String = String.Empty
-
-        intext_hex2 = SerialPort2.ReadExisting       'Read the data
+        Try
+            intext_hex2 = SerialPort2.ReadExisting       'Read the data
+        Catch generatedExceptionName As TimeoutException
+        End Try
     End Sub
 
     Public Function String_ascii_to_Hex_ascii(Data As String) As String

@@ -266,6 +266,8 @@ Partial Class Form1
         Me.Button6 = New System.Windows.Forms.Button()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
         Me.GroupBox12 = New System.Windows.Forms.GroupBox()
+        Me.Label120 = New System.Windows.Forms.Label()
+        Me.TextBox48 = New System.Windows.Forms.TextBox()
         Me.CheckBox5 = New System.Windows.Forms.CheckBox()
         Me.Label119 = New System.Windows.Forms.Label()
         Me.CheckBox1 = New System.Windows.Forms.CheckBox()
@@ -301,8 +303,7 @@ Partial Class Form1
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.FileSystemWatcher1 = New System.IO.FileSystemWatcher()
         Me.SerialPort2 = New System.IO.Ports.SerialPort(Me.components)
-        Me.TextBox48 = New System.Windows.Forms.TextBox()
-        Me.Label120 = New System.Windows.Forms.Label()
+        Me.PictureBox2 = New System.Windows.Forms.PictureBox()
         Me.TabControl1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
         Me.GroupBox15.SuspendLayout()
@@ -373,6 +374,7 @@ Partial Class Form1
         CType(Me.NumericUpDown11, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.NumericUpDown9, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.FileSystemWatcher1, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'TabControl1
@@ -2673,7 +2675,7 @@ Partial Class Form1
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage1.Size = New System.Drawing.Size(1039, 699)
         Me.TabPage1.TabIndex = 4
-        Me.TabPage1.Text = "Big Chart"
+        Me.TabPage1.Text = "Manipulating K system"
         Me.TabPage1.UseVisualStyleBackColor = True
         '
         'SplitContainer1
@@ -2823,7 +2825,7 @@ Partial Class Form1
         Me.NumericUpDown7.Size = New System.Drawing.Size(57, 20)
         Me.NumericUpDown7.TabIndex = 4
         Me.NumericUpDown7.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        Me.NumericUpDown7.Value = New Decimal(New Integer() {20, 0, 0, 0})
+        Me.NumericUpDown7.Value = New Decimal(New Integer() {40, 0, 0, 0})
         '
         'NumericUpDown2
         '
@@ -2834,7 +2836,7 @@ Partial Class Form1
         Me.NumericUpDown2.Size = New System.Drawing.Size(57, 20)
         Me.NumericUpDown2.TabIndex = 3
         Me.NumericUpDown2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        Me.NumericUpDown2.Value = New Decimal(New Integer() {5, 0, 0, 0})
+        Me.NumericUpDown2.Value = New Decimal(New Integer() {10, 0, 0, 0})
         '
         'RadioButton2
         '
@@ -2870,6 +2872,7 @@ Partial Class Form1
         '
         'TabPage5
         '
+        Me.TabPage5.Controls.Add(Me.PictureBox2)
         Me.TabPage5.Controls.Add(Me.GroupBox13)
         Me.TabPage5.Controls.Add(Me.Button6)
         Me.TabPage5.Controls.Add(Me.PictureBox1)
@@ -3038,7 +3041,7 @@ Partial Class Form1
         '
         'Button6
         '
-        Me.Button6.Location = New System.Drawing.Point(822, 500)
+        Me.Button6.Location = New System.Drawing.Point(920, 540)
         Me.Button6.Name = "Button6"
         Me.Button6.Size = New System.Drawing.Size(75, 23)
         Me.Button6.TabIndex = 3
@@ -3098,6 +3101,24 @@ Partial Class Form1
         Me.GroupBox12.TabIndex = 0
         Me.GroupBox12.TabStop = False
         Me.GroupBox12.Text = "PID Controller (bypass valve position)"
+        '
+        'Label120
+        '
+        Me.Label120.AutoSize = True
+        Me.Label120.Location = New System.Drawing.Point(25, 410)
+        Me.Label120.Name = "Label120"
+        Me.Label120.Size = New System.Drawing.Size(142, 13)
+        Me.Label120.TabIndex = 90
+        Me.Label120.Text = "Kd= 0  (No derivative action)"
+        '
+        'TextBox48
+        '
+        Me.TextBox48.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox48.Location = New System.Drawing.Point(244, 134)
+        Me.TextBox48.Name = "TextBox48"
+        Me.TextBox48.Size = New System.Drawing.Size(77, 24)
+        Me.TextBox48.TabIndex = 89
+        Me.TextBox48.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
         'CheckBox5
         '
@@ -3366,7 +3387,7 @@ Partial Class Form1
         Me.NumericUpDown9.Size = New System.Drawing.Size(77, 24)
         Me.NumericUpDown9.TabIndex = 55
         Me.NumericUpDown9.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        Me.NumericUpDown9.Value = New Decimal(New Integer() {5, 0, 0, 0})
+        Me.NumericUpDown9.Value = New Decimal(New Integer() {1, 0, 0, 0})
         '
         'Label83
         '
@@ -3432,23 +3453,16 @@ Partial Class Form1
         'SerialPort2
         '
         '
-        'TextBox48
+        'PictureBox2
         '
-        Me.TextBox48.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox48.Location = New System.Drawing.Point(244, 134)
-        Me.TextBox48.Name = "TextBox48"
-        Me.TextBox48.Size = New System.Drawing.Size(77, 24)
-        Me.TextBox48.TabIndex = 89
-        Me.TextBox48.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        '
-        'Label120
-        '
-        Me.Label120.AutoSize = True
-        Me.Label120.Location = New System.Drawing.Point(25, 410)
-        Me.Label120.Name = "Label120"
-        Me.Label120.Size = New System.Drawing.Size(142, 13)
-        Me.Label120.TabIndex = 90
-        Me.Label120.Text = "Kd= 0  (No derivative action)"
+        Me.PictureBox2.Image = CType(resources.GetObject("PictureBox2.Image"), System.Drawing.Image)
+        Me.PictureBox2.InitialImage = Nothing
+        Me.PictureBox2.Location = New System.Drawing.Point(464, 253)
+        Me.PictureBox2.Name = "PictureBox2"
+        Me.PictureBox2.Size = New System.Drawing.Size(404, 292)
+        Me.PictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.PictureBox2.TabIndex = 5
+        Me.PictureBox2.TabStop = False
         '
         'Form1
         '
@@ -3546,6 +3560,7 @@ Partial Class Form1
         CType(Me.NumericUpDown11, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.NumericUpDown9, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.FileSystemWatcher1, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -3823,4 +3838,5 @@ Partial Class Form1
     Friend WithEvents NumericUpDown35 As NumericUpDown
     Friend WithEvents TextBox48 As TextBox
     Friend WithEvents Label120 As Label
+    Friend WithEvents PictureBox2 As PictureBox
 End Class
