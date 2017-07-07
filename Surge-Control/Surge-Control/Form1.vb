@@ -471,8 +471,8 @@ Public Class Form1
         Dim Value_channel_0_dec As Double  'Lucid-Control AI4, 10V module
         Dim bigE As String = String.Empty
 
-        intext_hex = SerialPort1.ReadExisting       'Read the data
-        intext = String_ascii_to_Hex_ascii(intext_hex)              'Convert data to hex
+        intext_hex = SerialPort1.ReadExisting               'Read the data
+        intext = String_ascii_to_Hex_ascii(intext_hex)      'Convert data to hex
         '--------- Status Communication-------
         status_code = intext.Substring(0, 2)
 
@@ -861,10 +861,16 @@ Public Class Form1
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
     End Sub
+
     Private Sub PID_controller()
         Dim setpoint, deviation, PID_output_pro, dt As Double
         Dim Kp, Ki, Kd As Double    'Setting PID controller 
         Dim pv, input_ma, range, ddev As Double
+        Dim SLV1, SLV2, SLV3 As Double
+
+        SLV1 = NumericUpDown35.Value
+        SLV2 = SLV1 * (1 + NumericUpDown39.Value / 100)
+        SLV3 = SLV2 * (1 + NumericUpDown40.Value / 100)
 
         '----- input PID controller R value----
         TextBox27.Text = TextBox30.Text
@@ -882,7 +888,7 @@ Public Class Form1
 
         '------- convert Flow to procent----
         Double.TryParse(TextBox11.Text, range)
-        setpoint = NumericUpDown8.Value
+        setpoint = SLV3
         deviation = (pv - setpoint) / range * 100       '[%]
         If CheckBox1.Checked Then deviation *= -1
 
@@ -920,6 +926,9 @@ Public Class Form1
             TextBox33.Text = Round(_Pterm, 2).ToString("0.00")
             TextBox34.Text = Round(_Iterm, 2).ToString("0.00")
             TextBox35.Text = Round(_Dterm, 2).ToString("0.00")
+            TextBox46.Text = Round(SLV2, 0).ToString("0")
+            TextBox47.Text = Round(SLV3, 0).ToString("0")
+            TextBox48.Text = Round(SLV3, 0).ToString("0")
         End If
     End Sub
 
