@@ -502,8 +502,8 @@ Public Class Form1
                 'Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))           'Hex 4 Bytes value
                 'Invoke(Sub() TextBox38.Text = bigE)     'Hex 4 Bytes valueTextBox36
                 'Invoke(Sub() TextBox39.Text = Value_channel_0_dec.ToString)     'Decimal
-                ''Invoke(Sub() TextBox37.Text = Round(Value_channel_0_dec, 2).ToString("0.00"))    'Volt
-                'Invoke(Sub() TextBox26.Text &= intext & " ")
+                'Invoke(Sub() TextBox37.Text = Round(Value_channel_0_dec, 2).ToString("0.00"))    'Volt
+                Invoke(Sub() TextBox26.Text &= intext & " ")
 
                 '----------- bypass valve position-----------
                 If RadioButton5.Checked Then
