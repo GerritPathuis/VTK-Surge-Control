@@ -76,7 +76,7 @@ Public Class Form1
     Private Sub Reset()
         Init_Chart1()
         Init_Chart2()
-        Timer1.Interval = 100   'Berekeningsinterval 3000 msec
+        Timer1.Interval = 500   'Berekeningsinterval 300 msec
         time = 0
 
         Timer1.Enabled = True
@@ -190,7 +190,7 @@ Public Class Form1
         Dim str_hex4 As String = String.Empty
         Dim message_length As Integer = 0
         Dim bb() As Byte
-        Dim ret As String
+        ' Dim ret As String
 
         SetIoGroup(1) = &H42   'OPC= SetIoGroup !!!!
         SetIoGroup(2) = &HF    'Channel 1...4 (0000.1111==0x0F)
@@ -222,15 +222,15 @@ Public Class Form1
         SetIoG &= To_big_endian(str_hex4)
 
         '------ convert to bytes and write to port-----
-        TextBox26.Text &= "SetIoG= " & SetIoG & vbCrLf
         bb = HexStringToByteArray(SetIoG)
 
         If SerialPort2.IsOpen Then
+            TextBox26.Text &= "SetIoG= " & SetIoG & vbCrLf
             Try
                 SerialPort2.Write(bb, 1, 20)
             Catch generatedExceptionName As TimeoutException
             End Try
-            ret = String.Join(",", Array.ConvertAll(bb, Function(byteValue) byteValue.ToString))
+            'ret = String.Join(",", Array.ConvertAll(bb, Function(byteValue) byteValue.ToString))
             'TextBox26.Text &= "=" & ret & "=" & vbCrLf
         Else
             TextBox26.Text &= "SerialPort2 is closed" & vbCrLf
@@ -343,22 +343,23 @@ Public Class Form1
         time += Timer1.Interval * 0.001                  '[msec]--->[sec]
         Label1.Text = time.ToString("000.0")
 
-        '--------- prepare request to Lucid Control------
-        GetIo(1) = &H48   'OPC= GetIoGroup
-        GetIo(2) = &H1    'Channel 1
-        If RadioButton5.Checked Then
-            GetIo(3) = &H1D   'Voltage range 0-100,000,000 mV (4Bytes)
-            Label102.Text = "[Volt]"
-        Else
-            GetIo(3) = &H23   'Amp range 0-1,000,000 mAmp (4Bytes)
-            Label102.Text = "[mAmp]"
-        End If
-        GetIo(4) = &H0    'LEN
-
         If SerialPort1.IsOpen Then
+            '--------- prepare request to Lucid Control------
+            GetIo(1) = &H48   'OPC= GetIoGroup
+            GetIo(2) = &H1    'Channel 1
+            If RadioButton5.Checked Then
+                GetIo(3) = &H1D   'Voltage range 0-100,000,000 mV (4Bytes)
+                Label102.Text = "[Volt]"
+            Else
+                GetIo(3) = &H23   'Amp range 0-1,000,000 mAmp (4Bytes)
+                Label102.Text = "[mAmp]"
+            End If
+            GetIo(4) = &H0    'LEN
+
             '-------LucidControl AI4, Input module -------------
             Try
                 SerialPort1.Write(GetIo, 1, 4)
+                Thread.Sleep(5)
             Catch generatedExceptionName As TimeoutException
             End Try
         End If
@@ -402,7 +403,7 @@ Public Class Form1
         combo_Baud.Items.Add(38400)
         combo_Baud.Items.Add(57600)
         combo_Baud.Items.Add(115200)
-        combo_Baud.SelectedIndex = 4     'Set cmbBaud text to 9600 Baud 
+        combo_Baud.SelectedIndex = 0    'Set cmbBaud text to 9600 Baud 
     End Sub
 
     Private Sub BtnConnect_Click(sender As System.Object, e As System.EventArgs) Handles Button12.Click
@@ -476,29 +477,34 @@ Public Class Form1
         Dim intext_hex As String = String.Empty
         Dim intext As String = String.Empty
         Dim status_code As String = String.Empty
+        Dim bigE As String = String.Empty
         Dim status_OK As String = "00"
         Dim Value_channel_0_hex As String  'Lucid-Control AI4, 10V module
         Dim Value_channel_0_dec As Double  'Lucid-Control AI4, 10V module
-        Dim bigE As String = String.Empty
 
         Try
             intext_hex = SerialPort1.ReadExisting               'Read the data
             intext = String_ascii_to_Hex_ascii(intext_hex)      'Convert data to hex
         Catch generatedExceptionName As TimeoutException
         End Try
-        '--------- Status Communication-------
-        status_code = intext.Substring(0, 2)
 
+        Invoke(Sub() TextBox39.Text = intext)
+        '--------- Status Communication-------
+        If intext.Length > 2 Then status_code = intext.Substring(0, 2)
+
+        '---------- instring OK then continue------
         If String.Equals(status_code, status_OK) And (intext.Length = 12) Then
 
             '---------- Test value -----------
-            'intext = "0004" & "D0121300"                   'Test value +1.2500 Volt
-            'intext = "0004" & "A0252600"                   'Test value +2.5000 Volt
-            'intext = "0004" & "404b4c00"                   'Test value +5.000 Volt
-            'intext = "0004" & "C0B4B3FF"                   'Test value -5.000 Volt
-            'intext = "0004" & "39FFFFFF"                   'Test value 0.000199 Volt
+            'intext = "0004" & "D0121300"                   'Test value +1.2500 Volt/mA
+            'intext = "0004" & "A0252600"                   'Test value +2.5000 Volt/mA
+            'intext = "0004" & "404b4c00"                   'Test value +5.000 Volt/mA
+            'intext = "0004" & "40548900"                   'Test value +9.000 Volt/mA
+            'intext = "0004" & "002D3101"                   'Test value +20.000 Volt/mA
+            'intext = "0004" & "C0B4B3FF"                   'Test value -5.000 Volt/mA
+            'intext = "0004" & "39FFFFFF"                   'Test value 0.000199 Volt/mA
 
-            Value_channel_0_hex = intext.Substring(4, 8)    'Hex
+            Value_channel_0_hex = intext.Substring(4, 8)    'Skip the 4 status bytes
 
             '---- The received value is little-Endian (now reverse order)-----
             bigE = Value_channel_0_hex.Substring(6, 2)
@@ -507,18 +513,17 @@ Public Class Form1
             bigE &= Value_channel_0_hex.Substring(0, 2)
 
             '---------- calc the value---------
-            Value_channel_0_dec = Convert.ToInt32(bigE, 16)          '[microVolt] Channel 0
-            Value_channel_0_dec /= 10 ^ 6     '[microV-->Volt] 
+            Value_channel_0_dec = Convert.ToInt32(bigE, 16)         '[microVolt] Channel 0
+            Value_channel_0_dec /= 10 ^ 6                           '[micro(V/A)-->Volt] 
 
             '--------- Present data--------------
             Try
-                'Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))           'Hex 4 Bytes value
-                'Invoke(Sub() TextBox38.Text = bigE)     'Hex 4 Bytes valueTextBox36
-                'Invoke(Sub() TextBox39.Text = Value_channel_0_dec.ToString)     'Decimal
-                'Invoke(Sub() TextBox37.Text = Round(Value_channel_0_dec, 2).ToString("0.00"))    'Volt
-                Invoke(Sub() TextBox26.Text &= intext & " ")
+                Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))   'Hex 4 Bytes value
+                Invoke(Sub() TextBox38.Text = bigE)                     'Hex 4 Bytes valueTextBox36
+                Invoke(Sub() TextBox37.Text = Round(Value_channel_0_dec, 2).ToString("0.000")) 'Value
+                Invoke(Sub() TextBox26.Text &= intext & "   ")
 
-                '----------- bypass valve position-----------
+                '----------- bypass valve position 0-100%-----------
                 If RadioButton5.Checked Then
                     _bypass_pos = CInt(Value_channel_0_dec / 10 * 100)  'Volt input
                 Else
@@ -529,11 +534,10 @@ Public Class Form1
                 If _bypass_pos < 0 Then _bypass_pos = 0       'min 0% open
             Catch ex As Exception
             End Try
-            '------- Feedback ----------
-            'NumericUpDown33.Value = CDec(_bypass_pos)
         Else
             _counter += 1
-            'Invoke(Sub() Label108.Text = _counter.ToString & " statuscode=" & String_ascii_to_Hex_ascii(status_code))
+            'Invoke(Sub() Label121.Text = _counter.ToString & " statuscode=" & intext.Substring(0, 2))
+            Invoke(Sub() Label121.Text = " Error count" & _counter.ToString)
             SerialPort1.DiscardInBuffer()        'empty inbuffer
         End If
     End Sub
@@ -547,25 +551,36 @@ Public Class Form1
         End Try
     End Sub
 
-    Public Function String_ascii_to_Hex_ascii(Data As String) As String
-        Dim sVal As String = String.Empty
-        Dim sHex As String = String.Empty
-        'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
-        'Example string   Ascii HEX= 0x48 0x45 0x58 = 72 69 88
-        'Used for information received from Lucid-Control modules
-        'Convert ascii-String to Hex-string
-        While Data.Length > 0
-            sVal = Hex(Strings.Asc(Data.Substring(0, 1).ToString()))
-            Data = Data.Substring(1)
-            If sVal.Length < 2 Then
-                sHex = sHex & "0" & sVal
-            Else
-                sHex = sHex & sVal
-            End If
-            'sHex = sHex & " "  'for testing
-        End While
-        Return sHex
+    'Public Function String_ascii_to_Hex_ascii(Data As String) As String
+    '    Dim sVal As String = String.Empty
+    '    Dim sHex As String = String.Empty
+    '    'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
+    '    'Example string   Ascii HEX= 0x48 0x45 0x58 = 72 69 88
+    '    'Used for information received from Lucid-Control modules
+    '    'Convert ascii-String to Hex-string
+    '    While Data.Length > 0
+    '        sVal = Hex(Strings.Asc(Data.Substring(0, 1).ToString()))
+    '        Data = Data.Substring(1)
+    '        If sVal.Length < 2 Then
+    '            sHex = sHex & "0" & sVal
+    '        Else
+    '            sHex = sHex & sVal
+    '        End If
+    '        'sHex = sHex & " "  'for testing
+    '    End While
+    '    Return sHex
+    'End Function
+
+    Public Function String_ascii_to_Hex_ascii(str As String) As String
+        Dim byteArray() As Byte
+        Dim hexNumbers As Text.StringBuilder = New Text.StringBuilder
+        byteArray = System.Text.Encoding.BigEndianUnicode.GetBytes(str)
+        For i As Integer = 1 To byteArray.Length - 1 Step 2
+            hexNumbers.Append(byteArray(i).ToString("x2"))
+        Next
+        Return (hexNumbers.ToString())
     End Function
+
     Public Function String_Hex_to_ascii(Data As String) As String
         Dim com As String = String.Empty
         'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
@@ -705,7 +720,7 @@ Public Class Form1
         Cout(4) = Convert_Units_to_mAmp("Temperature", Tin)
 
         '--------present [4-20 mAmp]-------------
-        TextBox1.Text = Round(Cout(1), 1).ToString("0")     'Flow inlet/out Actual [Am3/hr]
+        TextBox1.Text = Round(Cout(1), 1).ToString("0.0")   'Flow inlet/out Actual [Am3/hr]
         TextBox2.Text = Round(Cout(2), 1).ToString("0.0")   'Pressure in [Pa]
         TextBox3.Text = Round(Cout(3), 1).ToString("0.0")   'Pressure out [Pa]
         TextBox23.Text = Round(Cout(4), 1).ToString("0.0")  'Temp fan in [c]
@@ -871,25 +886,39 @@ Public Class Form1
         Label110.Text = "[mA]"
     End Sub
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
-        Timer1.Stop()       'Freeze
+        If Timer1.Enabled Then
+            Timer1.Stop()       'Freeze
+            Button11.Text = "Thaw"
+        Else
+            Timer1.Start()       'Freeze
+            Button11.Text = "Freeze"
+        End If
     End Sub
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
     End Sub
 
+    Private Sub NumericUpDown15_ValueChanged(sender As Object, e As EventArgs) Handles NumericUpDown5.ValueChanged, NumericUpDown15.ValueChanged, NumericUpDown14.ValueChanged, NumericUpDown10.ValueChanged
+        SetOut()
+    End Sub
+
     Private Sub PID_controller()
         Dim setpoint, deviation, PID_output_pro, dt As Double
         Dim Kp, Ki, Kd As Double    'Setting PID controller 
-        Dim pv, input_ma, range, ddev As Double
+        Dim pv, input, ddev As Double
         Dim SLV1, SLV2, SLV3 As Double
 
         SLV1 = NumericUpDown35.Value
         SLV2 = SLV1 * (1 + NumericUpDown39.Value / 100)
         SLV3 = SLV2 * (1 + NumericUpDown40.Value / 100)
 
-        '----- input PID controller R value----
-        TextBox27.Text = TextBox30.Text
-        Double.TryParse(TextBox30.Text, input_ma)                '[m4]
+        '----- input PID controller R_value----
+        'TextBox27.Text = TextBox30.Text
+        'Double.TryParse(TextBox30.Text, Input)     '[m4]
+
+        '----- input PID controller modified R_value----
+        TextBox27.Text = TextBox44.Text
+        Double.TryParse(TextBox44.Text, input)
 
         '------ Setting PID controller --------
         Kp = NumericUpDown9.Value
@@ -901,14 +930,12 @@ Public Class Form1
         '------ time interval-----
         dt = Timer1.Interval * 0.001     '[sec]
 
-        '------- convert Flow to procent----
-        Double.TryParse(TextBox11.Text, range)
         setpoint = SLV3
-        deviation = (pv - setpoint) / range * 100       '[%]
+        deviation = (pv - setpoint)      '[m4]
         If CheckBox1.Checked Then deviation *= -1
 
-        If deviation > 10000 Then deviation = 1          'for startup
-        If deviation < -10000 Then deviation = 1         'for startup
+        If deviation > 10000 Then deviation = 0.001          'for startup
+        If deviation < -10000 Then deviation = 0.001         'for startup
 
         If pv > 0 And CheckBox5.Checked Then
             ddev = deviation - _last_deviation               'change in deviation
@@ -934,16 +961,16 @@ Public Class Form1
             NumericUpDown38.Value = CDec(PID_output_pro)
 
             '---------- present results ------------
-            TextBox28.Text = Round(deviation, 2).ToString("0.00")
+            TextBox28.Text = Round(deviation, 4).ToString("0.00")
             TextBox31.Text = Round(PID_output_pro, 2).ToString("0.00")  'output [%]
             TextBox22.Text = Round(_PID_output_ma, 2).ToString("0.00")   'output [mAmp]
 
             TextBox33.Text = Round(_Pterm, 2).ToString("0.00")
             TextBox34.Text = Round(_Iterm, 2).ToString("0.00")
             TextBox35.Text = Round(_Dterm, 2).ToString("0.00")
-            TextBox46.Text = Round(SLV2, 0).ToString("0")
-            TextBox47.Text = Round(SLV3, 0).ToString("0")
-            TextBox48.Text = Round(SLV3, 0).ToString("0")
+            TextBox46.Text = Round(SLV2, 2).ToString("0.00")
+            TextBox47.Text = Round(SLV3, 2).ToString("0.00")
+            TextBox48.Text = Round(SLV3, 2).ToString("0.00")
         End If
     End Sub
 
