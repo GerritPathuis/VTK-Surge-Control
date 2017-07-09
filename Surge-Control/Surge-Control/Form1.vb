@@ -2,6 +2,7 @@
 Imports System.IO
 Imports System.IO.Ports
 Imports System.Math
+Imports System.Text
 Imports System.Threading
 
 Public Class Form1
@@ -416,12 +417,8 @@ Public Class Form1
             SerialPort1.Parity = Parity.None
             SerialPort1.StopBits = StopBits.One
             SerialPort1.Handshake = Handshake.None
-            SerialPort1.DataBits = 8                        'Open our serial port
-            SerialPort1.ReadBufferSize = 8192               '4096
-            SerialPort1.ReceivedBytesThreshold = 4
-            SerialPort1.DiscardNull = False                 'important otherwise it will not work
-            SerialPort1.ReadTimeout = 500
-            SerialPort1.WriteTimeout = 500
+            SerialPort1.DataBits = 8
+            SerialPort1.Encoding = Encoding.GetEncoding(28591) 'important otherwise it will not work
 
             SerialPort2.PortName = combo_Port2.Text         'Set SerialPort2 to the selected COM port at startup
             SerialPort2.BaudRate = CInt(combo_Baud.Text)    'Set Baud rate to the selected value on
@@ -429,11 +426,8 @@ Public Class Form1
             SerialPort2.StopBits = StopBits.One
             SerialPort2.Handshake = Handshake.None
             SerialPort2.DataBits = 8                        'Open our serial port
-            SerialPort2.ReadBufferSize = 8192               '4096
-            SerialPort2.ReceivedBytesThreshold = 4
-            SerialPort2.DiscardNull = False                 'important otherwise it will not work
-            SerialPort2.ReadTimeout = 500
-            SerialPort2.WriteTimeout = 500
+            SerialPort2.Encoding = Encoding.GetEncoding(28591) 'important otherwise it will not work
+
             Try
                 If CheckBox2.Checked Then SerialPort1.Open()
                 If CheckBox4.Checked Then SerialPort2.Open()
