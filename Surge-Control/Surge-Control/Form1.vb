@@ -43,7 +43,7 @@ Public Class Form1
         TextBox18.Text =
         "Bypass valve sizing" & vbCrLf &
         "Size To handle 50% Or more Of the maximum flow" & vbCrLf &
-        "Valve speed 3-5 seconds" & vbCrLf &
+        "Valve speed 30 seconds" & vbCrLf &
         " "
 
         TextBox19.Text =
@@ -58,13 +58,18 @@ Public Class Form1
         TextBox20.Text =
         "Test procedure" & vbCrLf &
         "Start situation is stable, sitting on Fan Curve" & vbCrLf &
-        "The system flow Coefficient Ksys is changed resulting  " & vbCrLf &
+        "The system flow Coefficient Ksys is changed resulting" & vbCrLf &
         "in moving to another spot on the fan Curve." & vbCrLf &
         "When we near the Surge-area the connected ASC must react by" & vbCrLf &
         "opening the bybass valve and returning to a save spot on the" & vbCrLf &
         "fan-Curve."
 
-        'Label108.Text = ""      'Communication Error codes
+        TextBox50.Text =
+        "Program modification history" & vbCrLf &
+        "dd 17-07-2017" & vbCrLf &
+        "Extern/Intern feedback depends on checkbox PID controller On/Off" & vbCrLf &
+        "PID Invert Control direction flipped" & vbCrLf &
+        "PID settings changed to Kp=25, Ki= 0.5"
 
         For i = 0 To 3
             pv(i) = 1       'Initial value
@@ -630,10 +635,17 @@ Public Class Form1
         B = NumericUpDown16.Value                   'Fan Curve [-]
         C = NumericUpDown20.Value                   'Fan Curve [-]
         K100 = NumericUpDown21.Value                'K-value at 100% open [-]
-        valve_open = NumericUpDown38.Value / 100    'Position bypass valve [%]
+
         Pin = NumericUpDown18.Value                 'Pressure inlet fan [Pa]
         Tin = NumericUpDown23.Value                 'Temp inlet fan [c]
         γ = NumericUpDown22.Value                   'Poly tropic exponent γ
+
+        '----------- Feedback Extern or Intern--------
+        If CheckBox5.Checked Then
+            valve_open = NumericUpDown38.Value / 100    'Position bypass valve [%] (Intern)
+        Else
+            valve_open = NumericUpDown33.Value / 100    'Position bypass valve [%] (Extern)
+        End If
 
         If ro > 0 Then 'to prevent exceptions
             '----- step 1 determin the K values----
@@ -916,7 +928,7 @@ Public Class Form1
 
         '------ Setting PID controller --------
         Kp = NumericUpDown9.Value
-        Ki = NumericUpDown11.Value
+        Ki = NumericUpDown8.Value
         Kd = NumericUpDown12.Value
 
         '------ shift register with process values
@@ -932,6 +944,10 @@ Public Class Form1
         If deviation < -10000 Then deviation = 0.001         'for startup
 
         If pv > 0 And CheckBox5.Checked Then
+            Label64.Text = "Intern PID controller feed back to built-in simulation"
+            Label66.Text = "Intern PID controller feed back to built-in simulation"
+            Label133.Visible = True
+            Label132.Visible = False
             ddev = deviation - _last_deviation               'change in deviation
             _last_deviation = deviation
 
@@ -965,6 +981,11 @@ Public Class Form1
             TextBox46.Text = Round(SLV2, 2).ToString("0.00")
             TextBox47.Text = Round(SLV3, 2).ToString("0.00")
             TextBox48.Text = Round(SLV3, 2).ToString("0.00")
+        Else
+            Label64.Text = "Extern panel feedback to built-in simulation"
+            Label66.Text = "Extern panel feedback to built-in simulation"
+            Label132.Visible = True
+            Label133.Visible = False
         End If
     End Sub
 
