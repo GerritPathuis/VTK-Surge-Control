@@ -718,12 +718,28 @@ Public Class Form1
 
             TextBox25.Text = Round(Tout, 1).ToString        'Outlet temperature
             TextBox30.Text = Round(R_control, 0).ToString   'R (controller input)
-            R_alternative = (R_control / 1000) ^ 0.5
+            R_alternative = Calc_alt_R(R_control)           'R alternative
             TextBox44.Text = Round(R_alternative, 3).ToString 'R (controller input, proposal)
         End If
 
-        '-------- Surge Alarm-----------
-        TextBox15.BackColor = CType(IIf(NumericUpDown1.Value < Qv_in, Color.White, Color.Red), Color)
+        '-------- Surge warning-Alarm-----------
+        'wanrning number must be bigger then alarm number
+        If NumericUpDown46.Value < NumericUpDown1.Value + 100 Then
+            NumericUpDown46.Value = NumericUpDown1.Value + 100
+        End If
+
+        Select Case True
+            Case Qv_in > NumericUpDown1.Value And Qv_in < NumericUpDown46.Value
+                TextBox15.BackColor = Color.Orange
+                NumericUpDown46.BackColor = Color.Orange
+            Case Qv_in < NumericUpDown1.Value
+                TextBox15.BackColor = Color.Red
+                NumericUpDown1.BackColor = Color.Red
+            Case Else
+                TextBox15.BackColor = Color.LightGreen
+                NumericUpDown46.BackColor = Color.White
+                NumericUpDown1.BackColor = Color.White
+        End Select
 
         '---------- calc output currents--------------
         Cout(1) = Convert_Units_to_mAmp("Flow", Qv_in)
@@ -824,33 +840,51 @@ Public Class Form1
         Dim R_ro, R_dp, R_flow, R_surge, R_alt As Double
 
         'Calculate Ksys @ work point
-        K_flow = NumericUpDown6.Value       '[Am3/hr]
-        k_dp = NumericUpDown3.Value         '[Pa]
-        K_ro = NumericUpDown4.Value         '[kg/m3]
-
-        Ks = K_flow * Sqrt(K_ro / k_dp)     '[m2]
+        K_flow = NumericUpDown6.Value               '[Am3/hr]
+        k_dp = NumericUpDown3.Value                 '[Pa]
+        K_ro = NumericUpDown4.Value                 '[kg/m3]
+        Ks = Calc_K(k_dp, K_ro, K_flow)             '[m2]
         TextBox4.Text = Round(Ks, 1).ToString
 
         'Calculate K100% (bypass) @ ... point
-        K100_flow = NumericUpDown43.Value   '[Am3/hr]
-        k100_dp = NumericUpDown44.Value     '[Pa]
-        K100_ro = NumericUpDown45.Value     '[kg/m3]
-
-        K100 = K100_flow * Sqrt(K100_ro / k100_dp)     '[m2]
+        K100_flow = NumericUpDown43.Value           '[Am3/hr]
+        k100_dp = NumericUpDown44.Value             '[Pa]
+        K100_ro = NumericUpDown45.Value             '[kg/m3]
+        K100 = Calc_K(k100_dp, K100_ro, K100_flow)  '[m2]
         TextBox52.Text = Round(K100, 1).ToString
 
         'Calculate R @ surge point point (=SLV1)
-        R_dp = NumericUpDown41.Value        '[Pa]
-        R_ro = NumericUpDown42.Value        '[kg/m3]
-        R_flow = NumericUpDown11.Value      '[Am3/hr]
-
-        R_surge = R_ro * R_flow ^ 2 / R_dp  '[m4]
+        R_dp = NumericUpDown41.Value                '[Pa]
+        R_ro = NumericUpDown42.Value                '[kg/m3]
+        R_flow = NumericUpDown11.Value              '[Am3/hr]
+        R_surge = Calc_R(R_dp, R_ro, R_flow)        '[m4]
         TextBox51.Text = Round(R_surge, 1).ToString
 
-        R_alt = (R_surge / 1000) ^ 0.5      '[m2]
+        R_alt = Calc_alt_R(R_surge)                 '[m2]
         TextBox53.Text = Round(R_alt, 2).ToString
     End Sub
+    Private Function Calc_R(dp As Double, ro As Double, flow As Double) As Double
+        Dim R_value As Double
+        'Calculate the R value, dp [Pa], ro [kg/m3], flow [Am3/hr]
 
+        R_value = ro * flow ^ 2 / dp
+        Return (R_value)
+    End Function
+
+
+    Private Function Calc_K(dp As Double, ro As Double, flow As Double) As Double
+        Dim k_value As Double
+        'Calculate the K value, dp [Pa], ro [kg/m3], flow [Am3/hr]
+        'By defenition K=R^0.5
+        k_value = flow * Sqrt(ro / dp)
+
+        Return (k_value)
+    End Function
+
+    Private Function Calc_alt_R(rs As Double) As Double
+        'Required to have a more stabe deviation in the OID controller
+        Return ((rs / 1000) ^ 0.5)
+    End Function
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
         Safe_to_file()
     End Sub
