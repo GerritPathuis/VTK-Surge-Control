@@ -72,7 +72,10 @@ Public Class Form1
         "dd 17-07-2017" & vbCrLf &
         "Extern/Intern feedback depends on checkbox PID controller On/Off" & vbCrLf &
         "PID Invert Control direction flipped" & vbCrLf &
-        "PID settings changed to Kp=25, Ki= 0.5"
+        "PID settings changed to Kp=25, Ki= 0.5" & vbCrLf &
+        "dd 18-07-2017" & vbCrLf &
+        "Ksys, K100% calc. added at the background tab"
+
 
         For i = 0 To 3
             pv(i) = 1       'Initial value
@@ -713,9 +716,9 @@ Public Class Form1
             TextBox9.Text = Round(Pout, 0).ToString         'Pressure outlet flange
             TextBox29.Text = Round(dp, 0).ToString          'dp
 
-            TextBox25.Text = Round(Tout, 1).ToString            'Outlet temperature
-            TextBox30.Text = Round(R_control, 0).ToString       'R (controller input)
-            R_alternative = (1000 / R_control) ^ 0.5
+            TextBox25.Text = Round(Tout, 1).ToString        'Outlet temperature
+            TextBox30.Text = Round(R_control, 0).ToString   'R (controller input)
+            R_alternative = (R_control / 1000) ^ 0.5
             TextBox44.Text = Round(R_alternative, 3).ToString 'R (controller input, proposal)
         End If
 
@@ -815,16 +818,37 @@ Public Class Form1
         Return (results)
     End Function
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click, NumericUpDown6.ValueChanged, NumericUpDown4.ValueChanged, NumericUpDown3.ValueChanged
-        Dim ro, dp, flow, Ks As Double
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click, NumericUpDown6.ValueChanged, NumericUpDown4.ValueChanged, NumericUpDown3.ValueChanged, NumericUpDown42.ValueChanged, NumericUpDown41.ValueChanged, NumericUpDown11.ValueChanged, NumericUpDown45.ValueChanged, NumericUpDown44.ValueChanged, NumericUpDown43.ValueChanged
+        Dim K_ro, k_dp, K_flow, Ks As Double
+        Dim K100_ro, k100_dp, K100_flow, K100 As Double
+        Dim R_ro, R_dp, R_flow, R_surge, R_alt As Double
 
         'Calculate Ksys @ work point
-        flow = NumericUpDown6.Value
-        dp = NumericUpDown3.Value
-        ro = NumericUpDown4.Value
+        K_flow = NumericUpDown6.Value       '[Am3/hr]
+        k_dp = NumericUpDown3.Value         '[Pa]
+        K_ro = NumericUpDown4.Value         '[kg/m3]
 
-        Ks = flow * Sqrt(ro / dp)
+        Ks = K_flow * Sqrt(K_ro / k_dp)     '[m2]
         TextBox4.Text = Round(Ks, 1).ToString
+
+        'Calculate K100% (bypass) @ ... point
+        K100_flow = NumericUpDown43.Value   '[Am3/hr]
+        k100_dp = NumericUpDown44.Value     '[Pa]
+        K100_ro = NumericUpDown45.Value     '[kg/m3]
+
+        K100 = K100_flow * Sqrt(K100_ro / k100_dp)     '[m2]
+        TextBox52.Text = Round(K100, 1).ToString
+
+        'Calculate R @ surge point point (=SLV1)
+        R_dp = NumericUpDown41.Value        '[Pa]
+        R_ro = NumericUpDown42.Value        '[kg/m3]
+        R_flow = NumericUpDown11.Value      '[Am3/hr]
+
+        R_surge = R_ro * R_flow ^ 2 / R_dp  '[m4]
+        TextBox51.Text = Round(R_surge, 1).ToString
+
+        R_alt = (R_surge / 1000) ^ 0.5      '[m2]
+        TextBox53.Text = Round(R_alt, 2).ToString
     End Sub
 
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
