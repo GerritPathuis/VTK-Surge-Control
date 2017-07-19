@@ -102,7 +102,7 @@ Public Class Form1
             Chart1.Titles.Clear()
             Chart1.ChartAreas.Add("ChartArea0")
 
-            For i = 0 To 5
+            For i = 0 To 4
                 Chart1.Series.Add(i.ToString)
                 Chart1.Series(i.ToString).ChartArea = "ChartArea0"
                 Chart1.Series(i.ToString).ChartType = DataVisualization.Charting.SeriesChartType.Line
@@ -116,8 +116,7 @@ Public Class Form1
             Chart1.Series(1).Name = "Pressure in"
             Chart1.Series(2).Name = "delta P"
             Chart1.Series(3).Name = "Temp in"
-            Chart1.Series(4).Name = "Extern Bypass valve"
-            Chart1.Series(5).Name = "Intern Bypass valve"
+            Chart1.Series(4).Name = "Bypass valve"
             Chart1.Series(0).Color = Color.Black
 
             Chart1.ChartAreas("ChartArea0").AxisX.Title = "[sec]"
@@ -140,7 +139,7 @@ Public Class Form1
             Chart2.Titles.Clear()
             Chart2.ChartAreas.Add("ChartArea1")
 
-            For i = 0 To 5
+            For i = 0 To 4
                 Chart2.Series.Add(i.ToString)
                 Chart2.Series(i.ToString).ChartArea = "ChartArea1"
                 Chart2.Series(i.ToString).ChartType = DataVisualization.Charting.SeriesChartType.Line
@@ -154,8 +153,7 @@ Public Class Form1
             Chart2.Series(1).Name = "Pressure in"
             Chart2.Series(2).Name = "delta P"
             Chart2.Series(3).Name = "Temp in"
-            Chart2.Series(4).Name = "Extern Bypass valve"
-            Chart2.Series(5).Name = "Intern Bypass valve"
+            Chart2.Series(4).Name = "Bypass valve"
             Chart2.Series(0).Color = Color.Black
 
             Chart2.ChartAreas("ChartArea1").AxisX.Title = "[sec]"
@@ -176,15 +174,21 @@ Public Class Form1
             Chart1.Series(1).Points.AddXY(time, Cout(2))    'Pressure in
             Chart1.Series(2).Points.AddXY(time, Cout(3))    'dP
             Chart1.Series(3).Points.AddXY(time, Cout(4))    'Temp in
-            Chart1.Series(4).Points.AddXY(time, _bypass_ma)  'Bypass valve Extern
-            Chart1.Series(5).Points.AddXY(time, _PID_output_ma)  'Bypass valve Intern
+            If CheckBox5.Checked Then                       'Intern or extern
+                Chart1.Series(4).Points.AddXY(time, _PID_output_ma)
+            Else
+                Chart1.Series(4).Points.AddXY(time, _bypass_ma)
+            End If
 
             Chart2.Series(0).Points.AddXY(time, Cout(1))    'Flow in
             Chart2.Series(1).Points.AddXY(time, Cout(2))    'Pressure in
             Chart2.Series(2).Points.AddXY(time, Cout(3))    'dP
             Chart2.Series(3).Points.AddXY(time, Cout(4))    'Temp in
-            Chart2.Series(4).Points.AddXY(time, _bypass_ma)  'Bypass valve Extern
-            Chart2.Series(5).Points.AddXY(time, _PID_output_ma)  'Bypass valve Intern
+            If CheckBox5.Checked Then                       'Intern or extern
+                Chart2.Series(4).Points.AddXY(time, _PID_output_ma)
+            Else
+                Chart2.Series(4).Points.AddXY(time, _bypass_ma)
+            End If
 
         Catch ex As Exception
             MessageBox.Show("AddXY failed")
@@ -242,13 +246,10 @@ Public Class Form1
                 SerialPort2.Write(bb, 1, 20)
             Catch generatedExceptionName As TimeoutException
             End Try
-            'ret = String.Join(",", Array.ConvertAll(bb, Function(byteValue) byteValue.ToString))
-            'TextBox26.Text &= "=" & ret & "=" & vbCrLf
         Else
             TextBox26.Text &= "SerialPort2 is closed" & vbCrLf
         End If
     End Sub
-
 
     Private Function To_big_endian(str_num As String) As String
         Dim return_val As String = String.Empty
@@ -379,7 +380,7 @@ Public Class Form1
 
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
         'Find ports----------
-        combo_Port1.SelectedIndex = -1  'To instruments
+        combo_Port1.SelectedIndex = -1  'To instruments in ACS panel
         combo_Port1.Items.Clear()
         combo_Port2.SelectedIndex = -1  'From Bypass valve
         combo_Port2.Items.Clear()
@@ -493,7 +494,6 @@ Public Class Form1
         Catch generatedExceptionName As TimeoutException
         End Try
 
-        'Invoke(Sub() TextBox39.Text = intext)  'For test only
         '--------- Status Communication-------
         If intext.Length > 2 Then status_code = intext.Substring(0, 2)
 
@@ -518,7 +518,7 @@ Public Class Form1
             bigE &= Value_channel_0_hex.Substring(0, 2)
 
             '---------- calc the value---------
-            Value_channel_0_dec = Convert.ToInt32(bigE, 16)         '[microVolt] Channel 0
+            Value_channel_0_dec = Convert.ToInt32(bigE, 16)         '[micro(V/A)Volt] Channel 0
             Value_channel_0_dec /= 10 ^ 6                           '[micro(V/A)-->Volt] 
 
             '--------- Present data--------------
@@ -533,14 +533,14 @@ Public Class Form1
                 Else
                     _bypass_pos = CInt((Value_channel_0_dec - 4) / 16 * 100)  'Amp input
                 End If
-                _bypass_ma = Value_channel_0_dec
+
                 If _bypass_pos > 100 Then _bypass_pos = 100   'max 100% open
                 If _bypass_pos < 0 Then _bypass_pos = 0       'min 0% open
+                _bypass_ma = _bypass_pos / 100 * 16 + 4       '[%]--> [4-20 mA]
             Catch ex As Exception
             End Try
         Else
             _counter += 1
-            'Invoke(Sub() Label121.Text = _counter.ToString & " statuscode=" & intext.Substring(0, 2)) 'Test only
             Invoke(Sub() Label121.Text = " Error count" & _counter.ToString)
             SerialPort1.DiscardInBuffer()        'empty inbuffer
         End If
@@ -554,26 +554,6 @@ Public Class Form1
         Catch generatedExceptionName As TimeoutException
         End Try
     End Sub
-
-    'Public Function String_ascii_to_Hex_ascii(Data As String) As String
-    '    Dim sVal As String = String.Empty
-    '    Dim sHex As String = String.Empty
-    '    'see http://stackoverflow.com/questions/14017007/how-to-convert-a-hexadecimal-value-to-ascii
-    '    'Example string   Ascii HEX= 0x48 0x45 0x58 = 72 69 88
-    '    'Used for information received from Lucid-Control modules
-    '    'Convert ascii-String to Hex-string
-    '    While Data.Length > 0
-    '        sVal = Hex(Strings.Asc(Data.Substring(0, 1).ToString()))
-    '        Data = Data.Substring(1)
-    '        If sVal.Length < 2 Then
-    '            sHex = sHex & "0" & sVal
-    '        Else
-    '            sHex = sHex & sVal
-    '        End If
-    '        'sHex = sHex & " "  'for testing
-    '    End While
-    '    Return sHex
-    'End Function
 
     Public Function String_ascii_to_Hex_ascii(str As String) As String
         Dim byteArray() As Byte
@@ -723,8 +703,8 @@ Public Class Form1
 
         '-------- Surge warning-Alarm-----------
         'wanrning number must be bigger then alarm number
-        If NumericUpDown46.Value < NumericUpDown1.Value + 100 Then
-            NumericUpDown46.Value = NumericUpDown1.Value + 100
+        If NumericUpDown46.Value < NumericUpDown1.Value + 200 Then
+            NumericUpDown46.Value = NumericUpDown1.Value + 200
         End If
 
         Select Case True
@@ -1037,7 +1017,6 @@ Public Class Form1
             If _Iterm > 100 Then _Iterm = 100                'anti-Windup
             If _Iterm < 0 Then _Iterm = 0                    'anti-Windup
 
-            ' TextBox26.Text &= ddev.ToString & vbCrLf
             _Dterm = Kd * ddev / dt  'D action
             PID_output_pro = _Pterm + _Iterm + _Dterm
 
@@ -1060,8 +1039,6 @@ Public Class Form1
             TextBox46.Text = Round(SLV2, 2).ToString("0.00")
             TextBox47.Text = Round(SLV3, 2).ToString("0.00")
             TextBox48.Text = Round(SLV3, 2).ToString("0.00")
-
-
         End If
     End Sub
 
