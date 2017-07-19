@@ -88,7 +88,7 @@ Public Class Form1
     Private Sub Reset()
         Init_Chart1()
         Init_Chart2()
-        Timer1.Interval = 500   'Berekeningsinterval 300 msec
+        Timer1.Interval = 300   'Berekeningsinterval 300 msec
         time = 0
 
         Timer1.Enabled = True
@@ -493,7 +493,7 @@ Public Class Form1
         Catch generatedExceptionName As TimeoutException
         End Try
 
-        Invoke(Sub() TextBox39.Text = intext)
+        'Invoke(Sub() TextBox39.Text = intext)  'For test only
         '--------- Status Communication-------
         If intext.Length > 2 Then status_code = intext.Substring(0, 2)
 
@@ -523,7 +523,6 @@ Public Class Form1
 
             '--------- Present data--------------
             Try
-                Invoke(Sub() TextBox38.Text = intext.Substring(4, 8))   'Hex 4 Bytes value
                 Invoke(Sub() TextBox38.Text = bigE)                     'Hex 4 Bytes valueTextBox36
                 Invoke(Sub() TextBox37.Text = Round(Value_channel_0_dec, 2).ToString("0.000")) 'Value
                 Invoke(Sub() TextBox26.Text &= intext & "   ")
@@ -541,7 +540,7 @@ Public Class Form1
             End Try
         Else
             _counter += 1
-            'Invoke(Sub() Label121.Text = _counter.ToString & " statuscode=" & intext.Substring(0, 2))
+            'Invoke(Sub() Label121.Text = _counter.ToString & " statuscode=" & intext.Substring(0, 2)) 'Test only
             Invoke(Sub() Label121.Text = " Error count" & _counter.ToString)
             SerialPort1.DiscardInBuffer()        'empty inbuffer
         End If
@@ -892,24 +891,9 @@ Public Class Form1
     Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
         TextBox26.Clear()
     End Sub
-    Private Sub RadioButton8_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton8.CheckedChanged
-        Check_out_V_mA()
-    End Sub
-
-    Private Sub TabPage2_Enter(sender As Object, e As EventArgs) Handles TabPage2.Enter
-        Check_out_V_mA()
-    End Sub
-    Private Sub Check_out_V_mA()
-        If RadioButton8.Checked Then
-            Output_set_to_V()
-        Else
-            Output_set_to_mA()
-        End If
-    End Sub
-
     Private Sub Output_set_to_V()
         GroupBox5.Text = "Outputs test values 0-5 Volt"
-        '---- max and min
+
         NumericUpDown5.Minimum = 0
         NumericUpDown5.Maximum = 10
         NumericUpDown10.Minimum = 0
@@ -918,25 +902,16 @@ Public Class Form1
         NumericUpDown14.Maximum = 10
         NumericUpDown15.Minimum = 0
         NumericUpDown15.Maximum = 10
-        '---- value
-        NumericUpDown5.Value = 0
-        NumericUpDown10.Value = 0
-        NumericUpDown14.Value = 0
-        NumericUpDown15.Value = 0
+
+        Check_output_limits()   'stay inside the limits
 
         Label19.Text = "[V]"
         Label23.Text = "[V]"
         Label109.Text = "[V]"
         Label110.Text = "[V]"
     End Sub
-
     Private Sub Output_set_to_mA()
         GroupBox5.Text = "Outputs test values 4-20 mAmp"
-        '---- value ----
-        NumericUpDown5.Value = 4
-        NumericUpDown10.Value = 4
-        NumericUpDown14.Value = 4
-        NumericUpDown15.Value = 4
         '---- max and min
         NumericUpDown5.Minimum = 4
         NumericUpDown5.Maximum = 20
@@ -947,10 +922,24 @@ Public Class Form1
         NumericUpDown15.Minimum = 4
         NumericUpDown15.Maximum = 20
 
+        Check_output_limits()   'stay inside the limits
+
         Label19.Text = "[mA]"
         Label23.Text = "[mA]"
         Label109.Text = "[mA]"
         Label110.Text = "[mA]"
+    End Sub
+    Private Sub Check_output_limits()
+        '---- minimum
+        If NumericUpDown5.Value < NumericUpDown5.Minimum Then NumericUpDown5.Value = NumericUpDown5.Minimum
+        If NumericUpDown10.Value < NumericUpDown10.Minimum Then NumericUpDown10.Value = NumericUpDown10.Minimum
+        If NumericUpDown14.Value < NumericUpDown14.Minimum Then NumericUpDown14.Value = NumericUpDown14.Minimum
+        If NumericUpDown15.Value < NumericUpDown15.Minimum Then NumericUpDown15.Value = NumericUpDown15.Minimum
+        '---- maximum
+        If NumericUpDown5.Value > NumericUpDown5.Maximum Then NumericUpDown5.Value = NumericUpDown5.Maximum
+        If NumericUpDown10.Value > NumericUpDown10.Maximum Then NumericUpDown10.Value = NumericUpDown10.Maximum
+        If NumericUpDown14.Value > NumericUpDown14.Maximum Then NumericUpDown14.Value = NumericUpDown14.Maximum
+        If NumericUpDown15.Value > NumericUpDown15.Maximum Then NumericUpDown15.Value = NumericUpDown15.Maximum
     End Sub
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
         If Timer1.Enabled Then
@@ -964,9 +953,16 @@ Public Class Form1
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Reset()
     End Sub
-
     Private Sub NumericUpDown15_ValueChanged(sender As Object, e As EventArgs) Handles NumericUpDown5.ValueChanged, NumericUpDown15.ValueChanged, NumericUpDown14.ValueChanged, NumericUpDown10.ValueChanged
         SetOut()
+    End Sub
+
+    Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click, RadioButton8.CheckedChanged
+        If RadioButton8.Checked Then
+            Output_set_to_V()
+        Else
+            Output_set_to_mA()
+        End If
     End Sub
 
     Private Sub PID_controller()
@@ -1004,11 +1000,33 @@ Public Class Form1
         If deviation > 10000 Then deviation = 0.001          'for startup
         If deviation < -10000 Then deviation = 0.001         'for startup
 
-        If pv > 0 And CheckBox5.Checked Then
-            Label64.Text = "Intern PID controller feed back to built-in simulation"
-            Label66.Text = "Intern PID controller feed back to built-in simulation"
+        '-----------Intern PID control ON--------------
+        If CheckBox5.Checked Then
             Label133.Visible = True
             Label132.Visible = False
+            Label64.Text = "Intern PID controller feed back to built-in simulation"
+            Label66.Text = "Intern PID controller feed back to built-in simulation"
+            Label162.Text = "Intern PID contr. is ON"
+            Button2.Enabled = False
+            NumericUpDown5.Enabled = False
+            NumericUpDown10.Enabled = False
+            NumericUpDown14.Enabled = False
+            NumericUpDown15.Enabled = False
+        Else
+            Label132.Visible = True
+            Label133.Visible = False
+            Label64.Text = "Extern panel feedback to built-in simulation"
+            Label66.Text = "Extern panel feedback to built-in simulation"
+            Label162.Text = "Intern PID contr. is OFF"
+            Button2.Enabled = True
+            NumericUpDown5.Enabled = True
+            NumericUpDown10.Enabled = True
+            NumericUpDown14.Enabled = True
+            NumericUpDown15.Enabled = True
+        End If
+
+        '----------- start calculating---------------
+        If pv > 0 And CheckBox5.Checked Then
             ddev = deviation - _last_deviation               'change in deviation
             _last_deviation = deviation
 
@@ -1042,11 +1060,8 @@ Public Class Form1
             TextBox46.Text = Round(SLV2, 2).ToString("0.00")
             TextBox47.Text = Round(SLV3, 2).ToString("0.00")
             TextBox48.Text = Round(SLV3, 2).ToString("0.00")
-        Else
-            Label64.Text = "Extern panel feedback to built-in simulation"
-            Label66.Text = "Extern panel feedback to built-in simulation"
-            Label132.Visible = True
-            Label133.Visible = False
+
+
         End If
     End Sub
 
