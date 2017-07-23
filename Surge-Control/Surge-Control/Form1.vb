@@ -11,17 +11,18 @@ Imports System.Threading
 Public Class Form1
     Dim time As Double
 
-    Dim pv(4) As Double             'Process values 0,1,2,3,4
-    Dim Cout(4) As Double           'Current Outputs
-    Dim Vout(4) As Double           'Voltage Outputs
-    Dim _bypass_pos As Double = 0    'Bypass valve position (0-100%)
-    Dim _bypass_ma As Double = 0     'Bypass valve position (mAmp)
-    Dim _last_deviation As Double    'PID control
+    Dim pv(4) As Double                 'Process values 0,1,2,3,4
+    Dim Cout(4) As Double               'Current Outputs
+    Dim Vout(4) As Double               'Voltage Outputs
+    Dim _bypass_pos As Double = 0       'Bypass valve position (0-100%)
+    Dim _bypass_ma As Double = 0        'Bypass valve position (mAmp)
+    Dim _last_deviation As Double       'PID control
     Dim _Pterm, _Iterm, _Dterm As Double
     Dim _counter As Integer = 0
-    Dim myPort As Array  'COM Ports detected on the system will be stored here
+    Dim _yold(9) As Double              'Used in first order system ducting
+    Dim myPort As Array                 'COM Ports detected 
     Dim comOpen As Boolean
-    Dim _PID_output_ma As Double         'Interne PID controller mAmp output
+    Dim _PID_output_ma As Double        'Interne PID controller mAmp output
     ' Private Property ConnectionOK As Boolean
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -663,9 +664,13 @@ Public Class Form1
             Qv_a = (-B + (Sqrt(B ^ 2 - 4 * A1 * C))) / (2 * A1)
             Qv_b = (-B - (Sqrt(B ^ 2 - 4 * A1 * C))) / (2 * A1)
             Qv_in = CDbl(IIf(Qv_a > 0, Qv_a, Qv_b))
+            If CheckBox6.Checked Then Qv_in = First_order(Qv_in, NumericUpDown47.Value, Timer1.Interval * 0.001, 0)
+            If CheckBox7.Checked Then Qv_in = First_order(Qv_in, NumericUpDown48.Value, Timer1.Interval * 0.001, 1)
 
             '----- step 3 determine new dp---
             dp = ro * (A * Qv_in ^ 2 + B * Qv_in + C)   'Fan curve
+            'If CheckBox6.Checked Then dp = First_order(dp, NumericUpDown47.Value, Timer1.Interval * 0.001, 0)
+            'If CheckBox7.Checked Then dp = First_order(dp, NumericUpDown48.Value, Timer1.Interval * 0.001, 1)
 
             '----- step 4 determine Temp outlet fan ---
             Tout = Tin * (1 + dp / Pin) ^ ((γ - 1) / γ)
@@ -700,6 +705,8 @@ Public Class Form1
             R_alternative = Calc_alt_R(R_control)           'R alternative
             TextBox44.Text = Round(R_alternative, 3).ToString 'R (controller input, proposal)
         End If
+
+
 
         '-------- Surge warning-Alarm-----------
         'wanrning number must be bigger then alarm number
@@ -811,6 +818,19 @@ Public Class Form1
                 MessageBox.Show("Oops error in Calc_in function")
         End Select
         Return (results)
+    End Function
+
+    Public Function First_order(kx As Double, τ As Double, dt As Double, id As Integer) As Double
+        'τ.(dy/dt) + y = Kx 
+        'Hieruit volgt dy= (Kx-y) * dt/τ
+        'kx = input, tou= time constant, dt= time step, ident = identification number
+        'y is de output
+        Dim dy, y As Double 'output
+
+        dy = (kx - _yold(id)) * dt / τ
+        y = _yold(id) + dy
+        _yold(id) = y
+        Return (y)
     End Function
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click, NumericUpDown6.ValueChanged, NumericUpDown4.ValueChanged, NumericUpDown3.ValueChanged, NumericUpDown42.ValueChanged, NumericUpDown41.ValueChanged, NumericUpDown11.ValueChanged, NumericUpDown45.ValueChanged, NumericUpDown44.ValueChanged, NumericUpDown43.ValueChanged
