@@ -823,7 +823,7 @@ Public Class Form1
     Public Function First_order(kx As Double, τ As Double, dt As Double, id As Integer) As Double
         'τ.(dy/dt) + y = Kx 
         'Hieruit volgt dy= (Kx-y) * dt/τ
-        'kx = input, tou= time constant, dt= time step, ident = identification number
+        'kx = input, tau= time constant, dt= time step, ident = identification number
         'y is de output
         Dim dy, y As Double 'output
 
@@ -965,6 +965,21 @@ Public Class Form1
         End If
     End Sub
 
+    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click, NumericUpDown53.ValueChanged, NumericUpDown52.ValueChanged, NumericUpDown51.ValueChanged, NumericUpDown50.ValueChanged, NumericUpDown49.ValueChanged
+        Dim volume, mol, temp, fan_flow, fan_dp, τ As Double
+
+        volume = NumericUpDown53.Value           '[m3] system volume
+        mol = NumericUpDown52.Value / 1000       '[kg/mol]
+        temp = NumericUpDown51.Value             '[celsius]
+
+        fan_flow = NumericUpDown49.Value / 3600  '[Am3/sec]
+        fan_dp = NumericUpDown50.Value           '[Pa]
+
+        τ = Calc_tau(volume, mol, temp, fan_flow, fan_dp)
+        TextBox49.Text = τ.ToString("0.0")
+
+    End Sub
+
     Private Sub PID_controller()
         Dim setpoint, deviation, PID_output_pro, dt As Double
         Dim Kp, Ki, Kd As Double    'Setting PID controller 
@@ -1074,5 +1089,25 @@ Public Class Form1
             MessageBox.Show("File is NOT saved" & vbCrLf & "Directory doen not exist" & vbCrLf & "Please create " & dirpath_Home)
         End If
     End Sub
+
+    Private Function Calc_tau(volume As Double, mol As Double, Temp As Double, fan_flow As Double, fan_dp As Double) As Double
+        'Calculates time constant filling the ducting 
+        'See page 64-65, Regeltechniek, 7e druk
+        'de klep is vervangen door een fan
+        'de fan wordt lineair geacht
+        'R_fan = dp/Volume_Flow zie formule (4.3)
+        'Capaciteit tank-system-duct zie formule (4.5)
+        Dim R, τ As Double
+        Dim cap_duct As Double
+        Dim R_fan As Double
+
+        R = 8.314 / mol                         'Specific gas constant
+        Temp += 273                             '[Kelvin]
+        cap_duct = volume / (R * Temp)          '[..] capacity of the ducting
+        R_fan = fan_dp / fan_flow               '[..] fan resistance
+        τ = R_fan * cap_duct                    '[s]
+        Return (τ)
+    End Function
+
 
 End Class
