@@ -68,6 +68,47 @@ Public Class Form1
         "opening the bybass valve and returning to a save spot on the" & vbCrLf &
         "fan-Curve."
 
+        TextBox39.Text =
+        "Operator instructions" & vbCrLf &
+        "Setup the instrument ranges, e.g. PT100, 0-200c equals 4-20mA" & vbCrLf &
+        "Select Lucid controls 0-10V or 4-20mA " & vbCrLf &
+        "Select Surge Limit Margins @ 15%" & vbCrLf &
+        " " & vbCrLf &
+        " ***Determine Fan system Characteristics*** " & vbCrLf &
+        "ASC panel, set PID settings Kp=0.1, Ki= 0.0" & vbCrLf &
+        "ASC panel switch to manual, open the bypass 100%" & vbCrLf &
+        "Start the fan against closed valve, open slow when at speed" & vbCrLf &
+        "Close bypass valve slowly" & vbCrLf &
+        "When system stable switch PID controller to automatic " & vbCrLf &
+        "Now increase PID controller Kp value, until system becomes unstable " & vbCrLf &
+        "Write down Kp value, and system cycle time" & vbCrLf &
+        "Use Ziegler-Nichols rules" & vbCrLf &
+        "Enter Kp and Ti into the PID controller" & vbCrLf &
+        "If system too slow increase Kp" & vbCrLf &
+        "If system unstable reduce Kp" & vbCrLf &
+        " " & vbCrLf &
+        "There are 2 different operator modes" & vbCrLf &
+        "1) ==Testing Anti Surge Control panel==" & vbCrLf &
+        "Connect the Lucid control modules to the control panel" & vbCrLf &
+        "Connect the USB cables to the laptop" & vbCrLf &
+        "Find the ports, connect the ports" & vbCrLf &
+        "Note with swapped USB ports, the program will not work properly" & vbCrLf &
+        "Checkbox PID controller OFF" & vbCrLf &
+        "Checkbox AUTO send ON " & vbCrLf &
+        "Select sinus/flat-line/etc " & vbCrLf &
+        "The ASC panel sees now fluctuating instrument input signals" & vbCrLf &
+        "The physical process values must identical on the laptop and panel" & vbCrLf &
+        "Reduce Ksys now the Bypass valve must start opening " & vbCrLf &
+        " " & vbCrLf &
+        "2) ==Fan system Characteristics are known, test the PID settings== " & vbCrLf &
+        "Checkbox PID controller ON" & vbCrLf &
+        "Checkbox AUTO send OFF " & vbCrLf &
+        "Set Ducting First order time constant (say 20 sec)" & vbCrLf &
+        "Enter Kp and Ti into the PID controller" & vbCrLf &
+        "Play with the parameters to find the optimum solution " & vbCrLf &
+        " " & vbCrLf &
+        " "
+
         TextBox50.Text =
         "Program modification history" & vbCrLf &
         "dd 17-07-2017" & vbCrLf &
@@ -75,9 +116,10 @@ Public Class Form1
         "PID Invert Control direction flipped" & vbCrLf &
         "PID settings changed to Kp=25, Ki= 0.5" & vbCrLf &
         "dd 18-07-2017" & vbCrLf &
-        "Ksys, K100% calc. added at the background tab"
-
-
+        "Ksys, K100% calc. added at the background tab" & vbCrLf &
+        "Operator instructions added" & vbCrLf &
+        " " & vbCrLf &
+        " "
         For i = 0 To 3
             pv(i) = 1       'Initial value
         Next
