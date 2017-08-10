@@ -717,8 +717,6 @@ Public Class Form1
 
             '----- step 3 determine new dp---
             dp = ro * (A * Qv_in ^ 2 + B * Qv_in + C)   'Fan curve
-            'If CheckBox6.Checked Then dp = First_order(dp, NumericUpDown47.Value, Timer1.Interval * 0.001, 0)
-            'If CheckBox7.Checked Then dp = First_order(dp, NumericUpDown48.Value, Timer1.Interval * 0.001, 1)
 
             '----- step 4 determine Temp outlet fan ---
             Tout = Tin * (1 + dp / Pin) ^ ((γ - 1) / γ)
@@ -1013,7 +1011,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click, NumericUpDown53.ValueChanged, NumericUpDown52.ValueChanged, NumericUpDown51.ValueChanged, NumericUpDown50.ValueChanged, NumericUpDown49.ValueChanged
+    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles NumericUpDown53.ValueChanged, NumericUpDown52.ValueChanged, NumericUpDown51.ValueChanged, NumericUpDown50.ValueChanged, NumericUpDown49.ValueChanged
         Dim volume, mol, temp, fan_flow, fan_dp, τ As Double
 
         volume = NumericUpDown53.Value           '[m3] system volume
