@@ -23,13 +23,13 @@ Partial Class Form1
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea5 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend5 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series5 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
-        Dim ChartArea6 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend6 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series6 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage2 = New System.Windows.Forms.TabPage()
         Me.Button7 = New System.Windows.Forms.Button()
@@ -372,12 +372,12 @@ Partial Class Form1
         Me.Label81 = New System.Windows.Forms.Label()
         Me.Label82 = New System.Windows.Forms.Label()
         Me.TabPage6 = New System.Windows.Forms.TabPage()
+        Me.TextBox39 = New System.Windows.Forms.TextBox()
         Me.TextBox50 = New System.Windows.Forms.TextBox()
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.FileSystemWatcher1 = New System.IO.FileSystemWatcher()
         Me.SerialPort2 = New System.IO.Ports.SerialPort(Me.components)
-        Me.TextBox39 = New System.Windows.Forms.TextBox()
         Me.TabControl1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
         Me.GroupBox15.SuspendLayout()
@@ -554,7 +554,7 @@ Partial Class Form1
         Me.GroupBox17.Size = New System.Drawing.Size(371, 45)
         Me.GroupBox17.TabIndex = 20
         Me.GroupBox17.TabStop = False
-        Me.GroupBox17.Text = "Port_2 Lucidcontrol output"
+        Me.GroupBox17.Text = "Port_2 Lucidcontrol OUTPUT"
         '
         'RadioButton7
         '
@@ -587,7 +587,7 @@ Partial Class Form1
         Me.GroupBox16.Size = New System.Drawing.Size(371, 52)
         Me.GroupBox16.TabIndex = 19
         Me.GroupBox16.TabStop = False
-        Me.GroupBox16.Text = "Port_1 Lucidcontrol input"
+        Me.GroupBox16.Text = "Port_1 Lucidcontrol INPUT"
         '
         'RadioButton6
         '
@@ -1559,16 +1559,16 @@ Partial Class Form1
         '
         'Chart1
         '
-        ChartArea5.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea5)
-        Legend5.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend5)
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(415, 338)
         Me.Chart1.Name = "Chart1"
-        Series5.ChartArea = "ChartArea1"
-        Series5.Legend = "Legend1"
-        Series5.Name = "Series1"
-        Me.Chart1.Series.Add(Series5)
+        Series1.ChartArea = "ChartArea1"
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(614, 353)
         Me.Chart1.TabIndex = 16
         Me.Chart1.Text = "Chart1"
@@ -3461,17 +3461,17 @@ Partial Class Form1
         '
         'Chart2
         '
-        ChartArea6.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea6)
+        ChartArea2.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea2)
         Me.Chart2.Dock = System.Windows.Forms.DockStyle.Fill
-        Legend6.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend6)
+        Legend2.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend2)
         Me.Chart2.Location = New System.Drawing.Point(0, 0)
         Me.Chart2.Name = "Chart2"
-        Series6.ChartArea = "ChartArea1"
-        Series6.Legend = "Legend1"
-        Series6.Name = "Series1"
-        Me.Chart2.Series.Add(Series6)
+        Series2.ChartArea = "ChartArea1"
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.Chart2.Series.Add(Series2)
         Me.Chart2.Size = New System.Drawing.Size(853, 693)
         Me.Chart2.TabIndex = 17
         Me.Chart2.Text = "Chart2"
@@ -4079,8 +4079,6 @@ Partial Class Form1
         'CheckBox5
         '
         Me.CheckBox5.AutoSize = True
-        Me.CheckBox5.Checked = True
-        Me.CheckBox5.CheckState = System.Windows.Forms.CheckState.Checked
         Me.CheckBox5.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CheckBox5.Location = New System.Drawing.Point(27, 27)
         Me.CheckBox5.Name = "CheckBox5"
@@ -4398,6 +4396,17 @@ Partial Class Form1
         Me.TabPage6.Text = "About"
         Me.TabPage6.UseVisualStyleBackColor = True
         '
+        'TextBox39
+        '
+        Me.TextBox39.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox39.Location = New System.Drawing.Point(491, 21)
+        Me.TextBox39.Multiline = True
+        Me.TextBox39.Name = "TextBox39"
+        Me.TextBox39.ScrollBars = System.Windows.Forms.ScrollBars.Both
+        Me.TextBox39.Size = New System.Drawing.Size(455, 578)
+        Me.TextBox39.TabIndex = 59
+        Me.TextBox39.Text = "Instruction manual"
+        '
         'TextBox50
         '
         Me.TextBox50.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -4423,17 +4432,6 @@ Partial Class Form1
         '
         'SerialPort2
         '
-        '
-        'TextBox39
-        '
-        Me.TextBox39.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox39.Location = New System.Drawing.Point(491, 21)
-        Me.TextBox39.Multiline = True
-        Me.TextBox39.Name = "TextBox39"
-        Me.TextBox39.ScrollBars = System.Windows.Forms.ScrollBars.Both
-        Me.TextBox39.Size = New System.Drawing.Size(455, 578)
-        Me.TextBox39.TabIndex = 59
-        Me.TextBox39.Text = "Instruction manual"
         '
         'Form1
         '

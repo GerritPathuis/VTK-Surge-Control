@@ -126,6 +126,12 @@ Public Class Form1
 
         Reset()
         Update_calc_screen()
+
+        If RadioButton8.Checked Then    'Set outputs to V or mA
+            Output_set_to_V()
+        Else
+            Output_set_to_mA()
+        End If
     End Sub
 
     Private Sub Reset()
