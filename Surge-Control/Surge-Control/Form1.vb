@@ -928,7 +928,7 @@ Public Class Form1
 
     Private Function Calc_alt_R(rs As Double) As Double
         'Required to have a more stabe deviation in the OID controller
-        Return ((rs / 1000) ^ 0.5)
+        Return ((1 / rs) ^ 0.5)
     End Function
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
         Safe_to_file()
