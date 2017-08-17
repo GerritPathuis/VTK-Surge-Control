@@ -366,6 +366,8 @@ Public Class Form1
     End Function
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         Dim flow1, Press_in, p2, t1 As Double
+        Dim SLV1, SLV2, SLV3, setpoint As Double
+        Dim pv As Double
 
         TextBox36.Text = _bypass_pos.ToString       'bypass % open
 
@@ -396,7 +398,23 @@ Public Class Form1
         If CheckBox3.Checked Then SetOut()      'Set the output values
         Update_calc_screen()
         Draw_Chart1()
-        PID_controller()
+
+        '------------- setpoint ---------
+        SLV1 = NumericUpDown35.Value
+        SLV2 = SLV1 * (1 + NumericUpDown39.Value / 100)
+        SLV3 = SLV2 * (1 + NumericUpDown40.Value / 100)
+        setpoint = Convert_R(SLV3)
+
+        '------ pocess value----
+        TextBox27.Text = TextBox44.Text
+        Double.TryParse(TextBox44.Text, pv)  'Process Variable actual
+        PID_controller(setpoint, pv)
+
+        '----- present-------
+        TextBox46.Text = SLV2.ToString("0")
+        TextBox47.Text = SLV3.ToString("0")
+        TextBox48.Text = setpoint.ToString("0.00")
+        TextBox54.Text = setpoint.ToString("0.00")
     End Sub
     Private Sub GetIO()
         Dim GetIo(4) As Byte   'Get-Voltage, see Page 22 en 23
@@ -573,7 +591,7 @@ Public Class Form1
             '--------- Present data--------------
             Try
                 Invoke(Sub() TextBox38.Text = bigE)                     'Hex 4 Bytes valueTextBox36
-                Invoke(Sub() TextBox37.Text = Round(Value_channel_0_dec, 2).ToString("0.000")) 'Value
+                Invoke(Sub() TextBox37.Text = Value_channel_0_dec.ToString("0.000")) 'Value
                 Invoke(Sub() TextBox26.Text &= intext & "   ")
 
                 '----------- bypass valve position 0-100%-----------
@@ -653,7 +671,7 @@ Public Class Form1
         Dim γ As Double
         Dim p_time, period, amplitude As Double
         Dim Qv_a, Qv_b As Double
-        Dim R_control, R_alternative As Double
+        Dim R_control, PID_input As Double
 
         'Range is required for converting the signal to and from 4-20 mAmp
         Range(0) = CType(NumericUpDown28.Value - NumericUpDown27.Value, String)    'Flow
@@ -702,8 +720,8 @@ Public Class Form1
                     K_sys = NumericUpDown25.Value - (amplitude / 2) + amplitude * p_time / period
 
             End Select
-            TextBox5.Text = Round(K_sys, 1).ToString
-            TextBox6.Text = Round(K_bypass, 1).ToString
+            TextBox5.Text = K_sys.ToString("0.0")
+            TextBox6.Text = K_bypass.ToString("0.0")
 
             '----- step 2 determine qv---
             '------ ABC formula ----------
@@ -731,28 +749,26 @@ Public Class Form1
             R_control = ro * Qv_in ^ 2 / dp
 
             '----- present the data ----
-            TextBox7.Text = Round(K_bypass, 2).ToString   'Resistance Bypass valve 
-            TextBox8.Text = Round(Qv_out, 0).ToString
+            TextBox7.Text = K_bypass.ToString("0.00")    'Resistance Bypass valve 
+            TextBox8.Text = Qv_out.ToString("0")
 
-            TextBox10.Text = Round(Tin, 1).ToString
+            TextBox10.Text = Tin.ToString("0")
             TextBox11.Text = Range(0).ToString              'Range
             TextBox12.Text = Range(1).ToString              'Range
             TextBox13.Text = Range(2).ToString              'Range press inlet flange
             TextBox24.Text = Range(3).ToString              'Range Press outlet flange
             TextBox32.Text = Range(4).ToString              'Range Valve
-            TextBox14.Text = Round(K_sys, 2).ToString       'Resistance Total system
-            TextBox15.Text = Round(Qv_in, 0).ToString
-            TextBox21.Text = Round(Pin, 0).ToString         'Pressure inlet flange
-            TextBox9.Text = Round(Pout, 0).ToString         'Pressure outlet flange
-            TextBox29.Text = Round(dp, 0).ToString          'dp
+            TextBox14.Text = K_sys.ToString("0.00")       'Resistance Total system
+            TextBox15.Text = Qv_in.ToString("0")
+            TextBox21.Text = Pin.ToString("0")       'Pressure inlet flange
+            TextBox9.Text = Pout.ToString("0")  'Pressure outlet flange
+            TextBox29.Text = dp.ToString("0")      'dp
 
-            TextBox25.Text = Round(Tout, 1).ToString        'Outlet temperature
-            TextBox30.Text = Round(R_control, 0).ToString   'R (controller input)
-            R_alternative = Calc_alt_R(R_control)           'R alternative
-            TextBox44.Text = Round(R_alternative, 3).ToString 'R (controller input, proposal)
+            TextBox25.Text = Tout.ToString("0.0")        'Outlet temperature
+            TextBox30.Text = R_control.ToString("0")    'R value
+            PID_input = Convert_R(R_control)                'PID input
+            TextBox44.Text = PID_input.ToString("0.000")     'R (controller input)
         End If
-
-
 
         '-------- Surge warning-Alarm-----------
         'wanrning number must be bigger then alarm number
@@ -780,10 +796,10 @@ Public Class Form1
         Cout(4) = Convert_Units_to_mAmp("Temperature", Tin)
 
         '--------present [4-20 mAmp]-------------
-        TextBox1.Text = Round(Cout(1), 1).ToString("0.0")   'Flow inlet/out Actual [Am3/hr]
-        TextBox2.Text = Round(Cout(2), 1).ToString("0.0")   'Pressure in [Pa]
-        TextBox3.Text = Round(Cout(3), 1).ToString("0.0")   'Pressure out [Pa]
-        TextBox23.Text = Round(Cout(4), 1).ToString("0.0")  'Temp fan in [c]
+        TextBox1.Text = Cout(1).ToString("0.0")   'Flow inlet/out Actual [Am3/hr]
+        TextBox2.Text = Cout(2).ToString("0.0")   'Pressure in [Pa]
+        TextBox3.Text = Cout(3).ToString("0.0")   'Pressure out [Pa]
+        TextBox23.Text = Cout(4).ToString("0.0")  'Temp fan in [c]
 
 
         '------------[0-10V]----------------
@@ -793,10 +809,10 @@ Public Class Form1
         Vout(4) = Convert_mAmp_to_V(Cout(4))
 
         '--------present [0-10 Volt]-------------
-        TextBox40.Text = Round(Vout(1), 1).ToString  'Flow inlet/out Actual [Am3/hr]
-        TextBox41.Text = Round(Vout(2), 1).ToString  'Pressure in [Pa]
-        TextBox42.Text = Round(Vout(3), 1).ToString  'Delta P [Pa]
-        TextBox43.Text = Round(Vout(4), 1).ToString  'Temp fan in [c]
+        TextBox40.Text = Vout(1).ToString("0.0")  'Flow inlet/out Actual [Am3/hr]
+        TextBox41.Text = Vout(2).ToString("0.0")  'Pressure in [Pa]
+        TextBox42.Text = Vout(3).ToString("0.0")  'Delta P [Pa]
+        TextBox43.Text = Vout(4).ToString("0.0")  'Temp fan in [c]
 
     End Sub
 
@@ -828,13 +844,13 @@ Public Class Form1
             Case Else
                 MessageBox.Show("Oops error in Convert_Units_to_mAmp function")
         End Select
-        Return (Round(results, 1))
+        Return (results)
     End Function
     '------- Convert [4-20 mA] ----> [0-10 V]  
     Private Function Convert_mAmp_to_V(ma_value As Double) As Double
         Dim result As Double
         result = (ma_value - 4) / 16 * 10
-        Return (Round(result, 1))
+        Return (result)
     End Function
     '------- Convert from mAmp's ----> fysical units
     Private Function Convert_mAmp_to_Units(outType As String, value As Double) As Double
@@ -889,24 +905,24 @@ Public Class Form1
         k_dp = NumericUpDown3.Value                 '[Pa]
         K_ro = NumericUpDown4.Value                 '[kg/m3]
         Ks = Calc_K(k_dp, K_ro, K_flow)             '[m2]
-        TextBox4.Text = Round(Ks, 1).ToString
+        TextBox4.Text = Ks.ToString("0.0")
 
         'Calculate K100% (bypass) @ ... point
         K100_flow = NumericUpDown43.Value           '[Am3/hr]
         k100_dp = NumericUpDown44.Value             '[Pa]
         K100_ro = NumericUpDown45.Value             '[kg/m3]
         K100 = Calc_K(k100_dp, K100_ro, K100_flow)  '[m2]
-        TextBox52.Text = Round(K100, 1).ToString
+        TextBox52.Text = K100.ToString("0.0")
 
         'Calculate R @ surge point point (=SLV1)
         R_dp = NumericUpDown41.Value                '[Pa]
         R_ro = NumericUpDown42.Value                '[kg/m3]
         R_flow = NumericUpDown11.Value              '[Am3/hr]
         R_surge = Calc_R(R_dp, R_ro, R_flow)        '[m4]
-        TextBox51.Text = Round(R_surge, 1).ToString
+        TextBox51.Text = R_surge.ToString("0.0")
 
-        R_alt = Calc_alt_R(R_surge)                 '[m2]
-        TextBox53.Text = Round(R_alt, 2).ToString
+        R_alt = Convert_R(R_surge)                 '[m2]
+        TextBox53.Text = R_alt.ToString("0.00")
     End Sub
     Private Function Calc_R(dp As Double, ro As Double, flow As Double) As Double
         Dim R_value As Double
@@ -915,8 +931,6 @@ Public Class Form1
         R_value = ro * flow ^ 2 / dp
         Return (R_value)
     End Function
-
-
     Private Function Calc_K(dp As Double, ro As Double, flow As Double) As Double
         Dim k_value As Double
         'Calculate the K value, dp [Pa], ro [kg/m3], flow [Am3/hr]
@@ -926,7 +940,7 @@ Public Class Form1
         Return (k_value)
     End Function
 
-    Private Function Calc_alt_R(rs As Double) As Double
+    Private Function Convert_R(rs As Double) As Double
         'Required to have a more stabe deviation in the OID controller
         Return ((1000 / rs) ^ 0.5)
     End Function
@@ -1026,37 +1040,21 @@ Public Class Form1
 
     End Sub
 
-    Private Sub PID_controller()
-        Dim setpoint, deviation, PID_output_pro, dt As Double
+    Private Sub PID_controller(setpoint As Double, pv As Double)
+        Dim deviation, PID_output_pro, dt As Double
         Dim Kp, Ki, Kd As Double    'Setting PID controller 
-        Dim pv, input, ddev As Double
-        Dim SLV1, SLV2, SLV3 As Double
-
-        SLV1 = NumericUpDown35.Value
-        SLV2 = SLV1 * (1 + NumericUpDown39.Value / 100)
-        SLV3 = SLV2 * (1 + NumericUpDown40.Value / 100)
-
-        '----- input PID controller R_value----
-        'TextBox27.Text = TextBox30.Text
-        'Double.TryParse(TextBox30.Text, Input)     '[m4]
-
-        '----- input PID controller modified R_value----
-        TextBox27.Text = TextBox44.Text
-        Double.TryParse(TextBox44.Text, input)
+        Dim ddev As Double
 
         '------ Setting PID controller --------
         Kp = NumericUpDown9.Value
         Ki = NumericUpDown8.Value
         Kd = NumericUpDown12.Value
 
-        '------ shift register with process values
-        Double.TryParse(TextBox27.Text, pv)
         '------ time interval-----
         dt = Timer1.Interval * 0.001     '[sec]
 
-        setpoint = SLV3
         deviation = (pv - setpoint)      '[m4]
-        If CheckBox1.Checked Then deviation *= -1
+        If CheckBox1.Checked Then deviation *= -1           'reverse direction
 
         If deviation > 10000 Then deviation = 0.001          'for startup
         If deviation < -10000 Then deviation = 0.001         'for startup
@@ -1094,9 +1092,16 @@ Public Class Form1
             '=========== Calculate PID controller==========
             Double.TryParse(TextBox31.Text, PID_output_pro)
             _Pterm = Kp * deviation                          'P action
-            _Iterm = _Iterm + Ki * deviation * dt            'I action
+
+            If Ki > 0 Then                                   'I-action 
+                _Iterm = _Iterm + Ki * deviation * dt
+            Else
+                _Iterm = 0
+            End If
+
             If _Iterm > 100 Then _Iterm = 100                'anti-Windup
             If _Iterm < 0 Then _Iterm = 0                    'anti-Windup
+
 
             _Dterm = Kd * ddev / dt  'D action
             PID_output_pro = _Pterm + _Iterm + _Dterm
@@ -1110,16 +1115,13 @@ Public Class Form1
             NumericUpDown38.Value = CDec(PID_output_pro)
 
             '---------- present results ------------
-            TextBox28.Text = Round(deviation, 4).ToString("0.00")
-            TextBox31.Text = Round(PID_output_pro, 2).ToString("0.00")  'output [%]
-            TextBox22.Text = Round(_PID_output_ma, 2).ToString("0.00")   'output [mAmp]
+            TextBox28.Text = deviation.ToString("0.00")
+            TextBox31.Text = PID_output_pro.ToString("0.00")  'output [%]
+            TextBox22.Text = _PID_output_ma.ToString("0.00")  'output [mAmp]
 
-            TextBox33.Text = Round(_Pterm, 2).ToString("0.00")
-            TextBox34.Text = Round(_Iterm, 2).ToString("0.00")
-            TextBox35.Text = Round(_Dterm, 2).ToString("0.00")
-            TextBox46.Text = Round(SLV2, 2).ToString("0.00")
-            TextBox47.Text = Round(SLV3, 2).ToString("0.00")
-            TextBox48.Text = Round(SLV3, 2).ToString("0.00")
+            TextBox33.Text = _Pterm.ToString("0.00")
+            TextBox34.Text = _Iterm.ToString("0.00")
+            TextBox35.Text = _Dterm.ToString("0.00")
         End If
     End Sub
 
