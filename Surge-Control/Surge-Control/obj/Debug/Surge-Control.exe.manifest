@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Surge-Control.exe" size="288696">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Surge-Control.exe" size="291768">
       <assemblyIdentity name="Surge-Control" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>os+L/yKuaNw0UekyfdzEBaJrnuRfZUHOIlAiGzaWEzY=</dsig:DigestValue>
+        <dsig:DigestValue>v4UnonJOeZH/qPJO+kPGFjoXk/CFBjYu9h7zY3epe7c=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

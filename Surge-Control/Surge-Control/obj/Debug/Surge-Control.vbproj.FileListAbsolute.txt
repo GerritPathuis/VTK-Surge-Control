@@ -39,3 +39,4 @@ C:\Repositories\VTK-Surge-Control\Surge-Control\Surge-Control\bin\Debug\Surge-Co
 C:\Repositories\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.exe.manifest
 C:\Repositories\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.application
 C:\Repos\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.vbprojResolveAssemblyReference.cache
+C:\Repositories\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.vbproj.CoreCompileInputs.cache

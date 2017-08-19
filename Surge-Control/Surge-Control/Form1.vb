@@ -17,6 +17,7 @@ Public Class Form1
     Dim _bypass_pos As Double = 0       'Bypass valve position (0-100%)
     Dim _bypass_ma As Double = 0        'Bypass valve position (mAmp)
     Dim _last_deviation As Double       'PID control
+    Dim _last_output As Double          'PID control
     Dim _Pterm, _Iterm, _Dterm As Double
     Dim _counter As Integer = 0
     Dim _yold(9) As Double              'Used in first order system ducting
@@ -412,6 +413,7 @@ Public Class Form1
 
         '----- present-------
         TextBox46.Text = SLV2.ToString("0")
+        TextBox55.Text = Convert_R(SLV2).ToString("0.00")
         TextBox47.Text = SLV3.ToString("0")
         TextBox48.Text = setpoint.ToString("0.00")
         TextBox54.Text = setpoint.ToString("0.00")
@@ -731,7 +733,6 @@ Public Class Form1
             Qv_b = (-B - (Sqrt(B ^ 2 - 4 * A1 * C))) / (2 * A1)
             Qv_in = CDbl(IIf(Qv_a > 0, Qv_a, Qv_b))
             If CheckBox6.Checked Then Qv_in = First_order(Qv_in, NumericUpDown47.Value, Timer1.Interval * 0.001, 0)
-            If CheckBox7.Checked Then Qv_in = First_order(Qv_in, NumericUpDown48.Value, Timer1.Interval * 0.001, 1)
 
             '----- step 3 determine new dp---
             dp = ro * (A * Qv_in ^ 2 + B * Qv_in + C)   'Fan curve
@@ -941,8 +942,12 @@ Public Class Form1
     End Function
 
     Private Function Convert_R(rs As Double) As Double
+        Dim a, n As Double
+
+        a = NumericUpDown54.Value        'Factor
+        n = NumericUpDown55.Value        'Power
         'Required to have a more stabe deviation in the OID controller
-        Return ((1000 / rs) ^ 0.5)
+        Return ((a / rs) ^ n)
     End Function
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
         Safe_to_file()
@@ -1044,6 +1049,7 @@ Public Class Form1
         Dim deviation, PID_output_pro, dt As Double
         Dim Kp, Ki, Kd As Double    'Setting PID controller 
         Dim ddev As Double
+        Dim output_dev As Double
 
         '------ Setting PID controller --------
         Kp = NumericUpDown9.Value
@@ -1086,7 +1092,7 @@ Public Class Form1
 
         '----------- start calculating---------------
         If pv > 0 And CheckBox5.Checked Then
-            ddev = deviation - _last_deviation               'change in deviation
+            ddev = deviation - _last_output               'change in PID output
             _last_deviation = deviation
 
             '=========== Calculate PID controller==========
@@ -1102,27 +1108,50 @@ Public Class Form1
             If _Iterm > 100 Then _Iterm = 100                'anti-Windup
             If _Iterm < 0 Then _Iterm = 0                    'anti-Windup
 
-
-            _Dterm = Kd * ddev / dt  'D action
+            _Dterm = Kd * ddev / dt                          'D action
             PID_output_pro = _Pterm + _Iterm + _Dterm
 
             '--------- limit the output----------
             If PID_output_pro > 100 Then PID_output_pro = 100
             If PID_output_pro < 0 Then PID_output_pro = 0
 
+            '--- safety net vased on SLV2--------
+            Dim slv2 As Double
+            If CheckBox8.Checked Then   'Safet net is ON
+                Double.TryParse(TextBox46.Text, slv2)
+                If pv > Convert_R(slv2) Then
+                    PID_output_pro = 100
+                    Label125.BackColor = Color.AliceBlue
+                Else
+                    Label125.BackColor = Color.White
+                End If
+            End If
+
+            '------- bypass valve speed limiter -------
+            Dim travelt As Double
+            Dim maxc As Double
+            If CheckBox7.Checked Then       'Speed limitter on
+                travelt = NumericUpDown48.Value
+                maxc = 100 * dt / travelt
+                output_dev = PID_output_pro - _last_output               'change in output
+                If output_dev > maxc Then PID_output_pro = _last_output + maxc
+                If output_dev < -maxc Then PID_output_pro = _last_output - maxc
+            End If
+            _last_output = PID_output_pro
+
             '=============================================
             _PID_output_ma = Convert_Units_to_mAmp("Valve-positioner", PID_output_pro)
-            NumericUpDown38.Value = CDec(PID_output_pro)
+                NumericUpDown38.Value = CDec(PID_output_pro)
 
-            '---------- present results ------------
-            TextBox28.Text = deviation.ToString("0.00")
-            TextBox31.Text = PID_output_pro.ToString("0.00")  'output [%]
-            TextBox22.Text = _PID_output_ma.ToString("0.00")  'output [mAmp]
+                '---------- present results ------------
+                TextBox28.Text = deviation.ToString("0.00")
+                TextBox31.Text = PID_output_pro.ToString("0.00")  'output [%]
+                TextBox22.Text = _PID_output_ma.ToString("0.00")  'output [mAmp]
 
-            TextBox33.Text = _Pterm.ToString("0.00")
-            TextBox34.Text = _Iterm.ToString("0.00")
-            TextBox35.Text = _Dterm.ToString("0.00")
-        End If
+                TextBox33.Text = _Pterm.ToString("0.00")
+                TextBox34.Text = _Iterm.ToString("0.00")
+                TextBox35.Text = _Dterm.ToString("0.00")
+            End If
     End Sub
 
     Private Sub Safe_to_file()
