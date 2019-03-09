@@ -896,11 +896,12 @@ Public Class Form1
         Return (y)
     End Function
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click, NumericUpDown6.ValueChanged, NumericUpDown4.ValueChanged, NumericUpDown3.ValueChanged, NumericUpDown42.ValueChanged, NumericUpDown41.ValueChanged, NumericUpDown11.ValueChanged, NumericUpDown45.ValueChanged, NumericUpDown44.ValueChanged, NumericUpDown43.ValueChanged
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click, NumericUpDown6.ValueChanged, NumericUpDown4.ValueChanged, NumericUpDown3.ValueChanged, NumericUpDown42.ValueChanged, NumericUpDown41.ValueChanged, NumericUpDown11.ValueChanged, NumericUpDown45.ValueChanged, NumericUpDown44.ValueChanged, NumericUpDown43.ValueChanged, TabPage4.Enter, NumericUpDown56.ValueChanged, NumericUpDown58.ValueChanged, NumericUpDown57.ValueChanged
         Dim K_ro, k_dp, K_flow, Ks As Double
         Dim K100_ro, k100_dp, K100_flow, K100 As Double
         Dim R_ro, R_dp, R_flow, R_surge, R_alt As Double
-
+        Dim fanp, F, a, b, c, ro As Double
+        Dim p1, t1, mol, R, ro1 As Double
         'Calculate Ksys @ work point
         K_flow = NumericUpDown6.Value               '[Am3/hr]
         k_dp = NumericUpDown3.Value                 '[Pa]
@@ -924,6 +925,31 @@ Public Class Form1
 
         R_alt = Convert_R(R_surge)                 '[m2]
         TextBox53.Text = R_alt.ToString("0.00")
+
+        '------- fan curve ------
+        F = NumericUpDown56.Value   'Flow inlet
+        a = NumericUpDown17.Value
+        b = NumericUpDown16.Value
+        c = NumericUpDown20.Value
+        ro = NumericUpDown19.Value
+
+        fanp = ro * (a * F ^ 2 + b * F + c)     'Fan curve
+
+        Label184.Text = "A=" & a.ToString       '[-]
+        Label185.Text = "B=" & b.ToString       '[-]
+        Label186.Text = "C=" & c.ToString       '[-]
+        Label188.Text = "Ro=" & ro.ToString     '[kg/m3]
+        TextBox56.Text = fanp.ToString("0")     '[Pa]
+
+        '------- calculate ro ------
+        p1 = NumericUpDown58.Value              '[Pa]
+        t1 = NumericUpDown57.Value + 273        '[c]-->[K]
+        mol = NumericUpDown24.Value             '[g/mol]
+        R = 8.314459 / mol                      'Gasconstante
+        ro1 = p1 / (R * 1000 * t1)              '[kg/m3]
+
+        TextBox57.Text = mol.ToString("0.00")   'Molweight[gr/mol]
+        TextBox58.Text = ro1.ToString("0.000")  '[kg/m3]
     End Sub
     Private Function Calc_R(dp As Double, ro As Double, flow As Double) As Double
         Dim R_value As Double

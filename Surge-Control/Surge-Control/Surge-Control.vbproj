@@ -71,10 +71,11 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>B43CE5FFFCF938E528B8C43E524EF8F27496B9E2</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>2BBD06BB32AE37D05ED8DD2C98BDF167E362CE21</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>Surge-Control_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>
+    </ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
