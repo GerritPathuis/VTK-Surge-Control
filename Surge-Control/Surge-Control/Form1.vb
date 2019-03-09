@@ -729,6 +729,7 @@ Public Class Form1
             '------ ABC formula ----------
             k_sum = K_sys + K_bypass
             A1 = A - 1 / k_sum ^ 2
+
             Qv_a = (-B + (Sqrt(B ^ 2 - 4 * A1 * C))) / (2 * A1)
             Qv_b = (-B - (Sqrt(B ^ 2 - 4 * A1 * C))) / (2 * A1)
             Qv_in = CDbl(IIf(Qv_a > 0, Qv_a, Qv_b))
