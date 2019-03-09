@@ -121,6 +121,21 @@ Public Class Form1
         "Operator instructions added" & vbCrLf &
         " " & vbCrLf &
         " "
+
+        TextBox60.Text =
+        "Combining paralelle Line Resistance" & vbCrLf &
+        "1/Rt= 1/R1 + 1/R2 + 1/R3" & vbCrLf &
+        " " & vbCrLf &
+        " " & vbCrLf &
+        " "
+
+        TextBox61.Text =
+        "Line Resistance Definition" & vbCrLf &
+        "Δp= ρ * Qv^2 / R " & vbCrLf &
+        "R=  ρ * Qv^2 / Δp" & vbCrLf &
+        " " & vbCrLf &
+        " "
+
         For i = 0 To 3
             pv(i) = 1       'Initial value
         Next
@@ -720,14 +735,25 @@ Public Class Form1
                     K_sys = NumericUpDown25.Value + (amplitude / 2) * Sin(p_time / period * 2 * PI)
                 Case RadioButton4.Checked           'Saw tooth
                     K_sys = NumericUpDown25.Value - (amplitude / 2) + amplitude * p_time / period
-
             End Select
+
+            '----- Step 2 Combine the K values--------------
+            ' see https://ocw.tudelft.nl/wp-content/uploads/J._oe4625_Chapter07.pdf
+            ' this part needs work 
+            k_sum = K_sys + K_bypass   'The fan sees the total (main system + bypass) 
+
             TextBox5.Text = K_sys.ToString("0.0")
             TextBox6.Text = K_bypass.ToString("0.0")
+            TextBox59.Text = k_sum.ToString("0.0")
 
-            '----- step 2 determine qv---
-            '------ ABC formula ----------
-            k_sum = K_sys + K_bypass
+            '----- step 3 determine qv---
+            '----- ABC formula ----------
+            '--- https://nl.wikipedia.org/wiki/Wortelformule
+            '--- snijpunt van 
+            '--- p= A.Qv ^ 2 + B.Qv + C     (Fan formule)
+            '--- p= Qv^2/k_sum^2            (systeem formule)
+
+
             A1 = A - 1 / k_sum ^ 2
 
             Qv_a = (-B + (Sqrt(B ^ 2 - 4 * A1 * C))) / (2 * A1)
@@ -735,16 +761,18 @@ Public Class Form1
             Qv_in = CDbl(IIf(Qv_a > 0, Qv_a, Qv_b))
             If CheckBox6.Checked Then Qv_in = First_order(Qv_in, NumericUpDown47.Value, Timer1.Interval * 0.001, 0)
 
-            '----- step 3 determine new dp---
+            '--- step 4 determine new dp---
+            '--- see https://en.wikipedia.org/wiki/Isentropic_process 
+            '--- Table of isentropic relations for an ideal gas
             dp = ro * (A * Qv_in ^ 2 + B * Qv_in + C)   'Fan curve
 
-            '----- step 4 determine Temp outlet fan ---
+            '----- step 5 determine Temp outlet fan ---
             Tout = Tin * (1 + dp / Pin) ^ ((γ - 1) / γ)
 
-            '----- step 5 determine Pressure outlet fan ---
+            '----- step 6 determine Pressure outlet fan ---
             Pout = Pin + dp
 
-            '----- step 6 determine Discharge flow fan ---
+            '----- step 7 determine Discharge flow fan ---
             Qv_out = Qv_in * (Pin / Pout) ^ (1 / γ)
 
             '------ calc R_controller input--------
@@ -760,16 +788,16 @@ Public Class Form1
             TextBox13.Text = Range(2).ToString              'Range press inlet flange
             TextBox24.Text = Range(3).ToString              'Range Press outlet flange
             TextBox32.Text = Range(4).ToString              'Range Valve
-            TextBox14.Text = K_sys.ToString("0.00")       'Resistance Total system
+            TextBox14.Text = K_sys.ToString("0.00")         'Resistance Total system
             TextBox15.Text = Qv_in.ToString("0")
-            TextBox21.Text = Pin.ToString("0")       'Pressure inlet flange
-            TextBox9.Text = Pout.ToString("0")  'Pressure outlet flange
-            TextBox29.Text = dp.ToString("0")      'dp
+            TextBox21.Text = Pin.ToString("0")              'Pressure inlet flange
+            TextBox9.Text = Pout.ToString("0")              'Pressure outlet flange
+            TextBox29.Text = dp.ToString("0")               'dp
 
-            TextBox25.Text = Tout.ToString("0.0")        'Outlet temperature
-            TextBox30.Text = R_control.ToString("0")    'R value
+            TextBox25.Text = Tout.ToString("0.0")           'Outlet temperature
+            TextBox30.Text = R_control.ToString("0")        'R value
             PID_input = Convert_R(R_control)                'PID input
-            TextBox44.Text = PID_input.ToString("0.000")     'R (controller input)
+            TextBox44.Text = PID_input.ToString("0.000")    'R (controller input)
         End If
 
         '-------- Surge warning-Alarm-----------
