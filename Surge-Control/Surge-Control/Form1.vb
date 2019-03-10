@@ -124,15 +124,14 @@ Public Class Form1
 
         TextBox60.Text =
         "Combining paralelle Line Resistance" & vbCrLf &
-        "1/Rt= 1/R1 + 1/R2 + 1/R3" & vbCrLf &
-        " " & vbCrLf &
+        "Kv_t= Kv_1 + Kv_2 + Kv_3" & vbCrLf &
         " " & vbCrLf &
         " "
 
         TextBox61.Text =
         "Line Resistance Definition" & vbCrLf &
-        "Δp= ρ * Qv^2 / R " & vbCrLf &
-        "R=  ρ * Qv^2 / Δp" & vbCrLf &
+        "Δp= ρ * qv^2 / R " & vbCrLf &
+        "R=  ρ * qv^2 / Δp" & vbCrLf &
         " " & vbCrLf &
         " "
 
@@ -926,23 +925,25 @@ Public Class Form1
     End Function
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click, NumericUpDown6.ValueChanged, NumericUpDown4.ValueChanged, NumericUpDown3.ValueChanged, NumericUpDown42.ValueChanged, NumericUpDown41.ValueChanged, NumericUpDown11.ValueChanged, NumericUpDown45.ValueChanged, NumericUpDown44.ValueChanged, NumericUpDown43.ValueChanged, TabPage4.Enter, NumericUpDown56.ValueChanged, NumericUpDown58.ValueChanged, NumericUpDown57.ValueChanged
-        Dim K_ro, k_dp, K_flow, Ks As Double
+        Dim K_ro, k_dp, K_flow, Kvs As Double
         Dim K100_ro, k100_dp, K100_flow, K100 As Double
         Dim R_ro, R_dp, R_flow, R_surge, R_alt As Double
         Dim fanp, F, a, b, c, ro As Double
         Dim p1, t1, mol, R, ro1 As Double
+
         'Calculate Ksys @ work point
         K_flow = NumericUpDown6.Value               '[Am3/hr]
         k_dp = NumericUpDown3.Value                 '[Pa]
         K_ro = NumericUpDown4.Value                 '[kg/m3]
-        Ks = Calc_K(k_dp, K_ro, K_flow)             '[m2]
-        TextBox4.Text = Ks.ToString("0.0")
+        Kvs = Calc_Kvs(k_dp, K_ro, K_flow)          '
+        TextBox4.Text = Kvs.ToString("0.0")
+
 
         'Calculate K100% (bypass) @ ... point
         K100_flow = NumericUpDown43.Value           '[Am3/hr]
         k100_dp = NumericUpDown44.Value             '[Pa]
         K100_ro = NumericUpDown45.Value             '[kg/m3]
-        K100 = Calc_K(k100_dp, K100_ro, K100_flow)  '[m2]
+        K100 = Calc_Kvs(k100_dp, K100_ro, K100_flow)  '[m2]
         TextBox52.Text = K100.ToString("0.0")
 
         'Calculate R @ surge point point (=SLV1)
@@ -987,14 +988,20 @@ Public Class Form1
         R_value = ro * flow ^ 2 / dp
         Return (R_value)
     End Function
-    Private Function Calc_K(dp As Double, ro As Double, flow As Double) As Double
-        Dim k_value As Double
-        'Calculate the K value, dp [Pa], ro [kg/m3], flow [Am3/hr]
-        'By defenition K=R^0.5
-        k_value = flow * Sqrt(ro / dp)
 
-        Return (k_value)
+    Private Function Calc_Kvs(dp As Double, ro As Double, flow As Double) As Double
+        'see https://en.wikipedia.org/wiki/Flow_coefficient
+        Dim kvs As Double
+        'Calculate the K value, dp [pa], ro [kg/m3], flow [Am3/hr]
+        'By defenition Kvs=Flow*(ro/dp)^0.5
+        'dp /= 100000    '[bar]
+        'ro /= 1000      '[kg/liter]
+        'Please note This Kvs has different Dimensions than the definition !!!!!!
+
+        kvs = flow * Sqrt(ro / dp)
+        Return (kvs)
     End Function
+
 
     Private Function Convert_R(rs As Double) As Double
         Dim a, n As Double
