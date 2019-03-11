@@ -225,6 +225,10 @@ Partial Class Form1
         Me.Label29 = New System.Windows.Forms.Label()
         Me.NumericUpDown19 = New System.Windows.Forms.NumericUpDown()
         Me.TabPage4 = New System.Windows.Forms.TabPage()
+        Me.Label203 = New System.Windows.Forms.Label()
+        Me.Label202 = New System.Windows.Forms.Label()
+        Me.Label201 = New System.Windows.Forms.Label()
+        Me.Label200 = New System.Windows.Forms.Label()
         Me.Label199 = New System.Windows.Forms.Label()
         Me.TextBox62 = New System.Windows.Forms.TextBox()
         Me.Label190 = New System.Windows.Forms.Label()
@@ -425,10 +429,6 @@ Partial Class Form1
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.FileSystemWatcher1 = New System.IO.FileSystemWatcher()
         Me.SerialPort2 = New System.IO.Ports.SerialPort(Me.components)
-        Me.Label200 = New System.Windows.Forms.Label()
-        Me.Label201 = New System.Windows.Forms.Label()
-        Me.Label202 = New System.Windows.Forms.Label()
-        Me.Label203 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
         Me.GroupBox15.SuspendLayout()
@@ -2812,6 +2812,46 @@ Partial Class Form1
         Me.TabPage4.Text = "Tools"
         Me.TabPage4.UseVisualStyleBackColor = True
         '
+        'Label203
+        '
+        Me.Label203.AutoSize = True
+        Me.Label203.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label203.Location = New System.Drawing.Point(699, 87)
+        Me.Label203.Name = "Label203"
+        Me.Label203.Size = New System.Drawing.Size(61, 18)
+        Me.Label203.TabIndex = 67
+        Me.Label203.Text = "R= [m4]"
+        '
+        'Label202
+        '
+        Me.Label202.AutoSize = True
+        Me.Label202.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label202.Location = New System.Drawing.Point(699, 64)
+        Me.Label202.Name = "Label202"
+        Me.Label202.Size = New System.Drawing.Size(82, 18)
+        Me.Label202.TabIndex = 66
+        Me.Label202.Text = "qv= [m3/hr]"
+        '
+        'Label201
+        '
+        Me.Label201.AutoSize = True
+        Me.Label201.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label201.Location = New System.Drawing.Point(699, 41)
+        Me.Label201.Name = "Label201"
+        Me.Label201.Size = New System.Drawing.Size(79, 18)
+        Me.Label201.TabIndex = 65
+        Me.Label201.Text = "ρ= [kg/m3]"
+        '
+        'Label200
+        '
+        Me.Label200.AutoSize = True
+        Me.Label200.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label200.Location = New System.Drawing.Point(699, 18)
+        Me.Label200.Name = "Label200"
+        Me.Label200.Size = New System.Drawing.Size(124, 18)
+        Me.Label200.TabIndex = 64
+        Me.Label200.Text = "Δp= [Pa] (not bar)"
+        '
         'Label199
         '
         Me.Label199.AutoSize = True
@@ -5037,46 +5077,6 @@ Partial Class Form1
         '
         'SerialPort2
         '
-        '
-        'Label200
-        '
-        Me.Label200.AutoSize = True
-        Me.Label200.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label200.Location = New System.Drawing.Point(699, 18)
-        Me.Label200.Name = "Label200"
-        Me.Label200.Size = New System.Drawing.Size(64, 18)
-        Me.Label200.TabIndex = 64
-        Me.Label200.Text = "Δp= [Pa]"
-        '
-        'Label201
-        '
-        Me.Label201.AutoSize = True
-        Me.Label201.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label201.Location = New System.Drawing.Point(699, 41)
-        Me.Label201.Name = "Label201"
-        Me.Label201.Size = New System.Drawing.Size(79, 18)
-        Me.Label201.TabIndex = 65
-        Me.Label201.Text = "ρ= [kg/m3]"
-        '
-        'Label202
-        '
-        Me.Label202.AutoSize = True
-        Me.Label202.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label202.Location = New System.Drawing.Point(699, 64)
-        Me.Label202.Name = "Label202"
-        Me.Label202.Size = New System.Drawing.Size(82, 18)
-        Me.Label202.TabIndex = 66
-        Me.Label202.Text = "qv= [m3/hr]"
-        '
-        'Label203
-        '
-        Me.Label203.AutoSize = True
-        Me.Label203.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label203.Location = New System.Drawing.Point(699, 87)
-        Me.Label203.Name = "Label203"
-        Me.Label203.Size = New System.Drawing.Size(61, 18)
-        Me.Label203.TabIndex = 67
-        Me.Label203.Text = "R= [m4]"
         '
         'Form1
         '

@@ -48,7 +48,7 @@ Public Class Form1
         TextBox18.Text =
         "Bypass valve sizing" & vbCrLf &
         "Size To handle 50% Or more Of the maximum flow" & vbCrLf &
-        "Valve speed 30 seconds" & vbCrLf &
+        "Valve speed 30 seconds " & vbCrLf &
         " "
 
         TextBox19.Text =
