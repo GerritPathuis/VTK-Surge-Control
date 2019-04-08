@@ -618,7 +618,7 @@ Partial Class Form1
         Me.TabPage2.Controls.Add(Me.GroupBox5)
         Me.TabPage2.Location = New System.Drawing.Point(4, 22)
         Me.TabPage2.Name = "TabPage2"
-        Me.TabPage2.Padding = New System.Windows.Forms.Padding(3, 3, 3, 3)
+        Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage2.Size = New System.Drawing.Size(1039, 699)
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "USB communicatie, Instrument range"
@@ -1577,7 +1577,7 @@ Partial Class Form1
         Me.TabPage3.Controls.Add(Me.GroupBox6)
         Me.TabPage3.Location = New System.Drawing.Point(4, 22)
         Me.TabPage3.Name = "TabPage3"
-        Me.TabPage3.Padding = New System.Windows.Forms.Padding(3, 3, 3, 3)
+        Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage3.Size = New System.Drawing.Size(1039, 699)
         Me.TabPage3.TabIndex = 2
         Me.TabPage3.Text = "Fan en system parameters and calculated values "
@@ -2866,7 +2866,7 @@ Partial Class Form1
         Me.TabPage4.Controls.Add(Me.GroupBox2)
         Me.TabPage4.Location = New System.Drawing.Point(4, 22)
         Me.TabPage4.Name = "TabPage4"
-        Me.TabPage4.Padding = New System.Windows.Forms.Padding(3, 3, 3, 3)
+        Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage4.Size = New System.Drawing.Size(1039, 699)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "Tools"
@@ -2923,9 +2923,9 @@ Partial Class Form1
         Me.GroupBox27.Controls.Add(Me.TextBox65)
         Me.GroupBox27.Controls.Add(Me.Label215)
         Me.GroupBox27.Location = New System.Drawing.Point(781, 18)
-        Me.GroupBox27.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.GroupBox27.Margin = New System.Windows.Forms.Padding(2)
         Me.GroupBox27.Name = "GroupBox27"
-        Me.GroupBox27.Padding = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.GroupBox27.Padding = New System.Windows.Forms.Padding(2)
         Me.GroupBox27.Size = New System.Drawing.Size(250, 300)
         Me.GroupBox27.TabIndex = 69
         Me.GroupBox27.TabStop = False
@@ -3250,9 +3250,9 @@ Partial Class Form1
         Me.GroupBox26.Controls.Add(Me.Label204)
         Me.GroupBox26.Controls.Add(Me.NumericUpDown59)
         Me.GroupBox26.Location = New System.Drawing.Point(781, 327)
-        Me.GroupBox26.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.GroupBox26.Margin = New System.Windows.Forms.Padding(2)
         Me.GroupBox26.Name = "GroupBox26"
-        Me.GroupBox26.Padding = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.GroupBox26.Padding = New System.Windows.Forms.Padding(2)
         Me.GroupBox26.Size = New System.Drawing.Size(254, 197)
         Me.GroupBox26.TabIndex = 68
         Me.GroupBox26.TabStop = False
@@ -3427,7 +3427,7 @@ Partial Class Form1
         Me.NumericUpDown59.Increment = New Decimal(New Integer() {1, 0, 0, 65536})
         Me.NumericUpDown59.InterceptArrowKeys = False
         Me.NumericUpDown59.Location = New System.Drawing.Point(80, 20)
-        Me.NumericUpDown59.Maximum = New Decimal(New Integer() {30, 0, 0, 0})
+        Me.NumericUpDown59.Maximum = New Decimal(New Integer() {40, 0, 0, 0})
         Me.NumericUpDown59.Minimum = New Decimal(New Integer() {15, 0, 0, 0})
         Me.NumericUpDown59.Name = "NumericUpDown59"
         Me.NumericUpDown59.Size = New System.Drawing.Size(85, 24)
@@ -4343,7 +4343,7 @@ Partial Class Form1
         Me.TabPage1.Controls.Add(Me.SplitContainer1)
         Me.TabPage1.Location = New System.Drawing.Point(4, 22)
         Me.TabPage1.Name = "TabPage1"
-        Me.TabPage1.Padding = New System.Windows.Forms.Padding(3, 3, 3, 3)
+        Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage1.Size = New System.Drawing.Size(1039, 699)
         Me.TabPage1.TabIndex = 4
         Me.TabPage1.Text = "Manipulating K system"
@@ -4579,7 +4579,7 @@ Partial Class Form1
         Me.TabPage5.Controls.Add(Me.GroupBox12)
         Me.TabPage5.Location = New System.Drawing.Point(4, 22)
         Me.TabPage5.Name = "TabPage5"
-        Me.TabPage5.Padding = New System.Windows.Forms.Padding(3, 3, 3, 3)
+        Me.TabPage5.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage5.Size = New System.Drawing.Size(1039, 699)
         Me.TabPage5.TabIndex = 5
         Me.TabPage5.Text = "PID Controller"
@@ -5568,7 +5568,7 @@ Partial Class Form1
         Me.TabPage6.Controls.Add(Me.TextBox50)
         Me.TabPage6.Location = New System.Drawing.Point(4, 22)
         Me.TabPage6.Name = "TabPage6"
-        Me.TabPage6.Padding = New System.Windows.Forms.Padding(3, 3, 3, 3)
+        Me.TabPage6.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage6.Size = New System.Drawing.Size(1039, 699)
         Me.TabPage6.TabIndex = 6
         Me.TabPage6.Text = "About"
@@ -5608,7 +5608,7 @@ Partial Class Form1
         Me.TabPage7.Controls.Add(Me.TextBox16)
         Me.TabPage7.Location = New System.Drawing.Point(4, 22)
         Me.TabPage7.Name = "TabPage7"
-        Me.TabPage7.Padding = New System.Windows.Forms.Padding(3, 3, 3, 3)
+        Me.TabPage7.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage7.Size = New System.Drawing.Size(1039, 699)
         Me.TabPage7.TabIndex = 7
         Me.TabPage7.Text = "Backgound info"
