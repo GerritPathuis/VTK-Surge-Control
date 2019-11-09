@@ -924,12 +924,12 @@ Public Class Form1
         Return (y)
     End Function
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click, NumericUpDown6.ValueChanged, NumericUpDown4.ValueChanged, NumericUpDown3.ValueChanged, NumericUpDown42.ValueChanged, NumericUpDown41.ValueChanged, NumericUpDown11.ValueChanged, NumericUpDown45.ValueChanged, NumericUpDown44.ValueChanged, NumericUpDown43.ValueChanged, TabPage4.Enter, NumericUpDown56.ValueChanged, NumericUpDown58.ValueChanged, NumericUpDown57.ValueChanged
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click, NumericUpDown6.ValueChanged, NumericUpDown4.ValueChanged, NumericUpDown3.ValueChanged, NumericUpDown42.ValueChanged, NumericUpDown41.ValueChanged, NumericUpDown11.ValueChanged, NumericUpDown45.ValueChanged, NumericUpDown44.ValueChanged, NumericUpDown43.ValueChanged, TabPage4.Enter, NumericUpDown56.ValueChanged, NumericUpDown58.ValueChanged, NumericUpDown57.ValueChanged, NumericUpDown63.ValueChanged, NumericUpDown62.ValueChanged, NumericUpDown61.ValueChanged, NumericUpDown60.ValueChanged, NumericUpDown59.ValueChanged
         Dim K_ro, k_dp, K_flow, Kvs As Double
         Dim K100_ro, k100_dp, K100_flow, K100 As Double
         Dim R_ro, R_dp, R_flow, R_surge, R_alt As Double
         Dim fanp, F, a, b, c, ro As Double
-        Dim p1, t1, mol, R, ro1 As Double
+        Dim p1, t1, ro1 As Double
 
         'Calculate Ksys @ work point
         K_flow = NumericUpDown6.Value               '[Am3/hr]
@@ -937,7 +937,6 @@ Public Class Form1
         K_ro = NumericUpDown4.Value                 '[kg/m3]
         Kvs = Calc_Kvs(k_dp, K_ro, K_flow)          '
         TextBox4.Text = Kvs.ToString("0.0")
-
 
         'Calculate K100% (bypass) @ ... point
         K100_flow = NumericUpDown43.Value           '[Am3/hr]
@@ -956,6 +955,44 @@ Public Class Form1
         R_alt = Convert_R(R_surge)                 '[m2]
         TextBox53.Text = R_alt.ToString("0.00")
 
+        '--------- R calc Guus methode ------
+        Dim Mgas2, Pin2, Pout2, Tin2, Tout2, R2, qvout2, qvin2, dp2, pid2 As Double
+
+        'Get the data
+        Mgas2 = NumericUpDown59.Value / 1000      '[kg/mol]
+        Pin2 = NumericUpDown60.Value              '[Pa] inlet pressure
+        dp2 = NumericUpDown41.Value               '[Pa] differential press
+        Pout2 = Pin2 + dp2
+        Tin2 = NumericUpDown61.Value + 273        '[celsius]-->[K] inlet
+        Tout2 = NumericUpDown63.Value + 273       '[celsius]-->[K] outlet
+        qvout2 = NumericUpDown62.Value            '[Am3/hr] flow outlet
+
+        '------ calc qv_in ------
+        qvin2 = qvout2 * (Pout2 / Pin2) * (Tin2 / Tout2)
+        TextBox67.Text = qvin2.ToString("0")    '[Am3/hr] inlet
+        TextBox73.Text = qvin2.ToString("0")    '[Am3/hr] inlet
+
+        '------ start calculation R------
+        R2 = (1 / dp2) * (Mgas2 * Pin2) / (8.31 * Tin2) * qvin2 ^ 2
+        pid2 = Convert_R(R2)                       '[m2] for PID
+
+        '------ Density in and outlet
+        Dim ro_in, ro_out As Double
+        ro_in = Calc_density(Pin2, Tin2, Mgas2)
+
+        ro_out = Calc_density(Pout2, Tout2, Mgas2)
+        ' Label231.Text = Tout2.ToString("0") & "[k] " & Pout2.ToString("0") & "[pa]"
+
+        TextBox63.Text = R2.ToString("0")           'R valve
+        TextBox65.Text = dp2.ToString("0")          '[Pa] delta p 
+        TextBox64.Text = pid2.ToString("0.0000")    'PID value
+        TextBox66.Text = Pout2.ToString("0")        '[Pa] output 
+        TextBox68.Text = Pin2.ToString("0")         '[Pa] input 
+        TextBox69.Text = (Tin2 - 273).ToString("0") '[c] inlet temp
+        TextBox70.Text = Tin2.ToString("0")         '[K] inlet temp
+        TextBox71.Text = ro_in.ToString("0.000")    '[kg/m3] density inlet
+        TextBox72.Text = ro_out.ToString("0.000")   '[kg/m3] density outlet
+
         '------- fan curve ------
         F = NumericUpDown56.Value   'Flow inlet
         a = NumericUpDown17.Value
@@ -971,22 +1008,45 @@ Public Class Form1
         Label188.Text = "Ro=" & ro.ToString     '[kg/m3]
         TextBox56.Text = fanp.ToString("0")     '[Pa]
 
-        '------- calculate ro ------
+        '------- calculate 'Density ------
         p1 = NumericUpDown58.Value              '[Pa]
         t1 = NumericUpDown57.Value + 273        '[c]-->[K]
-        mol = NumericUpDown24.Value             '[g/mol]
-        R = 8.314459 / mol                      'Gasconstante
-        ro1 = p1 / (R * 1000 * t1)              '[kg/m3]
+        'mol = NumericUpDown24.Value             '[g/mol]
+        'R = 8.314459 / mol                      'Gasconstante
+        'ro1 = p1 / (R * 1000 * t1)              '[kg/m3]
 
-        TextBox57.Text = mol.ToString("0.00")   'Molweight[gr/mol]
+        ro1 = Calc_density(p1, t1, Mgas2)
+
+        TextBox57.Text = (Mgas2 * 1000).ToString("0.00")   'Molweight[gr/mol]
         TextBox58.Text = ro1.ToString("0.000")  '[kg/m3]
     End Sub
+    Private Function Calc_density(p1 As Double, t1 As Double, mol As Double) As Double
+        Dim ro1, R As Double 'Density [kg/m3]
+        'Temperature in [Kelvin]
+        'Pressure must be absolute
+        'Mol in [kg/mol]
+
+        R = 8.314459 / mol                      'Gasconstante
+        ro1 = p1 / (R * t1)              '[kg/m3]
+
+        Return (ro1)
+    End Function
+
+
     Private Function Calc_R(dp As Double, ro As Double, flow As Double) As Double
         Dim R_value As Double
         'Calculate the R value, dp [Pa], ro [kg/m3], flow [Am3/hr]
 
         R_value = ro * flow ^ 2 / dp
         Return (R_value)
+    End Function
+    Private Function Calc_R2(Mgas2 As Double, Pin2 As Double, Pout2 As Double, qv2 As Double, Tin2 As Double, tout2 As Double) As Double
+        Dim R2, dp2 As Double
+        'Volgens Guus van Gemert
+        'Calculate the R value, dp [Pa], ro [kg/m3], flow [Am3/hr]
+        dp2 = Pout2 - Pin2
+        R2 = Mgas2 * Pin2 / (dp2 * 8.31 * Tin2) * (qv2 * (Pout2 / Pin2) * (Tin2 / tout2)) ^ 2
+        Return (R2)
     End Function
 
     Private Function Calc_Kvs(dp As Double, ro As Double, flow As Double) As Double
@@ -1215,6 +1275,7 @@ Public Class Form1
                 TextBox35.Text = _Dterm.ToString("0.00")
             End If
     End Sub
+
 
     Private Sub Safe_to_file()
         Dim file_name As String
