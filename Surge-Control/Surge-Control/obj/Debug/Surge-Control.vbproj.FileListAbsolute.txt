@@ -41,3 +41,4 @@ C:\Repositories\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Co
 C:\Repositories\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.vbprojAssemblyReference.cache
 C:\Repos\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.vbprojAssemblyReference.cache
 C:\Repos\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.vbproj.CoreCompileInputs.cache
+C:\Repos\VTK-Surge-Control\Surge-Control\Surge-Control\obj\Debug\Surge-Control.TrustInfo.xml
