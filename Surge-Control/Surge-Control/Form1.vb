@@ -11,18 +11,19 @@ Imports System.Threading
 Public Class Form1
     Dim time As Double
 
-    Dim pv(4) As Double                 'Process values 0,1,2,3,4
-    Dim Cout(4) As Double               'Current Outputs
-    Dim Vout(4) As Double               'Voltage Outputs
+    Private ReadOnly pv(4) As Double        'Process values 0,1,2,3,4
+    Private ReadOnly Cout(4) As Double      'Current Outputs
+    Private ReadOnly Vout(4) As Double      'Voltage Outputs
+    Private ReadOnly _yold(9) As Double     'Used in first order system ducting
+    Private ReadOnly comOpen As Boolean
+
     Dim _bypass_pos As Double = 0       'Bypass valve position (0-100%)
     Dim _bypass_ma As Double = 0        'Bypass valve position (mAmp)
     Dim _last_deviation As Double       'PID control
     Dim _last_output As Double          'PID control
     Dim _Pterm, _Iterm, _Dterm As Double
     Dim _counter As Integer = 0
-    Dim _yold(9) As Double              'Used in first order system ducting
     Dim myPort As Array                 'COM Ports detected 
-    Dim comOpen As Boolean
     Dim _PID_output_ma As Double        'Interne PID controller mAmp output
     ' Private Property ConnectionOK As Boolean
 
@@ -263,12 +264,12 @@ Public Class Form1
     End Sub
     Private Sub SetOut()
         Dim SetIoGroup(4) As Byte   'Set-Voltage or Current, see Page 22 en 26
-        Dim SetIoG As String = String.Empty
-        Dim str_hex1 As String = String.Empty
-        Dim str_hex2 As String = String.Empty
-        Dim str_hex3 As String = String.Empty
-        Dim str_hex4 As String = String.Empty
-        Dim message_length As Integer = 0
+        Dim SetIoG As String
+        Dim str_hex1 As String
+        Dim str_hex2 As String
+        Dim str_hex3 As String
+        Dim str_hex4 As String
+        ' Dim message_length As Integer
         Dim bb() As Byte
         ' Dim ret As String
 
@@ -317,7 +318,7 @@ Public Class Form1
 
     Private Function To_big_endian(str_num As String) As String
         Dim return_val As String = String.Empty
-        Dim bytes() As Byte = {&H0, &H0, &H0, &H0}
+        Dim bytes() As Byte         ' = {&H0, &H0, &H0, &H0}
         Dim bytes_big() As Byte = {&H0, &H0, &H0, &H0}
         Dim b As Byte
         Dim byte_0x00() As Byte = {&H0, &H0, &H0, &H0}
@@ -631,7 +632,7 @@ Public Class Form1
 
     Private Sub SerialPort2_DataReceived(sender As Object, e As SerialDataReceivedEventArgs) Handles SerialPort2.DataReceived
         '-------- Keep the buffer empty----------
-        Dim intext_hex2 As String = String.Empty
+        Dim intext_hex2 As String '= String.Empty
         Try
             intext_hex2 = SerialPort2.ReadExisting       'Read the data
         Catch generatedExceptionName As TimeoutException
@@ -659,7 +660,7 @@ Public Class Form1
         Return com
     End Function
     Public Function HexStringToByteArray(hexString As String) As Byte()
-        Dim com As String = String.Empty
+        'Dim com As String       '= String.Empty
         'see http://www.vbforums.com/showthread.php?643593-Hex-String-to-Byte-Array
         'hexString=  "01050001FFFF8FFB"  'Example string
         Dim length As Integer = hexString.Length
@@ -1222,7 +1223,7 @@ Public Class Form1
             _Pterm = Kp * deviation                          'P action
 
             If Ki > 0 Then                                   'I-action 
-                _Iterm = _Iterm + Ki * deviation * dt
+                _Iterm += Ki * deviation * dt
             Else
                 _Iterm = 0
             End If
